@@ -1,0 +1,18 @@
+#version 100
+#extension GL_OES_EGL_image_external : require
+precision mediump float;
+precision highp int;
+
+uniform highp samplerExternalOES tex;
+
+varying highp vec2 texCoord;
+varying highp vec4 color;
+
+void main()
+{
+    highp vec4 texcolor = texture2D(tex, texCoord) * color;
+    highp vec3 _32 = texcolor.xyz * color.w;
+    texcolor = vec4(_32.x, _32.y, _32.z, texcolor.w);
+    gl_FragData[0] = texcolor;
+}
+

@@ -18,7 +18,19 @@
       <sourceFolder url="file:///home/jsnadeau/Kha/Sources" isTestSource="false" />
       <sourceFolder url="file:///home/jsnadeau/Kha/Backends/HTML5" isTestSource="false" />
       <sourceFolder url="file:///home/jsnadeau/Documents/projects/haxeui-tests/Sources" isTestSource="false" />
+      <sourceFolder url="file:///home/jsnadeau/Documents/projects/haxeui-tests/Libraries/haxeui-kha" isTestSource="false" />
+      <sourceFolder url="file:///home/jsnadeau/Documents/projects/haxeui-tests/Libraries/haxeui-core" isTestSource="false" />
+      <sourceFolder url="file:///home/jsnadeau/Documents/projects/haxeui-tests/Libraries/hscript" isTestSource="false" />
 
+    </content>
+    <content url="file://Libraries/haxeui-kha">
+      <sourceFolder url="file:///home/jsnadeau/Documents/projects/haxeui-tests/Libraries/haxeui-kha" isTestSource="false" />
+    </content>
+    <content url="file://Libraries/haxeui-core">
+      <sourceFolder url="file:///home/jsnadeau/Documents/projects/haxeui-tests/Libraries/haxeui-core" isTestSource="false" />
+    </content>
+    <content url="file://Libraries/hscript">
+      <sourceFolder url="file:///home/jsnadeau/Documents/projects/haxeui-tests/Libraries/hscript" isTestSource="false" />
     </content>
     
     <orderEntry type="jdk" jdkName="Haxe 3.2.0" jdkType="Haxe toolkit" />

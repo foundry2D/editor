@@ -6,7 +6,7 @@ import kha.Scheduler;
 import kha.System;
 
 class Main {
-	static var ui:UIManager;
+	static var ui:UiManager;
 	static function update(): Void {
 		ui.update();
 	}
@@ -21,7 +21,7 @@ class Main {
 			Assets.loadEverything(function () {
 				// Avoid passing update/render directly,
 				// so replacing them via code injection works
-				ui = new UIManager();
+				ui = new UiManager();
 				Scheduler.addTimeTask(function () { update(); }, 0, 1 / 60);
 				System.notifyOnFrames(function (frames) { render(frames); });
 			});

@@ -8,24 +8,10 @@
 			"type": "blob"
 		},
 		{
-			"name": "main_css",
-			"files": [
-				"main.css"
-			],
-			"type": "blob"
-		},
-		{
-			"name": "main_xml",
-			"files": [
-				"main.xml"
-			],
-			"type": "blob"
-		},
-		{
 			"name": "painter_colored_frag",
 			"files": [
 				"painter-colored.frag.essl",
-				"painter-colored-webgl2.frag.essl"
+				"painter-colored-relaxed.frag.essl"
 			],
 			"type": "shader",
 			"inputs": [
@@ -47,7 +33,7 @@
 			"name": "painter_colored_vert",
 			"files": [
 				"painter-colored.vert.essl",
-				"painter-colored-webgl2.vert.essl"
+				"painter-colored-relaxed.vert.essl"
 			],
 			"type": "shader",
 			"inputs": [
@@ -108,7 +94,7 @@
 			"name": "painter_image_frag",
 			"files": [
 				"painter-image.frag.essl",
-				"painter-image-webgl2.frag.essl"
+				"painter-image-relaxed.frag.essl"
 			],
 			"type": "shader",
 			"inputs": [
@@ -139,7 +125,7 @@
 			"name": "painter_image_vert",
 			"files": [
 				"painter-image.vert.essl",
-				"painter-image-webgl2.vert.essl"
+				"painter-image-relaxed.vert.essl"
 			],
 			"type": "shader",
 			"inputs": [
@@ -208,7 +194,7 @@
 			"name": "painter_text_frag",
 			"files": [
 				"painter-text.frag.essl",
-				"painter-text-webgl2.frag.essl"
+				"painter-text-relaxed.frag.essl"
 			],
 			"type": "shader",
 			"inputs": [
@@ -239,7 +225,7 @@
 			"name": "painter_text_vert",
 			"files": [
 				"painter-text.vert.essl",
-				"painter-text-webgl2.vert.essl"
+				"painter-text-relaxed.vert.essl"
 			],
 			"type": "shader",
 			"inputs": [
@@ -308,7 +294,7 @@
 			"name": "painter_video_frag",
 			"files": [
 				"painter-video.frag.essl",
-				"painter-video-webgl2.frag.essl"
+				"painter-video-relaxed.frag.essl"
 			],
 			"type": "shader",
 			"inputs": [
@@ -339,7 +325,7 @@
 			"name": "painter_video_vert",
 			"files": [
 				"painter-video.vert.essl",
-				"painter-video-webgl2.vert.essl"
+				"painter-video-relaxed.vert.essl"
 			],
 			"type": "shader",
 			"inputs": [

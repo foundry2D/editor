@@ -4,24 +4,21 @@
 	<output>
 		<movie outputType="Application" />
 		<movie input="" />
-		<movie path="debug-html5/kha.js" />
+		<movie path="android/New-Project" />
 		<movie fps="30" />
 		<movie width="800" />
 		<movie height="600" />
 		<movie version="16" />
 		<movie minorVersion="0" />
-		<movie platform="JavaScript" />
+		<movie platform="Java" />
 		<movie background="#ffffff" />
 		<movie preferredSDK="../../../../Kha/Tools/haxe" />
 	</output>
 	<!-- Other classes to be compiled into your SWF -->
 	<classpaths>
 		<class path="../../../../Kha/Sources" />
-		<class path="../../../../Kha/Backends/HTML5" />
+		<class path="../../../../Kha/Backends/Android" />
 		<class path="../Sources" />
-		<class path="../Libraries/haxeui-kha" />
-		<class path="../Libraries/haxeui-core" />
-		<class path="../Libraries/hscript" />
 	</classpaths>
 	<!-- Build options -->
 	<build>
@@ -30,7 +27,7 @@
 		<option noInlineOnDebug="False" />
 		<option mainClass="Main" />
 		<option enabledebug="False" />
-		<option additional="-D hxcpp_smart_strings&#xA;-D haxeui-kha&#xA;-D haxeui-core&#xA;-D hscript&#xA;-D sys_g1&#xA;-D sys_g2&#xA;-D sys_g3&#xA;-D sys_a1&#xA;-D sys_a2&#xA;-D kha_js&#xA;-D kha_g1&#xA;-D kha_g2&#xA;-D kha_g3&#xA;-D kha_a1&#xA;-D kha_a2&#xA;-D canvas_id=khanvas&#xA;-D script_name=kha&#xA;-D sys_g4&#xA;-D kha_g4&#xA;-D kha_webgl&#xA;-D sys_debug-html5&#xA;-D kha_debug-html5&#xA;-D kha_debug-html5_js&#xA;-D sys_debug_html5&#xA;-D kha_debug_html5&#xA;-D kha_html5&#xA;-D kha&#xA;-D kha_version=1810&#xA;-D kha_project_name=New Project&#xA;-D kha_output=&quot;/home/jsnadeau/Documents/projects/haxeui-tests/build/debug-html5/kha.js&quot;&#xA;--macro keep('IntIterator')&#xA;-debug&#xA;" />
+		<option additional="-D hxcpp_smart_strings&#xA;-D no-compilation&#xA;-D sys_android&#xA;-D sys_g1&#xA;-D sys_g2&#xA;-D sys_g3&#xA;-D sys_g4&#xA;-D sys_a1&#xA;-D kha_java&#xA;-D kha_android&#xA;-D kha_android_java&#xA;-D kha_opengl&#xA;-D kha_g1&#xA;-D kha_g2&#xA;-D kha_g3&#xA;-D kha_g4&#xA;-D kha_a1&#xA;-D kha&#xA;-D kha_version=1810&#xA;-D kha_project_name=New Project&#xA;-java-lib ../../../../Kha/Tools/haxe/hxjava/hxjava-std.jar&#xA;-D kha_output=&quot;/home/jsnadeau/Documents/projects/haxeui-tests/build/android/New-Project&quot;&#xA;" />
 	</build>
 	<!-- haxelib libraries -->
 	<haxelib>
@@ -51,8 +48,8 @@
 	<!-- Other project options -->
 	<options>
 		<option showHiddenPaths="False" />
-		<option testMovie="Webserver" />
-		<option testMovieCommand="debug-html5/index.html" />
+		<option testMovie="OpenDocument" />
+		<option testMovieCommand="" />
 	</options>
 	<!-- Plugin storage -->
 	<storage />

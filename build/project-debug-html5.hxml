@@ -1,7 +1,13 @@
 -cp /home/jsnadeau/Kha/Sources
 -cp /home/jsnadeau/Kha/Backends/HTML5
 -cp /home/jsnadeau/Documents/projects/haxeui-tests/Sources
+-cp /home/jsnadeau/Documents/projects/haxeui-tests/Libraries/haxeui-kha
+-cp /home/jsnadeau/Documents/projects/haxeui-tests/Libraries/haxeui-core
+-cp /home/jsnadeau/Documents/projects/haxeui-tests/Libraries/hscript
 -D hxcpp_smart_strings
+-D haxeui-kha
+-D haxeui-core
+-D hscript
 -D sys_g1
 -D sys_g2
 -D sys_g3
@@ -28,5 +34,6 @@
 -D kha_version=1810
 -D kha_project_name=New Project
 -js debug-html5/kha.js
+--macro keep('IntIterator')
 -debug
 -main Main
