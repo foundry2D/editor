@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module id="test">
+    <components>
+	    <class folder="../Assets/custom" >
+        </class>
+        <!-- <component file="../Assets/custom/languages.xml" alias="Langs" /> -->
+    </components>
+</module>
