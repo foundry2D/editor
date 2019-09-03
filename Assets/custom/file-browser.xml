@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<dialog >
-    <textfield id="path" text="" width="100%"/>
-    <button id="up" text=".." width="100%"/>
-    <listview id="feed" width="100%">
-
-    </listview>
-</dialog>
+<vbox width="100%" height="100%">
+    <label id="path" width="100%" />
+    <listview id="feed" width="100%" height="95%" />
+</vbox>

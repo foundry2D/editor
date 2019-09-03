@@ -4,7 +4,7 @@
 
     <label text="Hello, world!" style="horizontal-align: center; font-size:35px; color: #888888;" />
     <hbox id="header">
-        <button id="button-test" styleNames="big-button" text="Test" />
+        <button id="button-test" text="Test" />
     </hbox>
     <hbox id="content" height="60%" width="100%">
     </hbox>

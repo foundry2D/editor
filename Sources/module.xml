@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module id="test">
+    <resources>
+        <resource path="../Assets/img" prefix="img" />
+    </resources>
     <components>
 	    <class folder="../Assets/custom" >
         </class>
-        <!-- <component file="../Assets/custom/languages.xml" alias="Langs" /> -->
     </components>
 </module>
