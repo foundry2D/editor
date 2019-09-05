@@ -4,7 +4,9 @@
         <resource path="../Assets/img" prefix="img" />
     </resources>
     <components>
-	    <class folder="../Assets/custom" >
+	    <class folder="../Assets/custom">
         </class>
+        <class name="FileBrowser" />
+        <class name="FileTree" />
     </components>
 </module>

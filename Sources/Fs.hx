@@ -23,7 +23,8 @@ class Fs {
         feed.dataSource = data != null ? data : getFilesData(path);
 		var parPath:Label = comp.findComponent('path',Label);
 		var par:FileData  = feed.dataSource.get(feed.dataSource.size-1);
-		parPath.text = par.path;
+		if(!parPath.disabled)
+			parPath.text = par.path;
 		curDir = par.path;
 		feed.dataSource.remove(par);
 		comp.invalidateComponentLayout();
