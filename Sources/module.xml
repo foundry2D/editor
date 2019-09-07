@@ -8,5 +8,6 @@
         </class>
         <class name="FileBrowser" />
         <class name="FileTree" />
+        <class name="TreeView" />
     </components>
 </module>

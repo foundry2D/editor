@@ -15,8 +15,8 @@ class FileBrowser extends VBox {
 
     @:bind(feed, UIEvent.CHANGE)
 	function selectedDir(e){
-		var folder:Fs.FileData = feed.selectedItem;
-		if(folder.file == ".."){
+		var folder:Fs.NodeData = feed.selectedItem;
+		if(folder.name == ".."){
 			var path = Fs.curDir;
 			var i1 = path.indexOf("/");
 			var i2 = path.indexOf("\\");
@@ -31,10 +31,9 @@ class FileBrowser extends VBox {
 			Fs.updateData(this,path);
 
 		}
-		else if(folder.file.split('.')[0] == folder.file){
-			var data:ListDataSource<Fs.FileData> = Fs.getFilesData(folder.path);
-			if(data.size > 1){
-				Fs.updateData(this,folder.path,data);
+		else if(folder.name.split('.')[0] == folder.name){
+			if(Reflect.hasField(folder,"childs")){
+				Fs.updateData(this,folder.path,folder.childs);
 			}
 		}
 	}

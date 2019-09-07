@@ -11,6 +11,12 @@ typedef FileData = {
 	var file:String;
 	var type:String;
 }
+typedef NodeData = {
+	var path:String;
+	var type:String;
+	var name:String;
+	var ?childs:ListDataSource<NodeData>;
+}
 
 class Fs {
 
@@ -18,11 +24,11 @@ class Fs {
     public static var curDir:String = "";
     public static var sep ="/";
 	static var lastPath:String = "";
-    static public function updateData(comp:Component,path:String, data:ListDataSource<FileData> = null){
+    static public function updateData(comp:Component,path:String, data:ListDataSource<NodeData> = null){
 		var feed:ListView = comp.findComponent('feed',ListView);
         feed.dataSource = data != null ? data : getFilesData(path);
 		var parPath:Label = comp.findComponent('path',Label);
-		var par:FileData  = feed.dataSource.get(feed.dataSource.size-1);
+		var par:NodeData  = feed.dataSource.get(feed.dataSource.size-1);
 		if(!parPath.disabled)
 			parPath.text = par.path;
 		curDir = par.path;
@@ -41,21 +47,26 @@ class Fs {
 		// %HOMEDRIVE% + %HomePath%
 		// ~
 	}
-    static public function getFilesData(path:String, folderOnly = false){
+    static public function getFilesData(path:String, folderOnly = false):ListDataSource<NodeData> {
 
 		var files = getFiles(path,folderOnly);
         if(path=="")
             path = curDir;
-        var ds = new ListDataSource<FileData>();
-		ds.add({file: "..",path: "", type: ""});
+        var ds = new ListDataSource<NodeData>();
+		ds.add({name: "..",path: "", type: ""});
         // Directory contents
 		for (f in files) {
 			if (f == "" || f.charAt(0) == ".") continue; // Skip hidden
             var p = path;
             if (path.charAt(path.length - 1) != sep) p += sep;
-            ds.add({path:p+f,file: f, type: findType(p+f) });
+			if(f.split('.')[0] == f){
+            	ds.add({path:p+f,name: f, type: findType(p+f),childs: getFilesData(p+f) });
+			}
+			else {
+				ds.add({path:p+f,name: f, type: findType(p+f)});
+			}
 		}
-		ds.add({file: "",path: path, type: ""});
+		ds.add({name: "",path: path, type: ""});
         return ds;
     }
     
