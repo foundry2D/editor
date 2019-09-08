@@ -1,5 +1,6 @@
 package;
 
+import haxe.ui.data.DataSource;
 import haxe.ui.containers.ScrollView;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.containers.ListView;
@@ -8,8 +9,8 @@ import haxe.ui.containers.VBox;
 import haxe.ui.events.UIEvent;
 import Fs.NodeData;
 
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/file-tree-ui.xml"))
-class TreeView extends ListView {
+@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/file-tree-ui.xml"))
+class TreeView extends VBox {
 
     public var selectedNode:TreeNode = null;
 
@@ -18,6 +19,7 @@ class TreeView extends ListView {
         // path.disabled = true;
 		// path.text=" ";
         styleString = "padding: 1px;border: 0px solid #ABABAB;border-radius: 1px;";
+        // itemRenderer = haxe.ui.macros.ComponentMacros.buildComponent("../Assets/custom/tree-node-ui.xml");
     }
 
     var _brother:FileBrowser = null;
@@ -26,9 +28,8 @@ class TreeView extends ListView {
 		return _brother;
 	}
 	function set_brother(fb:FileBrowser){
-        var ds = new ListDataSource<TreeNode>();
 		for( i in 0...fb.feed.dataSource.size){
-            ds.add(addNode(fb.feed.dataSource.get(i)));
+            addNode(fb.feed.dataSource.get(i));
         }
 		_brother = fb;
 		return _brother;
@@ -64,8 +65,19 @@ class TreeView extends ListView {
         var node  = new TreeNode(this);
         node.text = data.name;
         node.icon = data.type;
-        addComponent(node);
-        // trace(feed.itemCount);
+        node.expander.resource = "img/blank.png";
+        if(Reflect.hasField(data,"childs")){
+            if(data.childs.size > 2){
+                node.expander.resource = "img/control-000-small.png";
+                for(n in 0...data.childs.size){
+                    var d = data.childs.get(n);
+                    if(d.name == "" || d.name == "..")
+                        continue;
+                    node.addNode(d);
+                }
+            }
+        }
+        feed.addComponent(node);
        return node;
     }
     

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<item-renderer id="node" width="100%">
-    <image id="expander" resource="img/control-000-small.png" style="vertical-align: center;cursor:pointer;" />
-    <image id="type" style="vertical-align: center;padding-left:30px;" />
-    <label id="name" style="vertical-align: center;padding-left:35px;" />
-</item-renderer>

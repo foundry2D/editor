@@ -4,11 +4,12 @@ import haxe.ui.containers.VBox;
 import haxe.ui.core.ItemRenderer;
 import haxe.ui.containers.HBox;
 import haxe.ui.components.Label;
+import haxe.ui.core.Component;
 import haxe.ui.events.UIEvent;
 import haxe.ui.events.MouseEvent;
 
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/tree-node.xml"))
-class TreeNode extends ItemRenderer {
+@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/tree-node-ui.xml"))
+class TreeNode extends VBox {
 
     public var parentNode:TreeNode = null;
     private var _expanded:Bool = false;
@@ -19,32 +20,34 @@ class TreeNode extends ItemRenderer {
         super();
         _tv = tv;
         this.styleString = "spacing: 2;background-color:#1e1e1e";
-        // treenode.styleString = "spacing: 0;background-color:#1e1e1e";
+        node.styleString = "spacing: 0;background-color:#1e1e1e";
         _label = name;
     }
 
     //node interactions
     @:bind(node, MouseEvent.CLICK)
     function selected(e:UIEvent){
-        if (_tv.selectedItem == this) {
+        var f = _tv.feed;
+        if (_tv.selectedNode == this) {
             return;
         }
         
-        if (_tv.selectedItem != null && _tv.selectedItem.findComponent("node") != null) {
-            _tv.selectedItem.findComponent("node").removeClass(":selected");
-            _tv.selectedItem = null;
+        if (_tv.selectedNode != null && _tv.selectedNode.findComponent("node") != null) {
+            var comp:Component = _tv.selectedNode.findComponent("node");
+            comp.removeClass(":selected");
+            _tv.selectedNode = null;
         }
         node.addClass(":selected");
-        _tv.selectedItem = this;
+        _tv.selectedNode = this;
         
-        var delta = (_tv.selectedNode.screenTop - _tv.screenTop + _tv.vscrollPos);
-        if (delta < _tv.vscrollPos || delta > _tv.height - 10) {
-            delta -= _tv.selectedNode.height + 10;
-            if (delta > _tv.vscrollMax) {
-                delta = _tv.vscrollMax;
-            }
-            _tv.vscrollPos = delta;
-        }
+        // var delta = (_tv.selectedNode.screenTop - f.screenTop + f.vscrollPos);
+        // if (delta < f.vscrollPos || delta > f.height - 10) {
+        //     delta -= _tv.selectedNode.height + 10;
+        //     if (delta > f.vscrollMax) {
+        //         delta = f.vscrollMax;
+        //     }
+        //     f.vscrollPos = delta;
+        // }
         
         _tv.dispatch(new UIEvent(UIEvent.CHANGE));
     }
@@ -71,7 +74,7 @@ class TreeNode extends ItemRenderer {
         }
         
         for (c in childComponents) {
-            if (c == node) {
+            if (c == _hbox) {
                 continue;
             }
             
@@ -115,17 +118,25 @@ class TreeNode extends ItemRenderer {
         return value;
     }
 
-    public function addNode(text:String, icon:String = null):TreeNode {
-        expander.resource = "img/control-000-small.png";
-        expander.resource = "img/control-270-small.png";
-        node.styleString = "spacing: 0";
+    public function addNode(data:Fs.NodeData):TreeNode {
+        // node.styleString = "spacing: 0";
         _expanded = true;
         
        var newNode = new TreeNode(_tv);
        newNode.marginLeft = 16;
-       newNode.text = text;
-       newNode.icon = icon;
+       newNode.text = data.name;
+       newNode.icon = data.type;
        newNode.parentNode = this;
+       newNode.expander.resource = "img/blank.png";
+       if(Reflect.hasField(data,"childs")){
+            // for(n in 0...data.childs.size){
+            //     newNode.addNode(data.childs.get(n));
+            // }
+            if(data.childs.size > 2){
+                newNode.expander.resource = "img/control-000-small.png";
+            }
+        }
+        newNode.hide();
        addComponent(newNode);
        return newNode;
     }
