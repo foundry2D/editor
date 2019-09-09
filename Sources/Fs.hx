@@ -97,7 +97,7 @@ class Fs {
 		var systemId = kha.System.systemId;
 		if (systemId == "Windows") {
 			cmd = "dir /b ";
-			if (foldersOnly) cmd += "/ad ";
+			if (folderOnly) cmd += "/ad ";
 			sep = "\\";
 			path = StringTools.replace(path, "\\\\", "\\");
 			path = StringTools.replace(path, "\r", "");
@@ -109,7 +109,7 @@ class Fs {
 		lastPath = path;
 		var str = haxe.io.Bytes.ofData(Krom.loadBlob(save)).toString();
 		var files = str.split("\n");
-
+		trace(files);
 		#elseif kha_kore
 
 		path = fixPath(path,systemId);

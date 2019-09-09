@@ -1,6 +1,13 @@
 {
     "configurations": [
         {
+            "type": "krom",
+            "request": "attach",
+            "name": "Kha: Krom - Attach",
+            "preLaunchTask": "Krom Build&Launch",
+            "port": 0
+        },
+        {
             "type": "electron",
             "request": "launch",
             "name": "Kha: HTML5",

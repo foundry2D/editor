@@ -1,0 +1,25 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558 
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Krom Build&Launch",
+            "type": "shell",
+            "command": "/home/jsnadeau/Kromx/Deployment/Krom",
+            "args": ["${workspaceRoot}/build/krom/","${workspaceRoot}/build/krom-resources/","--debug"],
+            "dependsOrder": "sequence",
+            "dependsOn":[
+                "Kha: Build for Krom",
+                "setpath"
+            ]
+
+        },
+        {
+            "label": "setpath",
+            "type": "shell",
+            "command": "cd",
+            "args": ["${workspaceRoot}/build/"],
+        }
+    ]
+}
