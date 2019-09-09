@@ -15,6 +15,5 @@ class ProjectExplorer extends TabView {
         this.height = Screen.instance.height*0.95;
         Fs.updateData(this.panelRight,projectPath);
         this.panelLeft.brother = this.panelRight;
-        // Fs.updateData(this.panelLeft,projectPath);
     }
 }

@@ -7,9 +7,7 @@ import haxe.ui.core.Component;
 
 
 typedef FileData = {
-    var path:String;
-	var file:String;
-	var type:String;
+    >NodeData,
 }
 typedef NodeData = {
 	var path:String;
@@ -47,6 +45,27 @@ class Fs {
 		// %HOMEDRIVE% + %HomePath%
 		// ~
 	}
+	static function fixPath(path:String,systemId:String){
+		if (path == "") path = initPath(systemId);
+		switch (systemId){
+			case "Windows":
+				return path;
+			case "Linux":
+				if(path.charAt(0) == "~"){
+					var temp = path.split('~');
+					var npath = "$HOME";
+					for(i in 0...temp.length){
+						if(i == 0)
+							continue;
+						npath+= temp[i];
+					}
+					path = npath;
+				}
+				return path;
+			default:
+				return path;
+		}
+	}
     static public function getFilesData(path:String, folderOnly = false):ListDataSource<NodeData> {
 
 		var files = getFiles(path,folderOnly);
@@ -83,7 +102,7 @@ class Fs {
 			path = StringTools.replace(path, "\\\\", "\\");
 			path = StringTools.replace(path, "\r", "");
 		}
-		if (path == "") initPath(path, systemId);
+		path = fixPath(path,systemId);
 
 		var save = Krom.getFilesLocation() + sep + dataPath + "dir.txt";
 		if (path != lastPath) Krom.sysCommand(cmd + '"' + path + '"' + ' > ' + '"' + save + '"');
@@ -93,7 +112,7 @@ class Fs {
 
 		#elseif kha_kore
 
-		if (path == "") initPath(path, kha.System.systemId);
+		path = fixPath(path,systemId);
 		var files = sys.FileSystem.isDirectory(path) ? sys.FileSystem.readDirectory(path) : [];
 
 		#elseif kha_webgl
@@ -102,14 +121,14 @@ class Fs {
 
 		var userAgent = untyped navigator.userAgent.toLowerCase();
 		if (userAgent.indexOf(' electron/') > -1) {
-			if (path == "") {
-				var pp = untyped window.process.platform;
-				var systemId = pp == "win32" ? "Windows" : (pp == "darwin" ? "OSX" : "Linux");
-				path = initPath(systemId);
-			}
+			var pp = untyped window.process.platform;
+			var systemId = pp == "win32" ? "Windows" : (pp == "darwin" ? "OSX" : "Linux");
 			try {
-				if(StringTools.contains(path,"$HOME"))
-					path = untyped process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+				path = fixPath(path,systemId);
+				if(StringTools.contains(path,"$HOME")){
+					var home = untyped process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+					path = StringTools.replace(path,"$HOME",home);
+				}
 				files = untyped require('fs').readdirSync(path);
 			}
 			catch(e:Dynamic) {
@@ -131,7 +150,7 @@ class Fs {
 			return "img/folder.png";
 		}
 		switch (end[end.length-1]){
-			case "png" | "jpg" | "gif":
+			case "png" | "jpeg" | "gif":
 				return "img/picture_grey.png";
 			case "wav"|"ogg"|"mp3":
 				return "img/audio-file_grey.png";

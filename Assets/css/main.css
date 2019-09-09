@@ -210,7 +210,7 @@
 
 .listview {
     background-color: #1E1E1E;
-    __border: 1px solid #666666;
+    /* __border: 1px solid #666666; */
     border: none;
     border-radius: 3px;
   
@@ -277,30 +277,38 @@
     cursor: pointer;
 }
 
+#tree-containers {
+    background-color: #1E1E1E;
+    /* __border: 1px solid #666666; */
+    border: none;
+    border-radius: 3px;
+}
 
 TreeView {
-    __background-color: red;
+    height: 100%;
 }
 
 TreeView .scrollview-contents {
-    padding-top: 4px;
-    padding-bottom: 4px;
+    background-color: #444444;
+    border: none;
+    border-radius: 3px;
+    width: 100%;
 }
 
-TreeViewNode {
-    background-color: white;
-    height: auto;
-    width: auto;
+TreeNode,#_hbox,#node {
+    background-color: #444444;
+    display: table-cell;
+    /* height: 100%; */
+    width: 100%;
 }
 
 #node {
     padding: 4px;
 }
 
-#node:hover {
-    background-color: #444444;
+#node:hover, .listview .itemrenderer:hover {
+    background-color: #1e1e1e;
     border-radius: 3px;
-    __border: 1px solid blue;
 }    
 
 #node:selected {

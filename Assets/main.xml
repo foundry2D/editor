@@ -6,6 +6,4 @@
     <hbox id="content" height="60%" width="100%">
         <!-- <editortab id="tab" height="60%" width="100%"/> -->
     </hbox>
-    <hbox id="footer">
-    </hbox>
 </vbox>

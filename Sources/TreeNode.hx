@@ -1,7 +1,6 @@
 package;
 
 import haxe.ui.containers.VBox;
-import haxe.ui.core.ItemRenderer;
 import haxe.ui.containers.HBox;
 import haxe.ui.components.Label;
 import haxe.ui.core.Component;
@@ -12,21 +11,32 @@ import haxe.ui.events.MouseEvent;
 class TreeNode extends VBox {
 
     public var parentNode:TreeNode = null;
+    public var data(get,null):Fs.NodeData;
+    function get_data(){
+        return _data;
+    }
+    private var _data:Fs.NodeData = null;
     private var _expanded:Bool = false;
     private var _tv:TreeView = null;
-    private var _label:Label = null;
 
-    public function new(tv:TreeView = null){
+    public function new(data:Fs.NodeData = null,tv:TreeView = null){
         super();
         _tv = tv;
-        this.styleString = "spacing: 2;background-color:#1e1e1e";
-        node.styleString = "spacing: 0;background-color:#1e1e1e";
-        _label = name;
+        _data = data;
+        name.text = data.name;
+        type.resource = data.type;
+        expander.resource = "img/blank.png";
+        if(Reflect.hasField(data,"childs")){
+            if(data.childs.size > 2){
+                expander.resource = "img/control-000-small.png";
+            }
+        }
     }
 
     //node interactions
     @:bind(node, MouseEvent.CLICK)
     function selected(e:UIEvent){
+        trace("Clicked node"+name.text);
         var f = _tv.feed;
         if (_tv.selectedNode == this) {
             return;
@@ -40,14 +50,15 @@ class TreeNode extends VBox {
         node.addClass(":selected");
         _tv.selectedNode = this;
         
-        // var delta = (_tv.selectedNode.screenTop - f.screenTop + f.vscrollPos);
-        // if (delta < f.vscrollPos || delta > f.height - 10) {
-        //     delta -= _tv.selectedNode.height + 10;
-        //     if (delta > f.vscrollMax) {
-        //         delta = f.vscrollMax;
-        //     }
-        //     f.vscrollPos = delta;
-        // }
+        var delta = (_tv.selectedNode.screenTop - f.screenTop + f.vscrollPos);
+        trace("vscrollpos: "+f.vscrollPos+" height: "+f.height);
+        if (delta < f.vscrollPos || delta > f.height - 10) {
+            delta -= _tv.selectedNode.height + 10;
+            if (delta > f.vscrollMax) {
+                delta = f.vscrollMax;
+            }
+            f.vscrollPos = delta;
+        }
         
         _tv.dispatch(new UIEvent(UIEvent.CHANGE));
     }
@@ -63,7 +74,6 @@ class TreeNode extends VBox {
     //expander interactions
     @:bind(expander,MouseEvent.CLICK)
     function clicked(e:MouseEvent) {
-        trace("was clicked");
         if (_expanded == false) {
             expander.resource = "img/control-270-small.png";
             _expanded = true;
@@ -73,6 +83,20 @@ class TreeNode extends VBox {
             _expanded = false;
         }
         
+        // Add nodes on expanding
+        if(childComponents.length == 1){
+            if(Reflect.hasField(data,"childs")){
+                if(data.childs.size > 2){
+                    for(n in 0...data.childs.size){
+                        var d = data.childs.get(n);
+                        if(d.name == "" || d.name == "..")
+                            continue;
+                        this.addNode(d);
+                    }
+                }
+            }
+        }
+
         for (c in childComponents) {
             if (c == _hbox) {
                 continue;
@@ -84,6 +108,7 @@ class TreeNode extends VBox {
                 c.show();
             }
         }
+
     }
 
     public var path(get, null):String;
@@ -91,7 +116,7 @@ class TreeNode extends VBox {
         var ref = this;
         var parts:Array<String> = [];
         while (ref != null) {
-            parts.push(ref._label.text);
+            parts.push(ref.name.text);
             ref = ref.parentNode;
         }
         parts.reverse();
@@ -119,26 +144,14 @@ class TreeNode extends VBox {
     }
 
     public function addNode(data:Fs.NodeData):TreeNode {
-        // node.styleString = "spacing: 0";
-        _expanded = true;
         
-       var newNode = new TreeNode(_tv);
-       newNode.marginLeft = 16;
-       newNode.text = data.name;
-       newNode.icon = data.type;
-       newNode.parentNode = this;
-       newNode.expander.resource = "img/blank.png";
-       if(Reflect.hasField(data,"childs")){
-            // for(n in 0...data.childs.size){
-            //     newNode.addNode(data.childs.get(n));
-            // }
-            if(data.childs.size > 2){
-                newNode.expander.resource = "img/control-000-small.png";
-            }
-        }
+        _expanded = true;
+        var newNode = new TreeNode(data,_tv);
+        newNode.marginLeft = 16;
+        newNode.parentNode = this;
         newNode.hide();
-       addComponent(newNode);
-       return newNode;
+        addComponent(newNode);
+        return newNode;
     }
     
     public function findNode(path:String):TreeNode {

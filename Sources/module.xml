@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<module id="test">
+<module id="kha-extended">
     <resources>
         <resource path="../Assets/img" prefix="img" />
     </resources>
