@@ -7,3 +7,6 @@
 [submodule "Libraries/hscript"]
 	path = Libraries/hscript
 	url = https://github.com/HaxeFoundation/hscript.git
+[submodule "Libraries/haxeui-kha-extended"]
+	path = Libraries/haxeui-kha-extended
+	url = https://github.com/mundusnine/haxeui-kha-extended.git

@@ -14,14 +14,14 @@ class UiManager {
     public function new(){
         Toolkit.init();
         main = new MainView();
-        // var tab = new ProjectExplorer();
+        var tab = new ProjectExplorer();
         // var menu  = new MySpecialMenu();
         var button = new Button();
         button.text = "button-test";
         button.onClick = FileBrowserDialog.open;
         main.addToContent(button);
         // main.bar.onClick = FileBrowserDialog.open;
-        Screen.instance.addComponent(main);
+        Screen.instance.addComponent(tab);
 
     }
     public function update(): Void {

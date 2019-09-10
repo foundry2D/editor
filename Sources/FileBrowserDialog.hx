@@ -4,6 +4,7 @@ import haxe.ui.core.Component;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.core.Screen;
+import haxe.ui.extended.Handler;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/file-browser-dialog.xml"))
 class FileBrowserDialog extends Dialog {
@@ -18,7 +19,7 @@ class FileBrowserDialog extends Dialog {
 
     public static function open(e:MouseEvent){
         var dialog = new FileBrowserDialog();
-        Fs.updateData(dialog,"");
+        Handler.updateData(dialog,"");
         dialog.show();
     }
 }
