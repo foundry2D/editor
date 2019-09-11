@@ -2,6 +2,7 @@ package;
 
 import haxe.ui.core.Component;
 import haxe.ui.containers.Box;
+import haxe.ui.Toolkit;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/main.xml"))
 class MainView extends Box {

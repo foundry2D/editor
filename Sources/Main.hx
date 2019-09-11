@@ -27,12 +27,4 @@ class Main {
 			});
 		});
 	}
-	static function tupdate(): Void {
-
-	}
-
-	static function trender(frames: Array<Framebuffer>): Void {
-
-	}
-
 }

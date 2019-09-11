@@ -1,0 +1,33 @@
+<menubar width="100%">
+    <menu text="File" width="100%" >
+        <menuitem text="Item 1" />
+        <menu text="Sub Menu">
+            <menuitem text="Item 1" />
+            <menuitem text="Item 2" />
+            <menuitem text="Item 3" />
+            <menuseparator />
+            <menucheckbox text="Item 4" />
+            <menucheckbox text="Item 5" />
+            <menucheckbox text="Item 6" />
+            <menuseparator />
+            <menuoptionbox text="Item 7" />
+            <menuoptionbox text="Item 8" />
+            <menuoptionbox text="Item 9" />
+        </menu>
+    </menu>
+    <menu text="Test" width="100%">
+        <menuitem text="TItem 1" />
+        <menuitem text="TItem 2" />
+        <menuitem text="TItem 3" />
+    </menu>
+    <dropdown id="dropDown1" text="Layout" width="15%">
+        <data>
+            <item id="dd1i1" value="Item 1" />
+            <item id="dd1i2" value="Item 2" />
+            <item id="dd1i3" value="Item 3" />
+            <item id="dd1i4" value="Item 4" />
+            <item id="dd1i5" value="Item 5" />
+            <item id="dd1i6" value="Item 6" />
+        </data>
+    </dropdown>
+</menubar>

@@ -15,13 +15,16 @@ class UiManager {
         Toolkit.init();
         main = new MainView();
         var tab = new ProjectExplorer();
-        // var menu  = new MySpecialMenu();
+        var menu  = new EditorMenu();
         var button = new Button();
         button.text = "button-test";
-        button.onClick = FileBrowserDialog.open;
-        main.addToContent(button);
+        // button.onClick = FileBrowserDialog.open;
+        main.header.addComponent(menu);
+        main.panelBottom.addComponent(tab);
+        // tab.resize();
+        // main.addToContent(menu);
         // main.bar.onClick = FileBrowserDialog.open;
-        Screen.instance.addComponent(tab);
+        Screen.instance.addComponent(main);
 
     }
     public function update(): Void {

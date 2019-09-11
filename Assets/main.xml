@@ -3,7 +3,16 @@
     <style source="../Libraries/haxeui-kha-extended/haxe/ui/extended/_module/styles/dark/main.css" />
     <hbox id="header">
     </hbox>
-    <hbox id="content" height="100%" width="100%">
-        <!-- <editortab id="tab" height="60%" width="100%"/> -->
+    <hbox id="content" height="100%" width="100%" >
+        <vbox id="panel-left" height="100%" width="10%" style="background-color: red" >
+        </vbox>
+        <vbox id="panel-center" height="100%" width="80%"  >
+            <vbox id="panel-top" height="50%" width="100%" style="background-color: green" >
+            </vbox>
+            <vbox id="panel-bottom" height="50%" width="100%" style="background-color: blue" >
+            </vbox>
+        </vbox>
+        <vbox id="panel-right" height="100%" width="10%" style="background-color: #00FFFF" >
+        </vbox>
     </hbox>
 </vbox>
