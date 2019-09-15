@@ -7,7 +7,7 @@
             "label": "Krom Build&Launch",
             "type": "shell",
             "command": "/home/jsnadeau/Kromx/Deployment/Krom",
-            "args": ["${workspaceRoot}/build/krom/","${workspaceRoot}/build/krom-resources/","--debug"],
+            "args": ["${workspaceRoot}/build/krom/","${workspaceRoot}/build/krom-resources/","--debug","--watch"],
             "dependsOrder": "sequence",
             "dependsOn":[
                 "Kha: Build for Krom",

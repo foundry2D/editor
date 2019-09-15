@@ -3,4 +3,6 @@ project.addAssets('Assets/**');
 project.addShaders('Shaders/**');
 project.addSources('Sources');
 project.addLibrary('haxeui-kha-extended');
+project.addLibrary('foundry');
+project.addLibrary('iron');
 resolve(project);

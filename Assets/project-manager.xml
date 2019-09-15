@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vbox id="main" width="100%" height="100%" >
+    <style source="../Libraries/haxeui-kha-extended/haxe/ui/extended/_module/styles/dark/main.css" />
+    <hbox id="header">
+        <label text="Foundry Engine - Project Manager" horizontalAlign="left" />
+    </hbox>
+    <hbox width="100%" height="90%" >
+        <tabview id="container" width="80%" height="100%" >
+            <vbox id="projects-tab" text="Projects" width="100%" height="100%" >
+                <listview id="projectslist" width="100%" height="100%" />
+            </vbox>
+            <vbox id="templates-tab" text="Templates" >
+                <listview id="templates" width="100%" height="100%" />
+            </vbox>
+        </tabview>
+        <vbox id="buttons" width="20%" height="100%" >
+            <button id="open" text="Open" width="100%" />
+            <button id="run" text="Run" width="100%" />
+            <button id="newproject" text="New Project" width="100%" />
+            <button id="import" text="Import" width="100%" />
+        </vbox>
+    </hbox>
+</vbox>
