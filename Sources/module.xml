@@ -3,5 +3,7 @@
     <components>
 	    <class folder="../Assets/custom">
         </class>
+        <class package="haxe.ui.extended" >
+        </class>
     </components>
 </module>

@@ -25,7 +25,7 @@ class EditorUi {
             button.text = "button-test";
             // button.onClick = FileBrowserDialog.open;
             editor.header.addComponent(menu);
-            editor.panelBottom.addComponent(tab);
+            editor.ePanelBottom.addComponent(tab);
             // tab.resize();
             // editor.addToContent(menu);
             // editor.bar.onClick = FileBrowserDialog.open;

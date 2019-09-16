@@ -1,6 +1,5 @@
 package;
 
-import haxe.ui.core.Component;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.core.Screen;
@@ -8,6 +7,7 @@ import haxe.ui.extended.Handler;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/file-browser-dialog.xml"))
 class FileBrowserDialog extends Dialog {
+    static public var inst:FileBrowserDialog = null;
     public function new(){
         super();
         title = "File Browser";
@@ -18,8 +18,8 @@ class FileBrowserDialog extends Dialog {
     }
 
     public static function open(e:MouseEvent){
-        var dialog = new FileBrowserDialog();
-        Handler.updateData(dialog,"");
-        dialog.show();
+        inst = new FileBrowserDialog();
+        Handler.updateData(inst,"");
+        inst.show();
     }
 }

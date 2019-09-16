@@ -4,11 +4,12 @@ package;
 import kha.WindowOptions.WindowFeatures;
 
 class Main {
-	static var ui:EditorUi;
+	static var ui:EditorUi = null;
     public static var prefs:TPrefs = null;
-    public static var cwd = ""; // Canvas path
+    public static var cwd = "";
 	static function update(): Void {
-		ui.update();
+		if(ui != null)
+			ui.update();
 	}
 
 	static function render(frames: Array<kha.Framebuffer>): Void {
@@ -21,31 +22,38 @@ class Main {
 
     static function initialized(window:kha.Window){
 
-        #if kha_krom
-        prefs = { path: Krom.getFilesLocation(), scaleFactor: 1.0 };
-        var files = haxe.ui.extended.FileSystem.getFiles(prefs.path);
-        
 		var path = "";
+        #if kha_krom
+        cwd = Krom.getFilesLocation();
+        var files = haxe.ui.extended.FileSystem.getFiles(cwd);
+        
         for( f in files){
             if(f.split('.found')[0] != f){
-                path = prefs.path+f;
+                path = cwd+f;
             }
         }
+		if(path == ""){
+            var list:Array<foundry.data.Project.TProject> = [];
+            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list)).getData();
+            path = cwd+"pjml.found";
+            Krom.fileSaveBytes(path,data);
+        }
+		#end
+		#if kha_webgl
         if(path == ""){
             var list:Array<foundry.data.Project.TProject> = [];
             var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list)).getData();
-            path = prefs.path+"pjml.found";
-            Krom.fileSaveBytes(path,data);
+            path = cwd+"pjml.found";
+            untyped require('fs').writeFile(path,data,function (err){
+				if(err) throw err;
+				trace("Was saved");
+			});
         }
+		#end
 		kha.Assets.loadBlobFromPath(path, function(lblob:kha.Blob) {
 			var raw:Array<foundry.data.Project.TProject> = haxe.Json.parse(lblob.toString());
 			ui = new EditorUi(raw);
 		});
-
-		#else
-        trace("Project Manager should be used with Krom; Shutting down");
-        kha.System.stop();
-		#end
         kha.System.notifyOnFrames(render);
 		kha.Scheduler.addTimeTask(update, 0, 1 / 60);
     }
