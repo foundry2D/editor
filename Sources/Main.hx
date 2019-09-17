@@ -21,7 +21,9 @@ class Main {
 	}
 
     static function initialized(window:kha.Window){
-
+		#if foundry_editor
+		ui = new EditorUi();
+		#else
 		var path = "";
         #if kha_krom
         cwd = Krom.getFilesLocation();
@@ -54,6 +56,7 @@ class Main {
 			var raw:Array<foundry.data.Project.TProject> = haxe.Json.parse(lblob.toString());
 			ui = new EditorUi(raw);
 		});
+		#end
         kha.System.notifyOnFrames(render);
 		kha.Scheduler.addTimeTask(update, 0, 1 / 60);
     }

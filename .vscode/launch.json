@@ -3,7 +3,7 @@
         {
             "type": "krom",
             "request": "attach",
-            "name": "Kha: Krom - Attach",
+            "name": "Krom - Attach",
             "preLaunchTask": "Krom Build&Launch",
             "port": 0
         },

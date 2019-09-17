@@ -8,4 +8,5 @@ project.addLibrary('/home/jsnadeau/foundsdk/haxeui-kha');
 project.addLibrary('/home/jsnadeau/foundsdk/haxeui-kha-extended');
 project.addLibrary('/home/jsnadeau/foundsdk/foundry');
 project.addLibrary('/home/jsnadeau/foundsdk/iron');
+project.addDefine('foundry_editor');
 resolve(project);
