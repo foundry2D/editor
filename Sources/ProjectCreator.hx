@@ -1,5 +1,6 @@
 package;
 
+import foundry.data.Project.Type;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.NodeData;
@@ -23,10 +24,14 @@ class ProjectCreator extends Dialog {
         if(e.button == DialogButton.APPLY){
             var p = path.text;
             if(FileSystem.isDirectory(p)){
-                if(createParDir.selected && name.text != ""){
-                    FileSystem.createDirectory(p+FileSystem.sep+name.text);
+                var outp = p;
+                var type = twoD.selected ? Type.twoD: Type.threeD;
+                var projName = name.text;
+                if(createParDir.selected && projName != ""){
+                    outp = p+FileSystem.sep+name.text;
+                    FileSystem.createDirectory(outp);
                 }
-                
+                ProjectInit.run(outp,type,projName);
             }
         }
     }

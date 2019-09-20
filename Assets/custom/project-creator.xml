@@ -4,6 +4,8 @@
     <hbox width="100%" height="5%" >
         <textarea id="name" width="90%" height="100%"/>
         <label text=" " width="10%" />
+        <optionbox id="twoD" text="2D" selected="true" />
+        <optionbox id="threeD" text="3D"  />
     </hbox>
     <label text="Location" width="100%" />
     <hbox width="100%" height="5%" >

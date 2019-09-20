@@ -5,7 +5,6 @@ import kha.WindowOptions.WindowFeatures;
 
 class Main {
 	static var ui:EditorUi = null;
-    public static var prefs:TPrefs = null;
     public static var cwd = "";
 	static function update(): Void {
 		if(ui != null)
@@ -13,20 +12,32 @@ class Main {
 	}
 
 	static function render(frames: Array<kha.Framebuffer>): Void {
-		ui.render(frames[0].g2);
+		if(ui != null)
+			ui.render(frames[0].g2);
 	}
 
 	public static function main() {
 		kha.System.start({title: "Project Manager", width: 1024, height: 768,window: {windowFeatures: WindowFeatures.None} },initialized);
 	}
-
+	#if foundry_editor
+	static var path = "";
+	static function loadProjectList(){
+		kha.Assets.loadBlobFromPath(path, function(lblob:kha.Blob) {
+			var raw:Array<foundry.data.Project.TProject> = haxe.Json.parse(lblob.toString());
+			ui = new EditorUi(raw);
+		});
+	}
+	#end
     static function initialized(window:kha.Window){
 		#if foundry_editor
-		ui = new EditorUi();
-		#else
-		var path = "";
+	
         #if kha_krom
         cwd = Krom.getFilesLocation();
+		#elseif kha_kore
+		cwd = Sys.programPath();
+		#elseif kha_webgl
+		cwd = untyped require('electron').remote.app.getAppPath()+"/";
+		#end
         var files = haxe.ui.extended.FileSystem.getFiles(cwd);
         
         for( f in files){
@@ -34,28 +45,19 @@ class Main {
                 path = cwd+f;
             }
         }
+
 		if(path == ""){
             var list:Array<foundry.data.Project.TProject> = [];
-            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list)).getData();
+            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list));
             path = cwd+"pjml.found";
-            Krom.fileSaveBytes(path,data);
+			haxe.ui.extended.FileSystem.saveToFile(path,data,loadProjectList);
         }
-		#end
-		#if kha_webgl
-        if(path == ""){
-            var list:Array<foundry.data.Project.TProject> = [];
-            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list)).getData();
-            path = cwd+"pjml.found";
-            untyped require('fs').writeFile(path,data,function (err){
-				if(err) throw err;
-				trace("Was saved");
-			});
-        }
-		#end
-		kha.Assets.loadBlobFromPath(path, function(lblob:kha.Blob) {
-			var raw:Array<foundry.data.Project.TProject> = haxe.Json.parse(lblob.toString());
-			ui = new EditorUi(raw);
-		});
+		else{
+			loadProjectList();
+		}
+		
+		#else
+		ui = new EditorUi();
 		#end
         kha.System.notifyOnFrames(render);
 		kha.Scheduler.addTimeTask(update, 0, 1 / 60);
