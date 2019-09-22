@@ -6,11 +6,13 @@ import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
 import haxe.ui.macros.ComponentMacros;
 import haxe.ui.Toolkit;
+import iron.data.SceneFormat;
 
 class EditorUi {
     var editor:EditorView;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
+    public var raw:TSceneFormat;
     public function new(plist:Array<foundry.data.Project.TProject> = null){
         Toolkit.init();
         if(plist != null){
@@ -19,6 +21,9 @@ class EditorUi {
         }
         else {
             editor = new EditorView();
+            kha.Assets.loadBlobFromPath("/home/jsnadeau/foundsdk/scene.json",createHierarchy,function(f:kha.AssetError){
+                trace(f.error);
+            });
             var tab = new ProjectExplorer();
             var menu  = new EditorMenu();
             var button = new Button();
@@ -33,6 +38,10 @@ class EditorUi {
         }
         
 
+    }
+    function createHierarchy(blob:kha.Blob){
+        raw = haxe.Json.parse(blob.toString());
+        editor.ePanelLeft.addComponent(new EditorHierarchy(raw));
     }
     public function update(): Void {
 

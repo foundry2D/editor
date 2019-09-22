@@ -4,9 +4,9 @@
     <hbox id="header">
     </hbox>
     <hbox id="content" height="100%" width="100%" >
-        <vbox id="e-panel-left" height="100%" width="10%" style="background-color: red" >
+        <vbox id="e-panel-left" height="100%" width="20%" style="background-color: red" >
         </vbox>
-        <vbox id="e-panel-center" height="100%" width="80%"  >
+        <vbox id="e-panel-center" height="100%" width="70%"  >
             <vbox id="e-panel-top" height="50%" width="100%" style="background-color: green" >
             </vbox>
             <vbox id="e-panel-bottom" height="50%" width="100%" style="background-color: blue" >

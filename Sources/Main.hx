@@ -1,6 +1,8 @@
 package;
 
 
+import kha.System;
+import kha.Assets;
 import kha.WindowOptions.WindowFeatures;
 
 class Main {
@@ -17,7 +19,13 @@ class Main {
 	}
 
 	public static function main() {
-		kha.System.start({title: "Project Manager", width: 1024, height: 768,window: {windowFeatures: WindowFeatures.None} },initialized);
+		
+		kha.System.start({
+			title: "Project Manager",
+			window: {windowFeatures: WindowFeatures.None
+			} 
+		},
+		initialized);
 	}
 	#if foundry_editor
 	static var path = "";
@@ -29,6 +37,10 @@ class Main {
 	}
 	#end
     static function initialized(window:kha.Window){
+		var number = kha.Display.all.length;
+		Krom.log("the number is: "+number);
+		// var number = kha.Display.all.length;
+		// window.resize(Std.int(kha.Display.primary.width/number),kha.Display.primary.height);
 		#if foundry_editor
 	
         #if kha_krom
