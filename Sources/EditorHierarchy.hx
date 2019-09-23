@@ -6,11 +6,9 @@ import haxe.ui.containers.TabView;
 import iron.data.SceneFormat;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
-class EditorHierarchy extends TabView{
+class EditorHierarchy extends EditorTab {
     public function new(raw:TSceneFormat=null) {
         super();
-        this.percentWidth = 100.0;
-        this.percentHeight = 100.0;
         setFromScene(raw);
 
     }

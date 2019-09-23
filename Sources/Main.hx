@@ -22,7 +22,9 @@ class Main {
 		
 		kha.System.start({
 			title: "Project Manager",
-			window: {windowFeatures: WindowFeatures.None
+			width: 1280,
+			height: 1000,
+			window: {windowFeatures: WindowFeatures.FeatureMaximizable
 			} 
 		},
 		initialized);
@@ -38,9 +40,6 @@ class Main {
 	#end
     static function initialized(window:kha.Window){
 		var number = kha.Display.all.length;
-		Krom.log("the number is: "+number);
-		// var number = kha.Display.all.length;
-		// window.resize(Std.int(kha.Display.primary.width/number),kha.Display.primary.height);
 		#if foundry_editor
 	
         #if kha_krom

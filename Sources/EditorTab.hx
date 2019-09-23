@@ -1,20 +1,33 @@
 package;
 
-import haxe.ui.core.Component;
 import haxe.ui.containers.menus.*;
 import haxe.ui.containers.TabView;
+import haxe.ui.components.TabBar;
+import haxe.ui.components.Label;
 import haxe.ui.events.MouseEvent;
+import haxe.ui.core.Screen;
 
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editortab-ui.xml"))
-class EditorTab extends Component {
+class EditorTab extends TabView {
 
+    var bar:TabBar;
     public function new(){
         super();
+        this.percentWidth = 100.0;
+        this.percentHeight = 100.0;
+        bar = this.findComponent(TabBar, false);
+        bar.registerEvent(MouseEvent.RIGHT_CLICK,onRightclickcall); 
     }
     
-    @:bind(tabs,MouseEvent.RIGHT_CLICK)
+    
     function onRightclickcall(e:MouseEvent) {
         var menu = new Menu();
-        trace("was called");
+        var item = new MenuItem();
+        item.text  = "Jello";
+        item.expandable = false;
+        menu.addComponent(item);
+        menu.show();
+        menu.left = e.screenX;
+        menu.top = e.screenY;
+        Screen.instance.addComponent(menu);
     }
 }
