@@ -4,6 +4,7 @@ project.addAssets('Assets/**');
 //project.addAssets('/home/jsnadeau/foundsdk/haxeui-kha-extended/haxe/ui/extended/_modules/styles/dark/**', { notinlist: true });
 project.addShaders('Shaders/**');
 project.addSources('Sources');
+project.addSources('editor');
 project.addLibrary('/home/jsnadeau/foundsdk/hscript');
 project.addLibrary('/home/jsnadeau/foundsdk/haxeui-core');
 project.addLibrary('/home/jsnadeau/foundsdk/haxeui-kha');

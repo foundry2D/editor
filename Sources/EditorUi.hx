@@ -4,15 +4,15 @@ import haxe.ui.components.Button;
 import haxe.ui.core.Component;
 import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
-import haxe.ui.macros.ComponentMacros;
 import haxe.ui.Toolkit;
 import iron.data.SceneFormat;
+import iron.system.ArmPack;
 
 class EditorUi {
     var editor:EditorView;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
-    public var raw:TSceneFormat;
+    static public var raw:TSceneFormat =null;
     public function new(plist:Array<foundry.data.Project.TProject> = null){
         Toolkit.init();
         if(plist != null){
@@ -21,7 +21,7 @@ class EditorUi {
         }
         else {
             editor = new EditorView();
-            kha.Assets.loadBlobFromPath("/home/jsnadeau/foundsdk/scene.json",createHierarchy,function(f:kha.AssetError){
+            kha.Assets.loadBlobFromPath("/home/jsnadeau/Documents/tests/armory_examples/game_bowling/Assets/Scene.arm",createHierarchy,function(f:kha.AssetError){
                 trace(f.error);
             });
             var tab = new ProjectExplorer();
@@ -40,8 +40,10 @@ class EditorUi {
 
     }
     function createHierarchy(blob:kha.Blob){
-        raw = haxe.Json.parse(blob.toString());
-        editor.ePanelLeft.addComponent(new EditorHierarchy(raw));
+        raw = ArmPack.decode(blob.bytes);
+        var inspector = new EditorInspector();
+        editor.ePanelRight.addComponent(inspector);
+        editor.ePanelLeft.addComponent(new EditorHierarchy(raw,inspector));
     }
     public function update(): Void {
 
