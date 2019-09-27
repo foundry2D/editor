@@ -49,17 +49,41 @@ class EditorHierarchy extends EditorTab {
         var name = EditorUi.raw.name;
         StringTools.replace(path,'$name/',"");
         var obj:TObj = getObj(EditorUi.raw.objects,path);
-        trace(path);
-        // trace(obj.name+":"+obj.data_ref);
         ds.add({
             name: obj.name,
             path: path,
             type:"img/"+obj.type,
             dataref: obj.data_ref,
-            px: obj.transform.values[0]
+            px: obj.transform.values[0],
+            py: obj.transform.values[1],
+            pz: obj.transform.values[2],
+            rx: obj.transform.values[3],
+            ry: obj.transform.values[4],
+            rz: obj.transform.values[5],
+            sx: obj.transform.values[6],
+            sy: obj.transform.values[7],
+            sz: obj.transform.values[8],
+            isParticle: fetch(obj,"is_particle"),
+            visible: fetch(obj,"visible"),
+            visibleMesh: fetch(obj,"visible_mesh"),
+            visibleShadow: fetch(obj,"visible_shadow"),
+            mobile: fetch(obj,"mobile"),
+            autoSpawn: fetch(obj,"spawn"),
+            localOnly: fetch(obj,"local_only"),
+            sampled: fetch(obj,"sampled")
         });
         
         return ds;
+    }
+    function fetch(obj:TObj,field:String):Any{
+        if(Reflect.hasField(obj,field)){
+            var value = Reflect.field(obj,field);
+            if(value != null){
+                return value;
+            }
+        }
+        var out = field.indexOf("visible") >= 0;
+        return out;
     }
     function getObj(objs:Null<Array<TObj>> , path:String){
         var split = path.split("/"); 

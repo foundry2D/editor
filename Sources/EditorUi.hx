@@ -7,12 +7,14 @@ import haxe.ui.core.Screen;
 import haxe.ui.Toolkit;
 import iron.data.SceneFormat;
 import iron.system.ArmPack;
+import haxe.ui.extended.FileSystem;
 
 class EditorUi {
     var editor:EditorView;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     static public var raw:TSceneFormat =null;
+    static public var projectPath:String = "~/Documents/tests/armory_examples/game_bowling";
     public function new(plist:Array<foundry.data.Project.TProject> = null){
         Toolkit.init();
         if(plist != null){
@@ -21,10 +23,11 @@ class EditorUi {
         }
         else {
             editor = new EditorView();
-            kha.Assets.loadBlobFromPath("/home/jsnadeau/Documents/tests/armory_examples/game_bowling/Assets/Scene.arm",createHierarchy,function(f:kha.AssetError){
+            var path = FileSystem.fixPath(projectPath);
+            kha.Assets.loadBlobFromPath('$path/Assets/Scene.arm',createHierarchy,function(f:kha.AssetError){
                 trace(f.error);
             });
-            var tab = new ProjectExplorer();
+            var tab = new ProjectExplorer(projectPath);
             var menu  = new EditorMenu();
             var button = new Button();
             button.text = "button-test";

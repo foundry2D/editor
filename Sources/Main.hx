@@ -19,9 +19,10 @@ class Main {
 	}
 
 	public static function main() {
-		
+		// var title = "Foundry Editor";
+		var title = "Project Manager";
 		kha.System.start({
-			title: "Project Manager",
+			title: title,
 			width: 1280,
 			height: 1000,
 			window: {windowFeatures: WindowFeatures.FeatureMaximizable
