@@ -49,20 +49,26 @@ class EditorHierarchy extends EditorTab {
         var name = EditorUi.raw.name;
         StringTools.replace(path,'$name/',"");
         var obj:TObj = getObj(EditorUi.raw.objects,path);
+        var mat = iron.math.Mat4.fromFloat32Array(obj.transform.values);
+        var pos = mat.getLoc();
+        var scale = mat.getScale();
+        var quat = new iron.math.Quat(); 
+        var rot = quat.fromMat(mat).getEuler();
+        var const = 180/Math.PI;
         ds.add({
             name: obj.name,
             path: path,
             type:"img/"+obj.type,
             dataref: obj.data_ref,
-            px: obj.transform.values[0],
-            py: obj.transform.values[1],
-            pz: obj.transform.values[2],
-            rx: obj.transform.values[3],
-            ry: obj.transform.values[4],
-            rz: obj.transform.values[5],
-            sx: obj.transform.values[6],
-            sy: obj.transform.values[7],
-            sz: obj.transform.values[8],
+            px: pos.x,
+            py: pos.y,
+            pz: pos.z,
+            rx: rot.x*const,
+            ry: rot.y*const,
+            rz: rot.z*const,
+            sx: scale.x,
+            sy: scale.y,
+            sz: scale.z,
             isParticle: fetch(obj,"is_particle"),
             visible: fetch(obj,"visible"),
             visibleMesh: fetch(obj,"visible_mesh"),

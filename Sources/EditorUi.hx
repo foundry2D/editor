@@ -24,7 +24,7 @@ class EditorUi {
         else {
             editor = new EditorView();
             var path = FileSystem.fixPath(projectPath);
-            kha.Assets.loadBlobFromPath('$path/Assets/Scene.arm',createHierarchy,function(f:kha.AssetError){
+            kha.Assets.loadBlobFromPath('$path/build_bowling/compiled/Assets/Scene.arm',createHierarchy,function(f:kha.AssetError){
                 trace(f.error);
             });
             var tab = new ProjectExplorer(projectPath);
