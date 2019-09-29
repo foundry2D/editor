@@ -69,26 +69,41 @@ class EditorHierarchy extends EditorTab {
             sx: scale.x,
             sy: scale.y,
             sz: scale.z,
-            isParticle: fetch(obj,"is_particle"),
-            visible: fetch(obj,"visible"),
-            visibleMesh: fetch(obj,"visible_mesh"),
-            visibleShadow: fetch(obj,"visible_shadow"),
-            mobile: fetch(obj,"mobile"),
-            autoSpawn: fetch(obj,"spawn"),
-            localOnly: fetch(obj,"local_only"),
-            sampled: fetch(obj,"sampled")
+            materialRefs: fetch(obj,'material_refs','Array'),
+            isParticle: fetch(obj,"is_particle",'Bool'),
+            groupref: fetch(obj,"groupref",'String'),
+            visible: fetch(obj,"visible",'Bool'),
+            visibleMesh: fetch(obj,"visible_mesh",'Bool'),
+            visibleShadow: fetch(obj,"visible_shadow",'Bool'),
+            mobile: fetch(obj,"mobile",'Bool'),
+            autoSpawn: fetch(obj,"spawn",'Bool'),
+            localOnly: fetch(obj,"local_only",'Bool'),
+            tilesheetRef: fetch(obj,"tilesheetRef",'String'),
+            tilesheetActionRef: fetch(obj,"tilesheetActionRef",'String'),
+            sampled: fetch(obj,"sampled",'Bool')
         });
         
         return ds;
     }
-    function fetch(obj:TObj,field:String):Any{
+    function fetch(obj:TObj,field:String,type:String):Any{
         if(Reflect.hasField(obj,field)){
             var value = Reflect.field(obj,field);
             if(value != null){
                 return value;
             }
         }
-        var out = field.indexOf("visible") >= 0;
+        var out:Any;
+        switch(type){
+            case 'Bool':
+                out = field.indexOf("visible") >= 0;
+            case 'String':
+                out = "";
+            case 'Array':
+                out = [];
+            default:
+                out = null;
+        }
+        
         return out;
     }
     function getObj(objs:Null<Array<TObj>> , path:String){
