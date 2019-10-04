@@ -8,6 +8,7 @@ import haxe.ui.Toolkit;
 import iron.data.SceneFormat;
 import iron.system.ArmPack;
 import haxe.ui.extended.FileSystem;
+import iron.format.BlendParser;
 
 class EditorUi {
     var editor:EditorView;
@@ -15,6 +16,8 @@ class EditorUi {
     var dialog:FileBrowserDialog;
     static public var raw:TSceneFormat =null;
     static public var projectPath:String = "~/Documents/tests/armory_examples/game_bowling";
+    static var bl:BlendParser = null;
+    var isBlend = false;
     public function new(plist:Array<foundry.data.Project.TProject> = null){
         Toolkit.init();
         if(plist != null){
@@ -23,10 +26,12 @@ class EditorUi {
         }
         else {
             editor = new EditorView();
-            var path = FileSystem.fixPath(projectPath);
-            kha.Assets.loadBlobFromPath('$path/build_bowling/compiled/Assets/Scene.arm',createHierarchy,function(f:kha.AssetError){
-                trace(f.error);
-            });
+            var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
+            if(StringTools.endsWith(path,"blend")){
+                isBlend = true;
+            }//'$path
+            iron.data.Data.getBlob(path,createHierarchy);
+            
             var tab = new ProjectExplorer(projectPath);
             var menu  = new EditorMenu();
             var button = new Button();
@@ -43,10 +48,18 @@ class EditorUi {
 
     }
     function createHierarchy(blob:kha.Blob){
-        raw = ArmPack.decode(blob.bytes);
-        var inspector = new EditorInspector();
-        editor.ePanelRight.addComponent(inspector);
-        editor.ePanelLeft.addComponent(new EditorHierarchy(raw,inspector));
+        if(isBlend){
+            bl = new BlendParser(blob);
+            trace(bl.dir("Scene"));
+            var scenes = bl.get("Scene");
+            trace(scenes.length);
+        }else{
+            raw = ArmPack.decode(blob.bytes);
+            var inspector = new EditorInspector();
+            editor.ePanelRight.addComponent(inspector);
+            editor.ePanelLeft.addComponent(new EditorHierarchy(raw,inspector));
+        }
+        
     }
     public function update(): Void {
 

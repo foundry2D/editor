@@ -26,7 +26,6 @@ class EditorHierarchy extends EditorTab {
         var ds = new ListDataSource<NodeData>();
         for(obj in objs){
             if(Reflect.hasField(obj,"children")){
-                trace(obj.type);
                 ds.add({
                     name: obj.name,
                     path: path,
@@ -75,6 +74,8 @@ class EditorHierarchy extends EditorTab {
             groupref: fetch(obj,"groupref",'String'),
             lods: fetch(obj,"lods",'Array'),
             traits: fetch(obj,"traits",'Array'),
+            constraints: fetch(obj,"constraints",'Array'),
+            properties: fetch(obj,"properties",'Array'),
             objectActions: fetch(obj,'object_actions','Array'),
             boneActions: fetch(obj,'bone_actions','Array') ,
             visible: fetch(obj,"visible",'Bool'),
