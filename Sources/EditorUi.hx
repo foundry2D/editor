@@ -1,5 +1,6 @@
 package;
 
+import iron.Trait;
 import haxe.ui.components.Button;
 import haxe.ui.core.Component;
 import haxe.ui.containers.menus.*;
@@ -10,7 +11,7 @@ import iron.system.ArmPack;
 import haxe.ui.extended.FileSystem;
 import iron.format.BlendParser;
 
-class EditorUi {
+class EditorUi extends Trait{
     var editor:EditorView;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
@@ -19,6 +20,7 @@ class EditorUi {
     static var bl:BlendParser = null;
     var isBlend = false;
     public function new(plist:Array<foundry.data.Project.TProject> = null){
+        super();
         Toolkit.init();
         if(plist != null){
             projectmanager = new ManagerView(plist);
@@ -58,6 +60,7 @@ class EditorUi {
             var inspector = new EditorInspector();
             editor.ePanelRight.addComponent(inspector);
             editor.ePanelLeft.addComponent(new EditorHierarchy(raw,inspector));
+            editor.ePanelTop.addComponent(new EditorGameView());
         }
         
     }

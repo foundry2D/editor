@@ -1,9 +1,14 @@
 package;
 
 
+import haxe.ui.extended.FileSystem;
+import foundry.data.Project.TProject;
 import kha.System;
 import kha.Assets;
 import kha.WindowOptions.WindowFeatures;
+import iron.object.Object;
+import iron.Scene;
+import iron.RenderPath;
 
 class Main {
 	static var ui:EditorUi = null;
@@ -18,31 +23,46 @@ class Main {
 			ui.render(frames[0].g2);
 	}
 
-	public static function main() {
-		var title = "Foundry Editor";
-		// var title = "Project Manager";
-		kha.System.start({
-			title: title,
-			width: 1280,
-			height: 1000,
-			window: {windowFeatures: WindowFeatures.FeatureMaximizable
-			} 
-		},
-		initialized);
+	public static var projectName:String;
+    public static inline var projectPackage = 'arm';
+	static var project(default,set):foundry.data.Project.TProject;
+	static function set_project(p:TProject){
+		var scene = FileSystem.fixPath(p.path+p.scenes[0]);
+		projectName = p.name;
+		EditorUi.projectPath = p.path;
+		ui = new EditorUi();
+		#if arm_csm
+		iron.object.BoneAnimation.skinMaxBones = 8;
+        iron.object.LightObject.cascadeCount = 4;
+        iron.object.LightObject.cascadeSplitFactor = 0.800000011920929;
+        armory.system.Starter.main(
+            scene,
+            1,
+            false,
+            true,
+            false,
+            960,
+            540,
+            1,
+            true,
+            armory.renderpath.RenderPathCreator.get
+        );
+		#end
+		return p;
 	}
-	#if foundry_editor
+	public static function main() {
+		initialized();
+	}
+	
 	static var path = "";
 	static function loadProjectList(){
 		kha.Assets.loadBlobFromPath(path, function(lblob:kha.Blob) {
 			var raw:Array<foundry.data.Project.TProject> = haxe.Json.parse(lblob.toString());
+			project = raw[0];
 			ui = new EditorUi(raw);
 		});
 	}
-	#end
-    static function initialized(window:kha.Window){
-		var number = kha.Display.all.length;
-		#if foundry_editor
-	
+	static function initialized(){
         #if kha_krom
         cwd = Krom.getFilesLocation();
 		#elseif kha_kore
@@ -67,12 +87,10 @@ class Main {
 		else{
 			loadProjectList();
 		}
+	
 		
-		#else
-		ui = new EditorUi();
-		#end
-        kha.System.notifyOnFrames(render);
-		kha.Scheduler.addTimeTask(update, 0, 1 / 60);
+        // kha.System.notifyOnFrames(render);  
+		// kha.Scheduler.addTimeTask(update, 0, 1 / 60);
     }
 }
 
