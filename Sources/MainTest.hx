@@ -13,15 +13,15 @@ import iron.RenderPath;
 class Main {
 	static var ui:EditorUi = null;
     public static var cwd = "";
-	static function update(): Void {
-		if(ui != null)
-			ui.update();
-	}
+	// static function update(): Void {
+	// 	if(ui != null)
+	// 		ui.update();
+	// }
 
-	static function render(frames: Array<kha.Framebuffer>): Void {
-		if(ui != null)
-			ui.render(frames[0].g2);
-	}
+	// static function render(frames: Array<kha.Framebuffer>): Void {
+	// 	if(ui != null)
+	// 		ui.render(frames[0].g2);
+	// }
 
 	public static var projectName:String;
     public static inline var projectPackage = 'arm';
@@ -30,7 +30,6 @@ class Main {
 		var scene = FileSystem.fixPath(p.path+p.scenes[0]);
 		projectName = p.name;
 		EditorUi.projectPath = p.path;
-		ui = new EditorUi();
 		#if arm_csm
 		iron.object.BoneAnimation.skinMaxBones = 8;
         iron.object.LightObject.cascadeCount = 4;
@@ -48,6 +47,7 @@ class Main {
             armory.renderpath.RenderPathCreator.get
         );
 		#end
+		ui = new EditorUi();
 		return p;
 	}
 	public static function main() {

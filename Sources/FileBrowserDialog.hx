@@ -5,7 +5,7 @@ import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.core.Screen;
 import haxe.ui.extended.Handler;
 
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/file-browser-dialog.xml"))
+@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/fb-dialog.xml"))
 class FileBrowserDialog extends Dialog {
     static public var inst:FileBrowserDialog = null;
     public function new(){

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module id="test">
     <components>
-	    <class folder="../Assets/custom">
-        </class>
+	    <!-- <class folder="../Assets/custom">
+        </class> -->
         <class package="haxe.ui.extended" >
         </class>
     </components>
