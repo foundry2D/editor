@@ -6,9 +6,14 @@ import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
 import haxe.ui.Toolkit;
 import haxe.ui.extended.FileSystem;
+#if arm_csm
 import iron.Trait;
 import iron.data.SceneFormat;
 import iron.system.ArmPack;
+#elseif coin
+import coin.Trait;
+import coin.data.SceneFormat;
+#end
 // import iron.format.BlendParser;
 
 class EditorUi extends Trait{
@@ -28,6 +33,7 @@ class EditorUi extends Trait{
             Screen.instance.addComponent(projectmanager);
         }
         else {
+            #if arm_csm
             iron.App.notifyOnInit(function(){
                 iron.Scene.active.notifyOnInit(init);
             });
@@ -35,6 +41,13 @@ class EditorUi extends Trait{
                 iron.Scene.active.notifyOnInit(init);
             });
             iron.App.notifyOnRender2D(render);
+            #elseif coin
+            coin.Coin.render = function(g:kha.graphics2.Graphics){
+                g.begin();
+                Screen.instance.renderTo(g);
+                g.end();
+            };
+            #end
         }
         
 
@@ -42,14 +55,17 @@ class EditorUi extends Trait{
     function init(){
         gameView = new EditorGameView();
         editor = new EditorView();
-        trace("was init");
         // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
         // if(StringTools.endsWith(path,"blend")){
         //     isBlend = true;
         // }//'$path
 
         // iron.data.Data.getBlob(path,createHierarchy);
+        #if arm_csm
         createHierarchy(iron.Scene.active.raw);
+        #elseif coin
+        createHierarchy(coin.State.active.raw);
+        #end
         
         var tab = new ProjectExplorer(projectPath);
         var menu  = new EditorMenu();
@@ -82,6 +98,5 @@ class EditorUi extends Trait{
         g.end();
         Screen.instance.renderTo(g);
         g.begin(false);
-        // g.begin(true, 0xFFFFFF);
     }
 }
