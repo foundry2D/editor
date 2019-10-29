@@ -22,7 +22,7 @@ class EditorUi extends Trait{
     var dialog:FileBrowserDialog;
     var gameView:EditorGameView; 
     static public var raw:TSceneFormat =null;
-    static public var projectPath:String = "~/Documents/tests/armory_examples/game_bowling";
+    static public var projectPath:String = "~/Documents/projects/raccoon-tests/";
     // static var bl:BlendParser = null;
     var isBlend = false;
     public function new(plist:Array<foundry.data.Project.TProject> = null){
@@ -42,10 +42,11 @@ class EditorUi extends Trait{
             });
             iron.App.notifyOnRender2D(render);
             #elseif coin
-            coin.Coin.render = function(g:kha.graphics2.Graphics){
-                g.begin();
-                Screen.instance.renderTo(g);
-                g.end();
+            init();
+            coin.Coin.renderfunc = function(c:kha.Canvas){
+                // c.g2.begin();
+                Screen.instance.renderTo(c.g2);
+                // c.g2.end();
             };
             #end
         }
@@ -94,9 +95,9 @@ class EditorUi extends Trait{
 
     }
 
-    public function render(g:kha.graphics2.Graphics): Void {
-        g.end();
-        Screen.instance.renderTo(g);
-        g.begin(false);
-    }
+    // public function render(g:kha.graphics2.Graphics): Void {
+    //     g.begin(false);
+    //     Screen.instance.renderTo(g);
+    //     g.end();
+    // }
 }

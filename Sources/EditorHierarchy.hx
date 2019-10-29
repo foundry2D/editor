@@ -4,8 +4,12 @@ import haxe.ui.extended.NodeData;
 import haxe.ui.extended.InspectorNode;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
-import iron.data.SceneFormat;
 
+#if arm_csm
+import iron.data.SceneFormat;
+#else
+import coin.data.SceneFormat;
+#end
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
 class EditorHierarchy extends EditorTab {
     var inspector:EditorInspector;
@@ -18,7 +22,11 @@ class EditorHierarchy extends EditorTab {
 
     public function setFromScene(raw:TSceneFormat){
         path.text = raw.name;
+        #if arm_csm
         tree.dataSource = getObjData(raw.objects,raw.name);
+        #else
+        tree.dataSource = getObjData(raw._entities,raw.name);
+        #end
     }
 
     function getObjData(objs:Array<TObj>,path:String):ListDataSource<NodeData>{
@@ -47,6 +55,7 @@ class EditorHierarchy extends EditorTab {
         var ds = new ListDataSource<InspectorData>();
         var name = EditorUi.raw.name;
         StringTools.replace(path,'$name/',"");
+    #if arm_csm
         var obj:TObj = getObj(EditorUi.raw.objects,path);
         var mat = iron.math.Mat4.fromFloat32Array(obj.transform.values);
         var pos = mat.getLoc();
@@ -88,7 +97,25 @@ class EditorHierarchy extends EditorTab {
             tilesheetActionRef: fetch(obj,"tilesheetActionRef",'String'),
             sampled: fetch(obj,"sampled",'Bool')
         });
-        
+    #elseif coin
+        var obj:TObj = getObj(EditorUi.raw._entities,path);
+        var scale = Reflect.hasField(obj,'scale') ? obj.scale: new kha.math.Vector2(1.0,1.0);
+        ds.add({
+            name: obj.name,
+            path: path,
+            type:"img/"+obj.type,
+            px: obj.position.x,
+            py: obj.position.y,
+            pz: obj.depth,
+            sx: scale.x,
+            sy: scale.y,
+            rz: obj.rotation,
+            w: obj.width,
+            h: obj.height,
+            active: obj.active,
+            traits: fetch(obj,"traits",'Array'),
+        });
+    #end
         return ds;
     }
     function fetch(obj:TObj,field:String,type:String):Any{
@@ -101,7 +128,7 @@ class EditorHierarchy extends EditorTab {
         var out:Any;
         switch(type){
             case 'Bool':
-                out = field.indexOf("visible") >= 0;
+                out = field.indexOf("visible") >= 0 || field.indexOf("active") >= 0 ;
             case 'String':
                 out = "";
             case 'Array':

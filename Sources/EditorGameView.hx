@@ -11,8 +11,8 @@ import iron.RenderPath;
 #if coin
 import coin.Trait;
 import coin.data.SceneFormat;
-import armory.renderpath.RenderPathCreator;
-import iron.RenderPath;
+// import armory.renderpath.RenderPathCreator;
+// import iron.RenderPath;
 #end
 class EditorGameView extends EditorTab {
     var drawTrait:Trait = new Trait();
@@ -41,7 +41,11 @@ class EditorGameView extends EditorTab {
 			});
 			drawTrait.notifyOnRender2D(drawGameView);
 		});
+		#elseif coin
+		coin.State.active.root.addTrait(drawTrait);
+		drawTrait.notifyOnRender2D(drawGameView);
         #end
+
     }
 	function drawGameView(g:kha.graphics2.Graphics) {
 				#if arm_csm
@@ -49,8 +53,8 @@ class EditorGameView extends EditorTab {
 				// Access final composited image that is afterwards drawn to the screen
 				var image = RenderPathCreator.finalTarget.image;
 				#elseif coin
-				if (Coin.backbuffer == null) return;
-				var image = Coin.backbuffer;
+				if (coin.Coin.scenebuffer == null) coin.Coin.scenebuffer = kha.Image.createRenderTarget(Std.int(this.width),Std.int(this.height));
+				var image = coin.Coin.scenebuffer;
 				#end
 				g.color = 0xffffffff;
 				if (Image.renderTargetsInvertedY()) {
