@@ -11,8 +11,9 @@ import iron.RenderPath;
 #if coin
 import coin.Trait;
 import coin.data.SceneFormat;
-// import armory.renderpath.RenderPathCreator;
-// import iron.RenderPath;
+import coin.State;
+import coin.Coin;
+import kha.Scaler;
 #end
 class EditorGameView extends EditorTab {
     var drawTrait:Trait = new Trait();
@@ -42,27 +43,42 @@ class EditorGameView extends EditorTab {
 			drawTrait.notifyOnRender2D(drawGameView);
 		});
 		#elseif coin
-		coin.State.active.root.addTrait(drawTrait);
-		drawTrait.notifyOnRender2D(drawGameView);
+		coin.Coin.renderfunc = drawGameView;
         #end
 
     }
+	
 	function drawGameView(g:kha.graphics2.Graphics) {
 				#if arm_csm
 				if (RenderPathCreator.finalTarget == null) return;			
 				// Access final composited image that is afterwards drawn to the screen
 				var image = RenderPathCreator.finalTarget.image;
 				#elseif coin
-				if (coin.Coin.scenebuffer == null) coin.Coin.scenebuffer = kha.Image.createRenderTarget(Std.int(this.width),Std.int(this.height));
-				var image = coin.Coin.scenebuffer;
+				if (Coin.scenebuffer == null) Coin.scenebuffer = kha.Image.createRenderTarget(Std.int(this.width),Std.int(this.height));
+				Coin.BUFFERWIDTH = Std.int(this.width);
+				Coin.BUFFERHEIGHT = Std.int(this.height);
+				// Coin.scenebuffer.g2.pushTransformation(kha.math.FastMatrix3.translation(this.screenX ,this.screenY));
+				Coin.scenebuffer.g2.pushTransformation(Scaler.getScaledTransformation(Coin.WIDTH,Coin.HEIGHT,Std.int(this.width),Std.int(this.height), kha.System.screenRotation));
+				Coin.scenebuffer.g2.color = Coin.backgroundcolor;
+				Coin.scenebuffer.g2.fillRect(this.screenX,this.screenY,this.width,this.height);
+				if (State.active != null){
+					State.active.render(Coin.scenebuffer);
+				}
+				
+				var image = Coin.scenebuffer;
+				// g.drawImage(image, 0 ,0);
 				#end
 				g.color = 0xffffffff;
 				if (Image.renderTargetsInvertedY()) {
 
 					g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, -this.height);
+
 				}
 				else {
 					g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, this.height);
 				}
+				#if coin
+				Coin.scenebuffer.g2.popTransformation();
+				#end
 			}
 }

@@ -17,7 +17,7 @@ import coin.data.SceneFormat;
 // import iron.format.BlendParser;
 
 class EditorUi extends Trait{
-    var editor:EditorView;
+    public var editor:EditorView;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     var gameView:EditorGameView; 
@@ -43,11 +43,6 @@ class EditorUi extends Trait{
             iron.App.notifyOnRender2D(render);
             #elseif coin
             init();
-            coin.Coin.renderfunc = function(c:kha.Canvas){
-                // c.g2.begin();
-                Screen.instance.renderTo(c.g2);
-                // c.g2.end();
-            };
             #end
         }
         
