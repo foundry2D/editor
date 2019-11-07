@@ -9,12 +9,12 @@ import armory.renderpath.RenderPathCreator;
 import iron.RenderPath;
 #end
 #if coin
-import coin.Trait;
-import coin.data.SceneFormat;
-import coin.State;
-import coin.Coin;
 import kha.Scaler;
 import kha.math.Vector2;
+import coin.Coin;
+import coin.State;
+import coin.Trait;
+import coin.data.SceneFormat;
 #end
 class EditorGameView extends EditorTab {
     var drawTrait:Trait = new Trait();
@@ -55,17 +55,7 @@ class EditorGameView extends EditorTab {
 				if (RenderPathCreator.finalTarget == null) return;			
 				// Access final composited image that is afterwards drawn to the screen
 				var image = RenderPathCreator.finalTarget.image;
-				#elseif coin
-				g.end();
-				var image = Coin.scenebuffer;
-				image.g2.begin();
-				if (State.active != null){
-					State.active.render(image);
-				}
-				image.g2.end();
-				g.begin();
-				haxe.ui.core.Screen.instance.renderTo(g);
-				#end
+
 				g.color = 0xffffffff;
 				if (Image.renderTargetsInvertedY()) {
 
@@ -75,8 +65,21 @@ class EditorGameView extends EditorTab {
 				else {
 					g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, this.height);
 				}
-				#if coin
 
+				#elseif coin
+
+				g.end();
+				var image = Coin.scenebuffer;
+				image.g2.begin();
+				if (State.active != null){
+					State.active.render(image);
+				}
+				image.g2.end();
+
+				g.begin();
+
+				haxe.ui.core.Screen.instance.renderTo(g);
+				g.drawScaledImage(image, this.screenX ,this.screenY, this.width, this.height);
 				#end
 			}
 }
