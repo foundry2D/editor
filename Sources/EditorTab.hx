@@ -7,9 +7,16 @@ import haxe.ui.components.Label;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.core.Screen;
 
+typedef TItem ={
+    var name:String;
+    var expands:Bool;
+    var onClicked:MouseEvent->Void;
+}
+
 class EditorTab extends TabView {
 
     var bar:TabBar;
+    var titems:Array<TItem> = [];
     public function new(){
         super();
         this.percentWidth = 100.0;
@@ -21,10 +28,13 @@ class EditorTab extends TabView {
     
     function onRightclickcall(e:MouseEvent) {
         var menu = new Menu();
-        var item = new MenuItem();
-        item.text  = "Jello";
-        item.expandable = false;
-        menu.addComponent(item);
+        for(i in titems){
+            var item = new MenuItem();
+            item.text  = i.name;
+            item.expandable = i.expands;
+            item.onClick = i.onClicked;
+            menu.addComponent(item);
+        }
         menu.show();
         menu.left = e.screenX;
         menu.top = e.screenY;

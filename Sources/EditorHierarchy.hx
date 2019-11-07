@@ -4,10 +4,13 @@ import haxe.ui.extended.NodeData;
 import haxe.ui.extended.InspectorNode;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
+import haxe.ui.events.MouseEvent;
 
 #if arm_csm
 import iron.data.SceneFormat;
 #else
+import kha.math.Vector2;
+import coin.State;
 import coin.data.SceneFormat;
 #end
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
@@ -16,6 +19,11 @@ class EditorHierarchy extends EditorTab {
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
         inspector = p_inspector;
+        titems = [
+            {name:"Add Object",expands:false,onClicked: addObj2Scn},
+            {name:"Add Sprite",expands:false,onClicked: addSprite2Scn},
+            {name:"Add Emitter",expands:false,onClicked: addEmitter2Scn},
+        ];
         setFromScene(raw);
 
     }
@@ -51,7 +59,92 @@ class EditorHierarchy extends EditorTab {
         }
         return ds;
     }
-    function getIt(path:String){
+    
+
+    @:bind(tree,MouseEvent.RIGHT_CLICK)
+    function rightClick(e:MouseEvent){
+        super.onRightclickcall(e);
+    }
+
+    function addObj2Scn(e:MouseEvent){
+        trace("hello world");
+    }
+
+    function addSprite2Scn(e:MouseEvent){
+        var data:TSpriteData = {
+            name: "Sprite",
+            type: "sprite_object",
+            position: new Vector2(),
+            rotation:0.0,
+            width: 0.0,
+            height:0.0,
+            scale: new Vector2(1.0,1.0),
+            center: new Vector2(),
+            depth: 0.0,
+            active: false,
+            c_width:0.0,
+            c_height:0.0,
+            c_center: new Vector2(),
+            shape: "",
+            _imagePath: ""
+        };
+        State.active.raw._entities.push(data);
+        State.active.addEntity(data,true);
+        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
+        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
+        tree.dispatch(new UIEvent(UIEvent.CHANGE));
+    }
+    
+    function addEmitter2Scn(e:MouseEvent){
+            trace("No!");
+    }
+    @:bind(tree,UIEvent.CHANGE)
+    function updateInspector(e:UIEvent){
+        if(inspector != null && tree.selectedNode != null){
+            inspector.tree.dataSource = getInspectorNode(tree.selectedNode.path);
+        }
+    }
+
+
+    function fetch(obj:TObj,field:String,type:String):Any{
+        if(Reflect.hasField(obj,field)){
+            var value = Reflect.field(obj,field);
+            if(value != null){
+                return value;
+            }
+        }
+        var out:Any;
+        switch(type){
+            case 'Bool':
+                out = field.indexOf("visible") >= 0 || field.indexOf("active") >= 0 ;
+            case 'String':
+                out = "";
+            case 'Array':
+                out = [];
+            default:
+                out = null;
+        }
+        
+        return out;
+    }
+
+    function getObj(objs:Null<Array<TObj>> , path:String){
+        var split = path.split("/"); 
+        var name = split[0];
+        var isLast = split[split.length-1] == name;
+        var out:TObj = null;
+        for(obj in objs){
+            if(name == obj.name && isLast){
+                out= obj;
+            }
+            else if(name == obj.name && Reflect.hasField(obj,"children")){
+                out = getObj(obj.children,StringTools.replace(path,'$name/',""));
+            }
+        }
+        return out;
+    }
+
+    function getInspectorNode(path:String){
         var ds = new ListDataSource<InspectorData>();
         var name = EditorUi.raw.name;
         StringTools.replace(path,'$name/',"");
@@ -113,51 +206,11 @@ class EditorHierarchy extends EditorTab {
             w: obj.width,
             h: obj.height,
             active: obj.active,
+            _imagePath: fetch(obj,"_imagePath",'String'),
             traits: fetch(obj,"traits",'Array'),
         });
     #end
         return ds;
     }
-    function fetch(obj:TObj,field:String,type:String):Any{
-        if(Reflect.hasField(obj,field)){
-            var value = Reflect.field(obj,field);
-            if(value != null){
-                return value;
-            }
-        }
-        var out:Any;
-        switch(type){
-            case 'Bool':
-                out = field.indexOf("visible") >= 0 || field.indexOf("active") >= 0 ;
-            case 'String':
-                out = "";
-            case 'Array':
-                out = [];
-            default:
-                out = null;
-        }
-        
-        return out;
-    }
-    function getObj(objs:Null<Array<TObj>> , path:String){
-        var split = path.split("/"); 
-        var name = split[0];
-        var isLast = split[split.length-1] == name;
-        var out:TObj = null;
-        for(obj in objs){
-            if(name == obj.name && isLast){
-                out= obj;
-            }
-            else if(name == obj.name && Reflect.hasField(obj,"children")){
-                out = getObj(obj.children,StringTools.replace(path,'$name/',""));
-            }
-        }
-        return out;
-    }
-    @:bind(tree,UIEvent.CHANGE)
-    function updateInspector(e:UIEvent){
-        if(inspector != null){
-            inspector.tree.dataSource = getIt(tree.selectedNode.path);
-        }
-    }
+    
 }
