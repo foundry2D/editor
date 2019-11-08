@@ -67,7 +67,23 @@ class EditorHierarchy extends EditorTab {
     }
 
     function addObj2Scn(e:MouseEvent){
-        trace("hello world");
+        var data:TObj = {
+            name: "Object",
+            type: "object",
+            position: new Vector2(),
+            rotation:0.0,
+            width: 0.0,
+            height:0.0,
+            scale: new Vector2(1.0,1.0),
+            center: new Vector2(),
+            depth: 0.0,
+            active: false
+        };
+        State.active.raw._entities.push(data);
+        State.active.addEntity(data,true);
+        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
+        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
+        tree.dispatch(new UIEvent(UIEvent.CHANGE));
     }
 
     function addSprite2Scn(e:MouseEvent){
@@ -86,7 +102,7 @@ class EditorHierarchy extends EditorTab {
             c_height:0.0,
             c_center: new Vector2(),
             shape: "",
-            _imagePath: ""
+            imagePath: ""
         };
         State.active.raw._entities.push(data);
         State.active.addEntity(data,true);
@@ -96,12 +112,31 @@ class EditorHierarchy extends EditorTab {
     }
     
     function addEmitter2Scn(e:MouseEvent){
-            trace("No!");
+        var data:TEmitterData = {
+            name: "Emitter",
+            type: "emitter_object",
+            position: new Vector2(),
+            rotation:0.0,
+            width: 0.0,
+            height:0.0,
+            scale: new Vector2(1.0,1.0),
+            center: new Vector2(),
+            depth: 0.0,
+            active: false,
+            amount: 1
+        };
+        State.active.raw._entities.push(data);
+        State.active.addEntity(data,true);
+        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
+        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
+        tree.dispatch(new UIEvent(UIEvent.CHANGE));
     }
     @:bind(tree,UIEvent.CHANGE)
     function updateInspector(e:UIEvent){
         if(inspector != null && tree.selectedNode != null){
-            inspector.tree.dataSource = getInspectorNode(tree.selectedNode.path);
+            var out:{ds:ListDataSource<InspectorData>,obj:TObj} = getInspectorNode(tree.selectedNode.path);
+            inspector.tree.dataSource = out.ds;
+            inspector.rawData = out.obj;
         }
     }
 
@@ -143,7 +178,7 @@ class EditorHierarchy extends EditorTab {
         }
         return out;
     }
-
+    
     function getInspectorNode(path:String){
         var ds = new ListDataSource<InspectorData>();
         var name = EditorUi.raw.name;
@@ -191,7 +226,7 @@ class EditorHierarchy extends EditorTab {
             sampled: fetch(obj,"sampled",'Bool')
         });
     #elseif coin
-        var obj:TObj = getObj(EditorUi.raw._entities,path);
+        var obj:TObj = getObj(State.active.raw._entities,path);
         var scale = Reflect.hasField(obj,'scale') ? obj.scale: new kha.math.Vector2(1.0,1.0);
         ds.add({
             name: obj.name,
@@ -206,11 +241,21 @@ class EditorHierarchy extends EditorTab {
             w: obj.width,
             h: obj.height,
             active: obj.active,
-            _imagePath: fetch(obj,"_imagePath",'String'),
+            imagePath: fetch(obj,"imagePath",'String'),
             traits: fetch(obj,"traits",'Array'),
         });
+        var out = ds.get(ds.size-1);
+
+        for(f in Reflect.fields(out)){
+            if(EditorInspector.defaults.exists(f)) continue;
+
+            if(!Reflect.hasField(obj,f)){
+                trace('was deleted $f from'+out.name);
+                Reflect.deleteField(out,f);
+            }
+        }
     #end
-        return ds;
+        return {ds:ds,obj:obj};
     }
     
 }
