@@ -21,7 +21,7 @@ class EditorInspector extends EditorTab {
     public static var defaults:Map<String,String> = [
         "px" =>"x","py"=>"y","pz"=>"depth",
         "rz"=>"rotation",
-        "sx"=>"scale","sy"=>"scale",
+        "sx"=>"x","sy"=>"y",
         "w"=>"width","h"=>"height",
         "path"=>"",
         "traits"=>""
@@ -32,13 +32,24 @@ class EditorInspector extends EditorTab {
             switch(e.target.id){
                 case "px" | "py":
                     Reflect.setProperty(rawData.position,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                case "sx" | "sy":
+                    Reflect.setProperty(rawData.scale,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                case "w" | "h" | "pz" | "rz":
+                    Reflect.setProperty(rawData,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                case "active":
+                    Reflect.setProperty(rawData,e.target.id,Reflect.getProperty(e.target,"selected"));
                 default:
             }
             // State.active.raw._entities[index] = rawData;
-            State.active._entities[index].raw = rawData;
+            if(State.active._entities[index] != null){
+                State.active._entities[index].raw = rawData;
+            }
+                
         }
     }
     #else
-    function updateData(e:UIEvent){}
+    function updateData(e:UIEvent){
+        trace("Implement me");
+    }
     #end
 }

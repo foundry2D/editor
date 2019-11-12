@@ -250,7 +250,7 @@ class EditorHierarchy extends EditorTab {
             if(EditorInspector.defaults.exists(f)) continue;
 
             if(!Reflect.hasField(obj,f)){
-                trace('was deleted $f from'+out.name);
+                trace('Field $f was deleted from '+out.name);
                 Reflect.deleteField(out,f);
             }
         }

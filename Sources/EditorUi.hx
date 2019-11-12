@@ -89,10 +89,5 @@ class EditorUi extends Trait{
     public function update(): Void {
 
     }
-
-    // public function render(g:kha.graphics2.Graphics): Void {
-    //     g.begin(false);
-    //     Screen.instance.renderTo(g);
-    //     g.end();
-    // }
+    
 }
