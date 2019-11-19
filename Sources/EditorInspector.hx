@@ -12,6 +12,8 @@ import coin.data.SceneFormat;
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
 class EditorInspector extends EditorTab {
     public var rawData:TObj;
+    public var index:Int = -1;
+    public var wait:Array<Int> = [];
     public function new() {
         super();
         tree.updateData = updateData;
@@ -26,25 +28,31 @@ class EditorInspector extends EditorTab {
         "path"=>"",
         "traits"=>""
     ];
-    function updateData(e:UIEvent){        
+    @:access(haxe.ui.backend.kha.TextField)
+    function updateData(e:UIEvent){
+        var _rawData = rawData;     
         if(e.target != null){
-            var index = State.active.raw._entities.indexOf(rawData);
             switch(e.target.id){
                 case "px" | "py":
-                    Reflect.setProperty(rawData.position,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                    Reflect.setProperty(_rawData.position,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
                 case "sx" | "sy":
-                    Reflect.setProperty(rawData.scale,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                    Reflect.setProperty(_rawData.scale,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
                 case "w" | "h" | "pz" | "rz":
-                    Reflect.setProperty(rawData,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                    Reflect.setProperty(_rawData,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
                 case "active":
-                    Reflect.setProperty(rawData,e.target.id,Reflect.getProperty(e.target,"selected"));
+                    Reflect.setProperty(_rawData,e.target.id,Reflect.getProperty(e.target,"selected"));
+                case "imagePath":
+                    var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
+                    if(tf.isActive && !tf._caretInfo.visible )
+                        Reflect.setProperty(_rawData,e.target.id,Reflect.getProperty(e.target,"text"));
                 default:
-            }
-            // State.active.raw._entities[index] = rawData;
-            if(State.active._entities[index] != null){
-                State.active._entities[index].raw = rawData;
-            }
-                
+            }   
+        }
+        // State.active.raw._entities[index] = rawData;
+        if(State.active._entities[index] != null){
+            State.active._entities[index].raw = _rawData;
+            if(e.target != null && wait[wait.length-1] == 1)
+                wait.pop();
         }
     }
     #else

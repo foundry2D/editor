@@ -48,38 +48,38 @@ class EditorGameView extends EditorTab {
         #end
 
     }
-
+	
 
 	function drawGameView(g:kha.graphics2.Graphics) {
-				#if arm_csm
-				if (RenderPathCreator.finalTarget == null) return;			
-				// Access final composited image that is afterwards drawn to the screen
-				var image = RenderPathCreator.finalTarget.image;
+		#if arm_csm
+		if (RenderPathCreator.finalTarget == null) return;			
+		// Access final composited image that is afterwards drawn to the screen
+		var image = RenderPathCreator.finalTarget.image;
 
-				g.color = 0xffffffff;
-				if (Image.renderTargetsInvertedY()) {
+		g.color = 0xffffffff;
+		if (Image.renderTargetsInvertedY()) {
 
-					g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, -this.height);
+			g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, -this.height);
 
-				}
-				else {
-					g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, this.height);
-				}
+		}
+		else {
+			g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, this.height);
+		}
 
-				#elseif coin
+		#elseif coin
 
-				g.end();
-				var image = Coin.scenebuffer;
-				image.g2.begin();
-				if (State.active != null){
-					State.active.render(image);
-				}
-				image.g2.end();
+		g.end();
+		var image = Coin.scenebuffer;
+		image.g2.begin();
+		if (State.active != null){
+			State.active.render(image);
+		}
+		image.g2.end();
 
-				g.begin();
+		g.begin();
 
-				haxe.ui.core.Screen.instance.renderTo(g);
-				g.drawScaledImage(image, this.screenX ,this.screenY, this.width, this.height);
-				#end
-			}
+		haxe.ui.core.Screen.instance.renderTo(g);
+		g.drawScaledImage(image, this.screenX ,this.screenY, this.width, this.height);
+		#end
+	}
 }

@@ -5,12 +5,14 @@ import haxe.ui.extended.InspectorNode;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.events.MouseEvent;
+import haxe.ui.events.KeyboardEvent;
 
 #if arm_csm
 import iron.data.SceneFormat;
 #else
 import kha.math.Vector2;
 import coin.State;
+import coin.object.Object;
 import coin.data.SceneFormat;
 #end
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
@@ -77,13 +79,12 @@ class EditorHierarchy extends EditorTab {
             scale: new Vector2(1.0,1.0),
             center: new Vector2(),
             depth: 0.0,
-            active: false
+            active: true
         };
         State.active.raw._entities.push(data);
         State.active.addEntity(data,true);
         tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
         tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
-        tree.dispatch(new UIEvent(UIEvent.CHANGE));
     }
 
     function addSprite2Scn(e:MouseEvent){
@@ -92,23 +93,22 @@ class EditorHierarchy extends EditorTab {
             type: "sprite_object",
             position: new Vector2(),
             rotation:0.0,
-            width: 0.0,
-            height:0.0,
+            width: 250.0,
+            height:250.0,
             scale: new Vector2(1.0,1.0),
             center: new Vector2(),
             depth: 0.0,
-            active: false,
+            active: true,
             c_width:0.0,
             c_height:0.0,
             c_center: new Vector2(),
             shape: "",
-            imagePath: ""
+            imagePath: "basic"
         };
         State.active.raw._entities.push(data);
         State.active.addEntity(data,true);
         tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
         tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
-        tree.dispatch(new UIEvent(UIEvent.CHANGE));
     }
     
     function addEmitter2Scn(e:MouseEvent){
@@ -122,26 +122,26 @@ class EditorHierarchy extends EditorTab {
             scale: new Vector2(1.0,1.0),
             center: new Vector2(),
             depth: 0.0,
-            active: false,
+            active: true,
             amount: 1
         };
         State.active.raw._entities.push(data);
         State.active.addEntity(data,true);
         tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
         tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
-        tree.dispatch(new UIEvent(UIEvent.CHANGE));
     }
     @:bind(tree,UIEvent.CHANGE)
     function updateInspector(e:UIEvent){
         if(inspector != null && tree.selectedNode != null){
-            var out:{ds:ListDataSource<InspectorData>,obj:TObj} = getInspectorNode(tree.selectedNode.path);
+            inspector.wait.push(1);
+            var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(tree.selectedNode.path);
             inspector.tree.dataSource = out.ds;
             inspector.rawData = out.obj;
+            inspector.index = out.index;
         }
     }
 
-
-    function fetch(obj:TObj,field:String,type:String):Any{
+    static function fetch(obj:TObj,field:String,type:String):Any{
         if(Reflect.hasField(obj,field)){
             var value = Reflect.field(obj,field);
             if(value != null){
@@ -163,20 +163,22 @@ class EditorHierarchy extends EditorTab {
         return out;
     }
 
-    function getObj(objs:Null<Array<TObj>> , path:String){
+    function getObj(objs:Array<Object> , path:String){
         var split = path.split("/"); 
         var name = split[0];
         var isLast = split[split.length-1] == name;
+        var i= -1;
         var out:TObj = null;
         for(obj in objs){
             if(name == obj.name && isLast){
-                out= obj;
+                out= obj.raw;
+                i = obj.uid;
             }
-            else if(name == obj.name && Reflect.hasField(obj,"children")){
-                out = getObj(obj.children,StringTools.replace(path,'$name/',""));
-            }
+            // else if(name == obj.name && Reflect.hasField(obj,"children")){
+            //     out = getObj(obj.children,StringTools.replace(path,'$name/',""));
+            // }
         }
-        return out;
+        return {obj: out, index: i};
     }
     
     function getInspectorNode(path:String){
@@ -184,7 +186,8 @@ class EditorHierarchy extends EditorTab {
         var name = EditorUi.raw.name;
         StringTools.replace(path,'$name/',"");
     #if arm_csm
-        var obj:TObj = getObj(EditorUi.raw.objects,path);
+        var dat:{obj:TObj, index:Int} =getObj(EditorUi.raw.objects,path);
+        var obj:TObj = dat.obj;
         var mat = iron.math.Mat4.fromFloat32Array(obj.transform.values);
         var pos = mat.getLoc();
         var scale = mat.getScale();
@@ -226,9 +229,26 @@ class EditorHierarchy extends EditorTab {
             sampled: fetch(obj,"sampled",'Bool')
         });
     #elseif coin
-        var obj:TObj = getObj(State.active.raw._entities,path);
+        var dat:{obj:TObj, index:Int} = getObj(State.active._entities,path);
+        var obj:TObj = dat.obj;
+        ds.add(getIDataFrom(obj));
+        var out = ds.get(ds.size-1);
+
+        for(f in Reflect.fields(out)){
+            if(EditorInspector.defaults.exists(f)) continue;
+
+            if(!Reflect.hasField(obj,f)){
+                trace('Field $f was deleted from '+out.name);
+                Reflect.deleteField(out,f);
+            }
+        }
+    #end
+        return {ds:ds,obj:obj,index:dat.index};
+    }
+    public static function getIDataFrom(obj:TObj){
         var scale = Reflect.hasField(obj,'scale') ? obj.scale: new kha.math.Vector2(1.0,1.0);
-        ds.add({
+        var path = State.active.raw.name+"/"+obj.name;
+        var data:InspectorData = {
             name: obj.name,
             path: path,
             type:"img/"+obj.type,
@@ -243,19 +263,8 @@ class EditorHierarchy extends EditorTab {
             active: obj.active,
             imagePath: fetch(obj,"imagePath",'String'),
             traits: fetch(obj,"traits",'Array'),
-        });
-        var out = ds.get(ds.size-1);
-
-        for(f in Reflect.fields(out)){
-            if(EditorInspector.defaults.exists(f)) continue;
-
-            if(!Reflect.hasField(obj,f)){
-                trace('Field $f was deleted from '+out.name);
-                Reflect.deleteField(out,f);
-            }
-        }
-    #end
-        return {ds:ds,obj:obj};
+        };
+        return data;
     }
     
 }
