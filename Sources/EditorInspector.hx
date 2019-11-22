@@ -30,26 +30,40 @@ class EditorInspector extends EditorTab {
     ];
     @:access(haxe.ui.backend.kha.TextField)
     function updateData(e:UIEvent){
-        var _rawData = rawData;     
+        var _rawData = Reflect.copy(rawData);
+        var isValidChange = false;
+        var isPropChange = false;
         if(e.target != null){
+            var id = e.target.id;
+            var prop = "pos";
             switch(e.target.id){
                 case "px" | "py":
-                    Reflect.setProperty(_rawData.position,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                    id = defaults.get(e.target.id);
+                    Reflect.setProperty(_rawData.position,id,Reflect.getProperty(e.target,"pos"));
                 case "sx" | "sy":
-                    Reflect.setProperty(_rawData.scale,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                    id = defaults.get(e.target.id);
+                    Reflect.setProperty(_rawData.scale,id,Reflect.getProperty(e.target,"pos"));
                 case "w" | "h" | "pz" | "rz":
-                    Reflect.setProperty(_rawData,defaults.get(e.target.id),Reflect.getProperty(e.target,"pos"));
+                    if(e.target.id == "w" || e.target.id == "h")
+                        trace(Reflect.getProperty(e.target,"pos"));
+                    id = defaults.get(e.target.id);
+                    Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"pos"));
                 case "active":
-                    Reflect.setProperty(_rawData,e.target.id,Reflect.getProperty(e.target,"selected"));
+                    Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"selected"));
                 case "imagePath":
                     var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
                     if(tf.isActive && !tf._caretInfo.visible )
-                        Reflect.setProperty(_rawData,e.target.id,Reflect.getProperty(e.target,"text"));
+                        Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"text"));
                 default:
-            }   
+            }
+            trace(id);
+            trace(Reflect.getProperty(State.active._entities[index].raw,id));
+            trace(Reflect.getProperty(_rawData,id));
+            isValidChange = Reflect.getProperty(State.active._entities[index].raw,id) != Reflect.getProperty(_rawData,id);
+            trace(isValidChange);
         }
         // State.active.raw._entities[index] = rawData;
-        if(State.active._entities[index] != null){
+        if(State.active._entities[index] != null && isValidChange || isPropChange){
             State.active._entities[index].raw = _rawData;
             if(e.target != null && wait[wait.length-1] == 1)
                 wait.pop();
