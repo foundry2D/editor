@@ -13,7 +13,6 @@ import coin.data.SceneFormat;
 class EditorInspector extends EditorTab {
     public var rawData:TObj;
     public var index:Int = -1;
-    public var wait:Array<Int> = [];
     public function new() {
         super();
         tree.updateData = updateData;
@@ -31,8 +30,6 @@ class EditorInspector extends EditorTab {
     @:access(haxe.ui.backend.kha.TextField)
     function updateData(e:UIEvent){
         var _rawData = Reflect.copy(rawData);
-        var isValidChange = false;
-        var isPropChange = false;
         if(e.target != null){
             var id = e.target.id;
             var prop = "pos";
@@ -56,18 +53,28 @@ class EditorInspector extends EditorTab {
                         Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"text"));
                 default:
             }
-            trace(id);
-            trace(Reflect.getProperty(State.active._entities[index].raw,id));
-            trace(Reflect.getProperty(_rawData,id));
-            isValidChange = Reflect.getProperty(State.active._entities[index].raw,id) != Reflect.getProperty(_rawData,id);
-            trace(isValidChange);
         }
-        // State.active.raw._entities[index] = rawData;
-        if(State.active._entities[index] != null && isValidChange || isPropChange){
+        if(State.active._entities[index] != null ){
             State.active._entities[index].raw = _rawData;
-            if(e.target != null && wait[wait.length-1] == 1)
-                wait.pop();
         }
+    }
+    public function updateField(uid:Int,id:String,data:Any){
+        switch(id){
+            case "_positions":
+                var x = Reflect.getProperty(data,"x");
+                var y = Reflect.getProperty(data,"y");
+                if(index == uid){
+                    Reflect.setProperty(tree.curNode.transform.px,"pos",x);
+                    Reflect.setProperty(tree.curNode.transform.py,"pos",y);
+                }
+                State.active._entities[uid].raw.position = data;
+            case "_rotations":
+                if(index == uid){
+                    Reflect.setProperty(tree.curNode.transform.rz,"pos",data);
+                }
+                State.active._entities[uid].raw.rotation = data;
+        }
+        tree.dispatch(new UIEvent(UIEvent.CHANGE));
     }
     #else
     function updateData(e:UIEvent){

@@ -17,7 +17,7 @@ import coin.data.SceneFormat;
 #end
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
 class EditorHierarchy extends EditorTab {
-    var inspector:EditorInspector;
+    static public var inspector:EditorInspector;
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
         inspector = p_inspector;
@@ -133,7 +133,6 @@ class EditorHierarchy extends EditorTab {
     @:bind(tree,UIEvent.CHANGE)
     function updateInspector(e:UIEvent){
         if(inspector != null && tree.selectedNode != null){
-            inspector.wait.push(1);
             var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(tree.selectedNode.path);
             inspector.tree.dataSource = out.ds;
             inspector.rawData = out.obj;
