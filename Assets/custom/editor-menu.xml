@@ -1,8 +1,8 @@
 <menubar width="100%">
     <menu text="File" width="100%" >
         <menuitem text="Item 1" />
-        <menu text="Sub Menu">
-            <menuitem text="Item 1" />
+        <menu id="iScene" text="Scene">
+            <menuitem id="newScene" text="New Scene" />
             <menuitem text="Item 2" />
             <menuitem text="Item 3" />
             <menuseparator />

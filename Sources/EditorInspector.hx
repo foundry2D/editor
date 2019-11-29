@@ -29,7 +29,7 @@ class EditorInspector extends EditorTab {
     ];
     @:access(haxe.ui.backend.kha.TextField)
     function updateData(e:UIEvent){
-        var _rawData = Reflect.copy(rawData);
+        var _rawData = rawData;
         if(e.target != null){
             var id = e.target.id;
             var prop = "pos";
@@ -42,15 +42,19 @@ class EditorInspector extends EditorTab {
                     Reflect.setProperty(_rawData.scale,id,Reflect.getProperty(e.target,"pos"));
                 case "w" | "h" | "pz" | "rz":
                     if(e.target.id == "w" || e.target.id == "h")
-                        trace(Reflect.getProperty(e.target,"pos"));
+                        trace(e.target.id+' '+Reflect.getProperty(e.target,"pos"));
                     id = defaults.get(e.target.id);
                     Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"pos"));
                 case "active":
                     Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"selected"));
                 case "imagePath":
                     var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
-                    if(tf.isActive && !tf._caretInfo.visible )
+                    if(tf.isActive && !tf._caretInfo.visible ){
+                        trace(tf._caretInfo.visible);
+                        trace(tf.isActive);
                         Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"text"));
+                    }
+                        
                 default:
             }
         }
@@ -73,8 +77,26 @@ class EditorInspector extends EditorTab {
                     Reflect.setProperty(tree.curNode.transform.rz,"pos",data);
                 }
                 State.active._entities[uid].raw.rotation = data;
+            case "_scales":
+                var x = Reflect.getProperty(data,"x");
+                var y = Reflect.getProperty(data,"y");
+                if(index == uid){
+                    Reflect.setProperty(tree.curNode.transform.sx,"pos",x);
+                    Reflect.setProperty(tree.curNode.transform.sy,"pos",y);
+                }
+                State.active._entities[uid].raw.scale = data;
+            case "imagePath":
+                var width =Reflect.getProperty(data,"width");
+                var height = Reflect.getProperty(data,"height");
+                trace(width);
+                trace(height);
+                if(index == uid){
+                    Reflect.setProperty(tree.curNode.transform.w,"pos",width);
+                    Reflect.setProperty(tree.curNode.transform.h,"pos",height);
+                }
+
         }
-        tree.dispatch(new UIEvent(UIEvent.CHANGE));
+        // tree.dispatch(new UIEvent(UIEvent.CHANGE));
     }
     #else
     function updateData(e:UIEvent){
