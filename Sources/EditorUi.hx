@@ -19,6 +19,7 @@ import coin.data.SceneFormat;
 class EditorUi extends Trait{
     public var editor:EditorView;
     public var inspector:EditorInspector;
+    public var hierarchy:EditorHierarchy;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     var gameView:EditorGameView; 
@@ -81,7 +82,7 @@ class EditorUi extends Trait{
             raw = blob;
             inspector = new EditorInspector();
             editor.ePanelRight.addComponent(inspector);
-            var hierarchy = new EditorHierarchy(blob,inspector);
+            hierarchy = new EditorHierarchy(blob,inspector);
             editor.ePanelLeft.addComponent(hierarchy);
             editor.ePanelTop.addComponent(gameView);
         // }

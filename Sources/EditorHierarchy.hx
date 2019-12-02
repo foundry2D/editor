@@ -26,12 +26,17 @@ class EditorHierarchy extends EditorTab {
             {name:"Add Sprite",expands:false,onClicked: addSprite2Scn},
             {name:"Add Emitter",expands:false,onClicked: addEmitter2Scn},
         ];
-        setFromScene(raw);
+        setFromScene(raw,true);
 
     }
 
-    public function setFromScene(raw:TSceneFormat){
+    public function setFromScene(raw:TSceneFormat,onBoot:Bool = false){
         path.text = raw.name;
+        if(!onBoot){
+            tree.clear();
+            inspector.tree.clear();
+        }
+            
         #if arm_csm
         tree.dataSource = getObjData(raw.objects,raw.name);
         #else

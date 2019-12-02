@@ -1,6 +1,7 @@
 package;
 
 import haxe.ui.events.MouseEvent;
+import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.core.Screen;
 import haxe.ui.extended.Handler;
@@ -15,11 +16,17 @@ class FileBrowserDialog extends Dialog {
         buttons =  DialogButton.APPLY | DialogButton.CANCEL;
 		this.width = Screen.instance.width*0.95;
         this.height = Screen.instance.height*0.95;
+        fb.nofilepath = false;
     }
 
-    public static function open(e:MouseEvent){
+    #if debug
+    static var defaultPath = "/home/jsnadeau/Documents/projects/raccoon-tests/";
+    #else
+    static var defaultPath = "/";
+    #end
+    public static function open(e:UIEvent){
         inst = new FileBrowserDialog();
-        Handler.updateData(inst,"");
+        Handler.updateData(inst,defaultPath);
         inst.show();
     }
 }

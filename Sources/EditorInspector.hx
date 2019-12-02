@@ -63,6 +63,7 @@ class EditorInspector extends EditorTab {
         }
     }
     public function updateField(uid:Int,id:String,data:Any){
+        if(uid > State.active._entities.length-1) return;
         switch(id){
             case "_positions":
                 var x = Reflect.getProperty(data,"x");
@@ -88,8 +89,6 @@ class EditorInspector extends EditorTab {
             case "imagePath":
                 var width =Reflect.getProperty(data,"width");
                 var height = Reflect.getProperty(data,"height");
-                trace(width);
-                trace(height);
                 if(index == uid){
                     Reflect.setProperty(tree.curNode.transform.w,"pos",width);
                     Reflect.setProperty(tree.curNode.transform.h,"pos",height);
