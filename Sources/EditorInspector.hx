@@ -41,8 +41,6 @@ class EditorInspector extends EditorTab {
                     id = defaults.get(e.target.id);
                     Reflect.setProperty(_rawData.scale,id,Reflect.getProperty(e.target,"pos"));
                 case "w" | "h" | "pz" | "rz":
-                    if(e.target.id == "w" || e.target.id == "h")
-                        trace(e.target.id+' '+Reflect.getProperty(e.target,"pos"));
                     id = defaults.get(e.target.id);
                     Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"pos"));
                 case "active":
@@ -50,8 +48,6 @@ class EditorInspector extends EditorTab {
                 case "imagePath":
                     var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
                     if(tf.isActive && !tf._caretInfo.visible ){
-                        trace(tf._caretInfo.visible);
-                        trace(tf.isActive);
                         Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"text"));
                     }
                         
