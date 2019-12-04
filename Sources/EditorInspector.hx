@@ -5,6 +5,7 @@ import haxe.ui.events.UIEvent;
 #if arm_csm
 import iron.data.SceneFormat;
 #elseif coin
+import coin.App;
 import coin.State;
 import coin.data.SceneFormat;
 #end
@@ -30,32 +31,57 @@ class EditorInspector extends EditorTab {
     @:access(haxe.ui.backend.kha.TextField)
     function updateData(e:UIEvent){
         var _rawData = rawData;
+        var changed:Bool = false;
         if(e.target != null){
-            var id = e.target.id;
+            id = e.target.id;
             var prop = "pos";
             switch(e.target.id){
                 case "px" | "py":
                     id = defaults.get(e.target.id);
-                    Reflect.setProperty(_rawData.position,id,Reflect.getProperty(e.target,"pos"));
+                    var value = Reflect.getProperty(e.target,"pos");
+                    if(value == null)return;
+
+                    changed = Reflect.field(_rawData.position,id) != value;
+                    Reflect.setProperty(_rawData.position,id,value);
                 case "sx" | "sy":
                     id = defaults.get(e.target.id);
-                    Reflect.setProperty(_rawData.scale,id,Reflect.getProperty(e.target,"pos"));
+                    var value = Reflect.getProperty(e.target,"pos");
+                    if(value == null)return;
+
+                    changed = Reflect.field(_rawData.scale,id) != value;
+                    Reflect.setProperty(_rawData.scale,id,value);
                 case "w" | "h" | "pz" | "rz":
                     id = defaults.get(e.target.id);
-                    Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"pos"));
+                    var value = Reflect.getProperty(e.target,"pos");
+                    if(value == null)return;
+                    
+                    changed = Reflect.field(_rawData,id) != value;
+                    Reflect.setProperty(_rawData,id,value);
                 case "active":
-                    Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"selected"));
+                    var value = Reflect.getProperty(e.target,"selected");
+                    if(value == null)return;
+                    
+                    changed = Reflect.field(_rawData,id) != value;
+                    Reflect.setProperty(_rawData,id,value);
                 case "imagePath":
                     var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
                     if(tf.isActive && !tf._caretInfo.visible ){
-                        Reflect.setProperty(_rawData,id,Reflect.getProperty(e.target,"text"));
+                        var value = Reflect.getProperty(e.target,"text");
+                        if(value == null)return;
+                    
+                        changed = Reflect.field(_rawData,id) != value;
+                        Reflect.setProperty(_rawData,id,value);
                     }
-                        
                 default:
             }
+
         }
-        if(State.active._entities[index] != null ){
-            State.active._entities[index].raw = _rawData;
+        if(changed){
+
+            if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
+			    App.editorui.hierarchy.path.text+='*';
+            State.active._entities[index].dataChanged = true;
+
         }
     }
     public function updateField(uid:Int,id:String,data:Any){
@@ -95,6 +121,9 @@ class EditorInspector extends EditorTab {
     }
     #else
     function updateData(e:UIEvent){
+        trace("Implement me");
+    }
+    public function updateField(uid:Int,id:String,data:Any){
         trace("Implement me");
     }
     #end

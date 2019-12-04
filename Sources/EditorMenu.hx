@@ -40,6 +40,7 @@ class EditorMenu extends HBox {
             var sep = FileSystem.sep;
             var name = path.split(sep)[path.split(sep).length-1];
             if(StringTools.contains(name,".json") && FileSystem.exists(path)){
+                EditorUi.scenePath = path;
                 Data.getSceneRaw(path,loadScene);
 
             }
@@ -67,6 +68,7 @@ class EditorMenu extends HBox {
                 traits: [] // Scene root traits
             }
             #end
+            EditorUi.scenePath = path;
             FileSystem.saveToFile(path,haxe.io.Bytes.ofString(haxe.Json.stringify(scene)),
             function(){
                 Data.getSceneRaw(path,loadScene);

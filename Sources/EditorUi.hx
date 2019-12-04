@@ -10,13 +10,15 @@ import haxe.ui.extended.FileSystem;
 import iron.Trait;
 import iron.data.SceneFormat;
 import iron.system.ArmPack;
+// import iron.format.BlendParser;
 #elseif coin
 import coin.Trait;
+import coin.State;
 import coin.data.SceneFormat;
 #end
-// import iron.format.BlendParser;
 
 class EditorUi extends Trait{
+    public var keys:{ctrl:Bool,alt:Bool,shift:Bool} = {ctrl:false,alt:false,shift:false};
     public var editor:EditorView;
     public var inspector:EditorInspector;
     public var hierarchy:EditorHierarchy;
@@ -24,6 +26,7 @@ class EditorUi extends Trait{
     var dialog:FileBrowserDialog;
     var gameView:EditorGameView; 
     static public var raw:TSceneFormat =null;
+    static public var scenePath:String = "";
     static public var projectPath:String = "~/Documents/projects/raccoon-tests/";
     // static var bl:BlendParser = null;
     var isBlend = false;
@@ -91,5 +94,31 @@ class EditorUi extends Trait{
     public function update(): Void {
 
     }
+
+    #if coin
+    public function duplicateObject(){
+
+    }
+    public function saveSceneData(){
+        if(StringTools.contains(hierarchy.path.text,'*')){
+            var i = 0;
+            for(entity in State.active._entities){
+                if(entity.dataChanged){
+                    State.active.raw._entities[i] = entity.raw; 
+                }
+                i++;
+            }
+            FileSystem.saveToFile(scenePath,haxe.io.Bytes.ofString(haxe.Json.stringify(State.active.raw)));
+            hierarchy.path.text = StringTools.replace(hierarchy.path.text,'*','');
+        }
+    }
+    #elseif arm_csm
+    public function duplicateObject(){
+        trace("Implement me");
+    }
+    public function saveSceneData(){
+        trace("Implement me");
+    }
+    #end
     
 }
