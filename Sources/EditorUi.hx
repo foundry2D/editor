@@ -96,9 +96,6 @@ class EditorUi extends Trait{
     }
 
     #if coin
-    public function duplicateObject(){
-
-    }
     public function saveSceneData(){
         if(StringTools.contains(hierarchy.path.text,'*')){
             var i = 0;
@@ -113,9 +110,6 @@ class EditorUi extends Trait{
         }
     }
     #elseif arm_csm
-    public function duplicateObject(){
-        trace("Implement me");
-    }
     public function saveSceneData(){
         trace("Implement me");
     }

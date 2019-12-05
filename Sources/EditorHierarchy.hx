@@ -26,6 +26,10 @@ class EditorHierarchy extends EditorTab {
             {name:"Add Sprite",expands:false,onClicked: addSprite2Scn},
             {name:"Add Emitter",expands:false,onClicked: addEmitter2Scn},
         ];
+        tree.rclickItems = [
+            {name:"Duplicate Object",expands:false,onClicked: duplicateObject},
+            {name:"Remove Object",expands:false,onClicked: removeObject},
+        ];
         setFromScene(raw,true);
 
     }
@@ -73,6 +77,49 @@ class EditorHierarchy extends EditorTab {
         super.onRightclickcall(e);
     }
 
+    function duplicateObject(e:MouseEvent){
+        if(inspector.index >= 0){
+            addData2Scn(State.active.raw._entities[inspector.index]);
+        }
+    }
+
+    function removeObject(e:MouseEvent){
+        if(inspector.index >= 0){
+            rmvData2Scn(inspector.index);
+        }
+    }
+
+    function addData2Scn(data:TObj){
+        State.active.raw._entities.push(data);
+        State.active.addEntity(data,true);
+        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
+        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
+    }
+
+    @:access(coin.object.Object,coin.object.Executor)
+    function rmvData2Scn(uid:Int){
+
+        State.active._entities[uid].active  = false;
+        for(exe in coin.object.Executor.executors){
+			var modified:Array<Any> = Reflect.field(coin.object.Object,exe.field);
+			modified.splice(uid,1);
+		}
+
+        State.active.raw._entities.splice(uid,1);
+        State.active._entities.splice(uid,1);
+        var data = tree.dataSource.get(uid);
+        tree.dataSource.remove(data);
+        tree.removeNode(data);
+        
+        // Reset scene
+        Object.uidCounter--;
+        for(i in 0...State.active._entities.length){
+            Reflect.setProperty(State.active._entities[i],"uid",i);
+            State.active._entities[i].dataChanged = true;
+        }
+        this.path.text+='*';
+    }
+
     function addObj2Scn(e:MouseEvent){
         var data:TObj = {
             name: "Object",
@@ -86,10 +133,7 @@ class EditorHierarchy extends EditorTab {
             depth: 0.0,
             active: true
         };
-        State.active.raw._entities.push(data);
-        State.active.addEntity(data,true);
-        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
-        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
+        addData2Scn(data);
     }
 
     function addSprite2Scn(e:MouseEvent){
@@ -110,10 +154,7 @@ class EditorHierarchy extends EditorTab {
             shape: "",
             imagePath: "basic"
         };
-        State.active.raw._entities.push(data);
-        State.active.addEntity(data,true);
-        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
-        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
+        addData2Scn(data);
     }
     
     function addEmitter2Scn(e:MouseEvent){
@@ -130,10 +171,7 @@ class EditorHierarchy extends EditorTab {
             active: true,
             amount: 1
         };
-        State.active.raw._entities.push(data);
-        State.active.addEntity(data,true);
-        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
-        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
+        addData2Scn(data);
     }
     @:bind(tree,UIEvent.CHANGE)
     function updateInspector(e:UIEvent){
