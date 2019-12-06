@@ -2,6 +2,7 @@ package;
 
 
 import kha.Image;
+import haxe.ui.core.Component;
 #if arm_csm
 import iron.Trait;
 import iron.data.SceneFormat;
@@ -49,7 +50,15 @@ class EditorGameView extends EditorTab {
 
     }
 	
-
+	@:access(haxe.ui.core.Component)
+	public override function renderTo(g:kha.graphics2.Graphics) {
+		super.renderTo(g);
+		var x:Int = Math.floor(screenX);
+        var y:Int = Math.floor(screenY);
+        var w:Int = Math.ceil(cast(this, Component).componentWidth);
+		var h:Int = Math.ceil(cast(this, Component).componentHeight);
+		g.drawScaledImage(Coin.scenebuffer, x ,y, w, h);
+	}
 	function drawGameView(g:kha.graphics2.Graphics) {
 		#if arm_csm
 		if (RenderPathCreator.finalTarget == null) return;			
@@ -74,12 +83,18 @@ class EditorGameView extends EditorTab {
 		if (State.active != null){
 			State.active.render(image);
 		}
+		if(coin.App.editorui.inspector.index >= 0 ){
+			var e = State.active._entities[coin.App.editorui.inspector.index];
+			var w:Int = Math.ceil(this.componentWidth);
+			var h:Int = Math.ceil(this.componentHeight);
+			EditorTools.hArrow.set(e.center.x,e.center.y);
+			EditorTools.vArrow.set(e.center.x,e.center.y);
+			EditorTools.render(image.g2,w,h);
+
+		}
 		image.g2.end();
-
 		g.begin();
-
 		haxe.ui.core.Screen.instance.renderTo(g);
-		g.drawScaledImage(image, this.screenX ,this.screenY, this.width, this.height);
 		#end
 	}
 }

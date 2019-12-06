@@ -72,6 +72,9 @@ class EditorUi extends Trait{
         var menu  = new EditorMenu();
         editor.header.addComponent(menu);
         editor.ePanelBottom.addComponent(tab);
+        var tools = new EditorTools();
+        editor.addComponent(EditorTools.vArrow);
+        editor.addComponent(EditorTools.hArrow);
         Screen.instance.addComponent(editor);
     }
     function createHierarchy(blob:TSceneFormat){
