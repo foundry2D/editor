@@ -114,7 +114,12 @@ class Arrow extends Component{
             //Horizontal Line
 			g.color = kha.Color.Green;
 			g.fillRect(x,y,w,2.0);
-			g.fillTriangle(x+w,y+size,x+w,y-size,x+w+size*2,y);
+            if(EditorUi.arrowMode == 0){
+			    g.fillTriangle(x+w,y+size,x+w,y-size,x+w+size*2,y);
+            }
+            else {
+                g.fillRect(x+w,y+size,size*2,-size*2);
+            }
         }
         else if( type == 2){
             g.color = kha.Color.Yellow;
@@ -124,7 +129,13 @@ class Arrow extends Component{
 			//Vertical Line
 			g.color = kha.Color.Red;
 			g.fillRect(x,y-h,2.0,h);
-			g.fillTriangle(x+size,y-h,x-size,y-h,x,y-h-size*2);
+            if(EditorUi.arrowMode == 0){
+                g.fillTriangle(x+size,y-h,x-size,y-h,x,y-h-size*2);
+            } 
+            else{
+                g.fillRect(x-size,y-h,size*2,-size*2);
+            }
+			
         }
     }
     public override function renderTo(g:Graphics){

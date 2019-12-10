@@ -101,62 +101,130 @@ class EditorUi extends Trait{
 
     #if coin
     public static var activeMouse:Bool = false;
-    public static var gridMove:Bool = true;
+    public static var gridMove:Bool = false;
     public static var arrow:Int = -1;
-    public static var minusX:Float = 0;
-    public static var minusY:Float = 0;
+    public static var arrowMode:Int = 0;// 0 = Move; 1 = Scale
+    public static var minusX:Float = 0;// Basically the arrow size maybe @RENAME ?
+    public static var minusY:Float = 0;// Basically the arrow size maybe @RENAME ?
     static var event:UIEvent = new UIEvent(UIEvent.CHANGE);
     @:access(EditorInspector)
     public function updateMouse(x:Int,y:Int,cx:Int,cy:Int){
         var doUpdate = true;
+        var curPos = State.active._entities[inspector.index].position;
+        var scale = State.active._entities[inspector.index].scale;
         var scaleFactor = Math.ceil(gameView.width)/Coin.WIDTH;
+
         var px = ((x-gameView.screenX-minusX)/gameView.width)*Coin.WIDTH;
         var py = ((y-gameView.screenY-minusY)/gameView.height)*Coin.HEIGHT;
-        var curPos = State.active._entities[inspector.index].position;
-        if(gridMove){//Clamp to grid
+        
+        //Get scaling values
+        var direction = 1;
+        if(arrow == 0){
+            direction = curPos.x-px > 0 ? -1:1;
+        }
+        else if(arrow == 1){
+            direction = curPos.y-py < 0 ? -1:1;
+        }
+        var sx = direction*(Math.abs(curPos.x-px)/Coin.WIDTH);
+        var sy = direction*(Math.abs(curPos.y-py)/Coin.HEIGHT);
+        
+        //Clamp position to grid
+        if(gridMove || keys.ctrl){//Clamp to grid
             doUpdate  = Math.abs(curPos.x-px) > Coin.GRID*0.99 || Math.abs(px-curPos.x) > Coin.GRID*0.99;
             px = Math.floor(px);
             px += (Coin.GRID-(px % Coin.GRID));
         }
-        if(gridMove && py % Coin.GRID != 0 ){//Clamp to grid
+        if(gridMove || keys.ctrl ){//Clamp to grid
             doUpdate  = doUpdate ? doUpdate : Math.abs(curPos.y-py) > Coin.GRID*0.99 || Math.abs(py-curPos.y) > Coin.GRID*0.99;
             py = Math.floor(py);
             py += (Coin.GRID-(py % Coin.GRID));
         }
+
         if(doUpdate){
-            switch(arrow){
-                case 0:
-                    State.active._entities[inspector.index].translate(
-                        function(data:MoveData){
-                            data._positions.x = px;
-                            return data;
-                    });
-                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
-                    inspector.updateData(event);
-                case 1:
-                    State.active._entities[inspector.index].translate(
-                        function(data:MoveData){
-                            data._positions.y = py;
-                            return data;
-                    });
-                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
-                    inspector.updateData(event);
-                case 2:
-                    State.active._entities[inspector.index].translate(
-                        function(data:MoveData){
-                            data._positions.x = px;
-                            data._positions.y = py;
-                            return data;
-                    });
-                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
-                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
-                    inspector.updateData(event);
+            if(arrowMode == 0 || arrow == 2){
+                updatePos(px,py);
             }
+            else if(arrowMode == 1){
+                if(keys.ctrl && arrow == 0){
+                    updateScale(scale.x+sx,scale.y+sx);
+                }
+                else if(keys.ctrl && arrow == 1){
+                    updateScale(scale.x+sy,scale.y+sy);
+                }
+                else{
+                    updateScale(scale.x+sx,scale.y+sy);
+                }
+            }
+            
         }
         
         if(px+((minusX+(minusX/5)*2)/gameView.width)*Coin.WIDTH > Coin.WIDTH || px < 0 || py > Coin.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.height)*Coin.HEIGHT < 0){
             activeMouse = false;
             return;
+        }
+    }
+    @:access(EditorInspector)
+    function updateScale(sx:Float,sy:Float){
+        if(keys.ctrl){
+            State.active._entities[inspector.index].resize(
+                function(data:kha.math.Vector2){
+                    data.x = sx;
+                    data.y = sy;
+                    return data;
+            });
+            Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);
+            inspector.updateData(event);
+        }
+        else{
+            switch(arrow){
+                case 0:
+                    State.active._entities[inspector.index].resize(
+                        function(data:kha.math.Vector2){
+                            data.x = sx;
+                            return data;
+                    });
+                    Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);
+                    inspector.updateData(event);
+                case 1:
+                    State.active._entities[inspector.index].resize(
+                        function(data:kha.math.Vector2){
+                            data.y = sy;
+                            return data;
+                    });
+                    Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"y",sy);
+                    inspector.updateData(event);
+            }
+        }
+    }
+    @:access(EditorInspector)
+    function updatePos(px:Float,py:Float){
+        switch(arrow){
+            case 0:
+                State.active._entities[inspector.index].translate(
+                    function(data:MoveData){
+                        data._positions.x = px;
+                        return data;
+                });
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
+                inspector.updateData(event);
+            case 1:
+                State.active._entities[inspector.index].translate(
+                    function(data:MoveData){
+                        data._positions.y = py;
+                        return data;
+                });
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                inspector.updateData(event);
+            case 2:
+                State.active._entities[inspector.index].translate(
+                    function(data:MoveData){
+                        data._positions.x = px;
+                        data._positions.y = py;
+                        return data;
+                });
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                inspector.updateData(event);
         }
     }
     public function saveSceneData(){
