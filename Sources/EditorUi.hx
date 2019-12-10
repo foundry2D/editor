@@ -101,43 +101,59 @@ class EditorUi extends Trait{
 
     #if coin
     public static var activeMouse:Bool = false;
+    public static var gridMove:Bool = true;
     public static var arrow:Int = -1;
     public static var minusX:Float = 0;
     public static var minusY:Float = 0;
     static var event:UIEvent = new UIEvent(UIEvent.CHANGE);
     @:access(EditorInspector)
     public function updateMouse(x:Int,y:Int,cx:Int,cy:Int){
+        var doUpdate = true;
         var scaleFactor = Math.ceil(gameView.width)/Coin.WIDTH;
         var px = ((x-gameView.screenX-minusX)/gameView.width)*Coin.WIDTH;
         var py = ((y-gameView.screenY-minusY)/gameView.height)*Coin.HEIGHT;
-        switch(arrow){
-            case 0:
-                State.active._entities[inspector.index].translate(
-                    function(data:MoveData){
-                        data._positions.x = px;
-                        return data;
-                });
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
-                inspector.updateData(event);
-            case 1:
-                State.active._entities[inspector.index].translate(
-                    function(data:MoveData){
-                        data._positions.y = py;
-                        return data;
-                });
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
-                inspector.updateData(event);
-            case 2:
-                State.active._entities[inspector.index].translate(
-                    function(data:MoveData){
-                        data._positions.x = px;
-                        data._positions.y = py;
-                        return data;
-                });
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
-                inspector.updateData(event);
+        var curPos = State.active._entities[inspector.index].position;
+        if(gridMove){//Clamp to grid
+            doUpdate  = Math.abs(curPos.x-px) > Coin.GRID*0.99 || Math.abs(px-curPos.x) > Coin.GRID*0.99;
+            px = Math.floor(px);
+            px += (Coin.GRID-(px % Coin.GRID));
         }
+        if(gridMove && py % Coin.GRID != 0 ){//Clamp to grid
+            doUpdate  = doUpdate ? doUpdate : Math.abs(curPos.y-py) > Coin.GRID*0.99 || Math.abs(py-curPos.y) > Coin.GRID*0.99;
+            py = Math.floor(py);
+            py += (Coin.GRID-(py % Coin.GRID));
+        }
+        if(doUpdate){
+            switch(arrow){
+                case 0:
+                    State.active._entities[inspector.index].translate(
+                        function(data:MoveData){
+                            data._positions.x = px;
+                            return data;
+                    });
+                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
+                    inspector.updateData(event);
+                case 1:
+                    State.active._entities[inspector.index].translate(
+                        function(data:MoveData){
+                            data._positions.y = py;
+                            return data;
+                    });
+                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                    inspector.updateData(event);
+                case 2:
+                    State.active._entities[inspector.index].translate(
+                        function(data:MoveData){
+                            data._positions.x = px;
+                            data._positions.y = py;
+                            return data;
+                    });
+                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
+                    Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                    inspector.updateData(event);
+            }
+        }
+        
         if(px+((minusX+(minusX/5)*2)/gameView.width)*Coin.WIDTH > Coin.WIDTH || px < 0 || py > Coin.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.height)*Coin.HEIGHT < 0){
             activeMouse = false;
             return;

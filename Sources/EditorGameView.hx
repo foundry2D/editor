@@ -80,6 +80,7 @@ class EditorGameView extends EditorTab {
 		g.end();
 		var image = Coin.scenebuffer;
 		image.g2.begin();
+		EditorTools.drawGrid(image.g2);
 		if (State.active != null){
 			State.active.render(image);
 		}

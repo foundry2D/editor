@@ -21,9 +21,6 @@ class EditorTools {
         editor.addComponent(vArrow);
         editor.addComponent(hArrow);
         editor.addComponent(rect);
-        // arrows.addComponent(vArrow);
-        // arrows.addComponent(hArrow);
-        // arrows.set(vArrow.size*5,vArrow.size*5);
     }
     static public function render(g:Graphics,p_x:Float,p_y:Float,w:Float,h:Float){
         var x = arrows.left;
@@ -33,6 +30,28 @@ class EditorTools {
         vArrow.renderGraph(g,x,y);
         hArrow.renderGraph(g,x,y);
         rect.renderGraph(g,x,y);
+    }
+    static public function drawGrid(g:Graphics){
+        var size:Int = coin.Coin.GRID;
+        var str = 3.0;
+        var x = 0.0;
+        var y = 0.0;
+        g.color = 0xff282828;
+        while(x < Coin.WIDTH){
+            g.drawRect(x,y,size,size,str);
+            x+=size;
+            if(g.color == 0xff282828){
+                g.color = 0xff323232;
+            } else{
+                g.color = 0xff282828;
+            }
+            if(x >= Coin.WIDTH && y < Coin.HEIGHT){
+                y+=size;
+                x = 0;
+            }
+        }
+        g.color = kha.Color.White;
+
     }
 }
 class Container  extends Component{
