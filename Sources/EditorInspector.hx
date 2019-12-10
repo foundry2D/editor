@@ -77,7 +77,7 @@ class EditorInspector extends EditorTab {
 
         }
         if(changed){
-
+            
             if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
 			    App.editorui.hierarchy.path.text+='*';
             State.active._entities[index].dataChanged = true;

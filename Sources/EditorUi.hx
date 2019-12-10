@@ -6,6 +6,7 @@ import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
 import haxe.ui.Toolkit;
 import haxe.ui.extended.FileSystem;
+import haxe.ui.events.UIEvent;
 #if arm_csm
 import iron.Trait;
 import iron.data.SceneFormat;
@@ -14,6 +15,8 @@ import iron.system.ArmPack;
 #elseif coin
 import coin.Trait;
 import coin.State;
+import coin.Coin;
+import coin.object.Object.MoveData;
 import coin.data.SceneFormat;
 #end
 
@@ -72,9 +75,7 @@ class EditorUi extends Trait{
         var menu  = new EditorMenu();
         editor.header.addComponent(menu);
         editor.ePanelBottom.addComponent(tab);
-        var tools = new EditorTools();
-        editor.addComponent(EditorTools.vArrow);
-        editor.addComponent(EditorTools.hArrow);
+        var tools = new EditorTools(editor);
         Screen.instance.addComponent(editor);
     }
     function createHierarchy(blob:TSceneFormat){
@@ -99,6 +100,49 @@ class EditorUi extends Trait{
     }
 
     #if coin
+    public static var activeMouse:Bool = false;
+    public static var arrow:Int = -1;
+    public static var minusX:Float = 0;
+    public static var minusY:Float = 0;
+    static var event:UIEvent = new UIEvent(UIEvent.CHANGE);
+    @:access(EditorInspector)
+    public function updateMouse(x:Int,y:Int,cx:Int,cy:Int){
+        var scaleFactor = Math.ceil(gameView.width)/Coin.WIDTH;
+        var px = ((x-gameView.screenX-minusX)/gameView.width)*Coin.WIDTH;
+        var py = ((y-gameView.screenY-minusY)/gameView.height)*Coin.HEIGHT;
+        switch(arrow){
+            case 0:
+                State.active._entities[inspector.index].translate(
+                    function(data:MoveData){
+                        data._positions.x = px;
+                        return data;
+                });
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
+                inspector.updateData(event);
+            case 1:
+                State.active._entities[inspector.index].translate(
+                    function(data:MoveData){
+                        data._positions.y = py;
+                        return data;
+                });
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                inspector.updateData(event);
+            case 2:
+                State.active._entities[inspector.index].translate(
+                    function(data:MoveData){
+                        data._positions.x = px;
+                        data._positions.y = py;
+                        return data;
+                });
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                inspector.updateData(event);
+        }
+        if(px+((minusX+(minusX/5)*2)/gameView.width)*Coin.WIDTH > Coin.WIDTH || px < 0 || py > Coin.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.height)*Coin.HEIGHT < 0){
+            activeMouse = false;
+            return;
+        }
+    }
     public function saveSceneData(){
         if(StringTools.contains(hierarchy.path.text,'*')){
             var i = 0;
