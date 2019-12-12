@@ -25,6 +25,7 @@ class EditorHierarchy extends EditorTab {
             {name:"Add Object",expands:false,onClicked: addObj2Scn},
             {name:"Add Sprite",expands:false,onClicked: addSprite2Scn},
             {name:"Add Emitter",expands:false,onClicked: addEmitter2Scn},
+            {name:"Add Tilemap",expands:false,onClicked: addTilemap2Scn},
         ];
         tree.rclickItems = [
             {name:"Duplicate Object",expands:false,onClicked: duplicateObject},
@@ -156,6 +157,44 @@ class EditorHierarchy extends EditorTab {
         };
         addData2Scn(data);
     }
+
+    function addTilemap2Scn(e:MouseEvent){
+        var data:TTilemapData = {
+            name: "Tilemap",
+            type: "tilemap_object",
+            position: new Vector2(),
+            rotation:0.0,
+            width: 192.0,
+            height:128.0,
+            scale: new Vector2(1.0,1.0),
+            center: new Vector2(),
+            depth: 0.0,
+            active: true,
+            tileWidth: 64,
+            tileHeight: 64,
+            map: [0,0,0],
+            images: [{name: "Sprite",
+            type: "sprite_object",
+            position: new Vector2(),
+            rotation:0.0,
+            width: 896.0,
+            height:448.0,
+            scale: new Vector2(1.0,1.0),
+            center: new Vector2(),
+            depth: 0.0,
+            active: true,
+            c_width:0.0,
+            c_height:0.0,
+            c_center: new Vector2(),
+            shape: "",
+            imagePath: "tilesheet",
+            tileWidth: 64,
+            tileHeight: 64 }],
+            cull: false,
+            cullOffset: 100
+        };
+        addData2Scn(data);
+    }
     
     function addEmitter2Scn(e:MouseEvent){
         var data:TEmitterData = {
@@ -180,6 +219,10 @@ class EditorHierarchy extends EditorTab {
             inspector.tree.dataSource = out.ds;
             inspector.rawData = out.obj;
             inspector.index = out.index;
+            if(inspector.rawData.type == "tilemap_object"){
+                coin.Coin.tileeditor.selectMap(out.index);
+                
+            }
         }
     }
 

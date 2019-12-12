@@ -84,9 +84,9 @@ class EditorGameView extends EditorTab {
 		if (State.active != null){
 			State.active.render(image);
 		}
-		if(/*coin.App.editorui.inspector.index >= 0*/coin.Scene.ready ){
+		if(coin.App.editorui.inspector.index >= 0 ){
 			var i = coin.App.editorui.inspector.index;
-			var e = State.active._entities[0];
+			var e = State.active._entities[i];
 			var x:Float = screenX;
         	var y:Float = screenY;
 			var w:Float = this.componentWidth;
