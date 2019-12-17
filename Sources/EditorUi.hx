@@ -27,7 +27,7 @@ class EditorUi extends Trait{
     public var hierarchy:EditorHierarchy;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
-    var gameView:EditorGameView; 
+    public var gameView:EditorGameView; 
     static public var raw:TSceneFormat =null;
     static public var scenePath:String = "";
     static public var projectPath:String = "~/Documents/projects/raccoon-tests/";

@@ -97,6 +97,7 @@ class EditorGameView extends EditorTab {
 
 		}
 		image.g2.end();
+		coin.App.frameCounter.render(image);
 		g.begin();
 		haxe.ui.core.Screen.instance.renderTo(g);
 		#end
