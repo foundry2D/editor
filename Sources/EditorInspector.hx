@@ -12,8 +12,14 @@ import coin.data.SceneFormat;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
 class EditorInspector extends EditorTab {
-    public var rawData:TObj;
-    public var index:Int = -1;
+    public var rawData(default,set):TObj;
+    function set_rawData(obj:TObj){
+        return rawData = obj;
+    }
+    public var index(default,set):Int = -1;
+    function set_index(value:Int){
+        return index = value;
+    }
     public function new() {
         super();
         tree.updateData = updateData;
@@ -57,6 +63,7 @@ class EditorInspector extends EditorTab {
                     
                     changed = Reflect.field(_rawData,id) != value;
                     Reflect.setProperty(_rawData,id,value);
+                    Reflect.setProperty(State.active._entities[index],id,value);
                 case "active":
                     var value = Reflect.getProperty(e.target,"selected");
                     if(value == null)return;
@@ -71,13 +78,13 @@ class EditorInspector extends EditorTab {
                     
                         changed = Reflect.field(_rawData,id) != value;
                         Reflect.setProperty(_rawData,id,value);
+                        // State.active._entities[index].refreshObjectData(_rawData);
                     }
                 default:
             }
 
         }
         if(changed){
-            
             if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
 			    App.editorui.hierarchy.path.text+='*';
             State.active._entities[index].dataChanged = true;

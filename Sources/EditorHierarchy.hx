@@ -164,15 +164,15 @@ class EditorHierarchy extends EditorTab {
             type: "tilemap_object",
             position: new Vector2(),
             rotation:0.0,
-            width: 192.0,
-            height:128.0,
+            width: 1280.0,
+            height:960.0,
             scale: new Vector2(1.0,1.0),
             center: new Vector2(),
             depth: 0.0,
             active: true,
             tileWidth: 64,
             tileHeight: 64,
-            map: [0,5,2],
+            map: [],
             images: [{name: "Sprite",
             type: "sprite_object",
             position: new Vector2(),
@@ -217,12 +217,15 @@ class EditorHierarchy extends EditorTab {
     function updateInspector(e:UIEvent){
         if(inspector != null && tree.selectedNode != null){
             var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(tree.selectedNode.path);
+            inspector.index = out.index;
             inspector.tree.dataSource = out.ds;
             inspector.rawData = out.obj;
-            inspector.index = out.index;
             if(inspector.rawData.type == "tilemap_object"){
                 coin.Coin.tileeditor.selectMap(out.index);
                 
+            } 
+            else{
+                coin.Coin.tileeditor.selectMap(-1);
             }
         }
     }
