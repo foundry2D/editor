@@ -31,7 +31,7 @@ class EditorInspector extends EditorTab {
         
     }
     function addTrait(e:MouseEvent){
-
+        TraitsDialog.open(e);
     }
     function rmTrait(e:MouseEvent){
 

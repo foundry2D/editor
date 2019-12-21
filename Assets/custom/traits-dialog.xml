@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <vbox id="container" width="100%" height="95%" >
-    <button id="create" text="Create a new Trait" width="100%"/>
+    <button id="createAndadd" text="Create a new Trait" width="100%"/>
     <button id="add" text="Add from Traits" width="100%"/>
 </vbox>
