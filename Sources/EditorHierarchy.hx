@@ -11,6 +11,7 @@ import haxe.ui.events.KeyboardEvent;
 import iron.data.SceneFormat;
 #else
 import kha.math.Vector2;
+import kha.math.Vector3;
 import coin.State;
 import coin.object.Object;
 import coin.data.SceneFormat;
@@ -126,7 +127,7 @@ class EditorHierarchy extends EditorTab {
             name: "Object",
             type: "object",
             position: new Vector2(),
-            rotation:0.0,
+            rotation: new Vector3(),
             width: 0.0,
             height:0.0,
             scale: new Vector2(1.0,1.0),
@@ -142,7 +143,7 @@ class EditorHierarchy extends EditorTab {
             name: "Sprite",
             type: "sprite_object",
             position: new Vector2(),
-            rotation:0.0,
+            rotation:new Vector3(),
             width: 250.0,
             height:250.0,
             scale: new Vector2(1.0,1.0),
@@ -163,7 +164,7 @@ class EditorHierarchy extends EditorTab {
             name: "Tilemap",
             type: "tilemap_object",
             position: new Vector2(),
-            rotation:0.0,
+            rotation:new Vector3(),
             width: 1280.0,
             height:960.0,
             scale: new Vector2(1.0,1.0),
@@ -176,7 +177,7 @@ class EditorHierarchy extends EditorTab {
             images: [{name: "Sprite",
             type: "sprite_object",
             position: new Vector2(),
-            rotation:0.0,
+            rotation:new Vector3(),
             width: 896.0,
             height:448.0,
             scale: new Vector2(1.0,1.0),
@@ -188,7 +189,7 @@ class EditorHierarchy extends EditorTab {
             c_center: new Vector2(),
             shape: "",
             imagePath: "tilesheet",
-            usedIds: [0,5,2],
+            usedIds: [0],
             tileWidth: 64,
             tileHeight: 64 }],
             cull: false,
@@ -202,7 +203,7 @@ class EditorHierarchy extends EditorTab {
             name: "Emitter",
             type: "emitter_object",
             position: new Vector2(),
-            rotation:0.0,
+            rotation:new Vector3(),
             width: 0.0,
             height:0.0,
             scale: new Vector2(1.0,1.0),
@@ -216,7 +217,7 @@ class EditorHierarchy extends EditorTab {
     @:bind(tree,UIEvent.CHANGE)
     function updateInspector(e:UIEvent){
         if(inspector != null && tree.selectedNode != null){
-            var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(tree.selectedNode.path);
+            var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(tree.selectedNode.data.path);
             inspector.index = out.index;
             inspector.tree.dataSource = out.ds;
             inspector.rawData = out.obj;
@@ -259,13 +260,17 @@ class EditorHierarchy extends EditorTab {
         var i= -1;
         var out:TObj = null;
         for(obj in objs){
-            if(name == obj.name && isLast){
+            if((name == obj.name || name == obj.raw.name) && isLast){
                 out= obj.raw;
                 i = obj.uid;
             }
             // else if(name == obj.name && Reflect.hasField(obj,"children")){
             //     out = getObj(obj.children,StringTools.replace(path,'$name/',""));
             // }
+        }
+        if(i == -1){
+            path = StringTools.replace(path,'$name/','');
+            return getObj(objs,path);
         }
         return {obj: out, index: i};
     }
@@ -346,7 +351,7 @@ class EditorHierarchy extends EditorTab {
             pz: obj.depth,
             sx: scale.x,
             sy: scale.y,
-            rz: obj.rotation,
+            rz: obj.rotation.z,
             w: obj.width,
             h: obj.height,
             active: obj.active,

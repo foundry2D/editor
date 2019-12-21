@@ -2,6 +2,7 @@
 import haxe.ui.extended.NodeData;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
+import haxe.ui.events.MouseEvent;
 #if arm_csm
 import iron.data.SceneFormat;
 #elseif coin
@@ -22,13 +23,23 @@ class EditorInspector extends EditorTab {
     }
     public function new() {
         super();
+        tree.rclickItems = [ 
+            {name:"Add Trait",expands:false,onClicked: addTrait,filter: "traits"},
+            {name:"Remove Trait",expands:false,onClicked: rmTrait,filter: "traits"},
+        ];
         tree.updateData = updateData;
         
+    }
+    function addTrait(e:MouseEvent){
+
+    }
+    function rmTrait(e:MouseEvent){
+
     }
     #if coin
     public static var defaults:Map<String,String> = [
         "px" =>"x","py"=>"y","pz"=>"depth",
-        "rz"=>"rotation",
+        "rz"=>"z",
         "sx"=>"x","sy"=>"y",
         "w"=>"width","h"=>"height",
         "path"=>"",
@@ -38,34 +49,41 @@ class EditorInspector extends EditorTab {
     function updateData(e:UIEvent){
         var _rawData = rawData;
         var changed:Bool = false;
+        var value:Null<Any> = null; 
         if(e.target != null){
             id = e.target.id;
+            trace(id);
             var prop = "pos";
             switch(e.target.id){
                 case "px" | "py":
                     id = defaults.get(e.target.id);
-                    var value = Reflect.getProperty(e.target,"pos");
+                    value = Reflect.getProperty(e.target,"pos");
                     if(value == null)return;
 
                     changed = Reflect.field(_rawData.position,id) != value;
                     Reflect.setProperty(_rawData.position,id,value);
                 case "sx" | "sy":
                     id = defaults.get(e.target.id);
-                    var value = Reflect.getProperty(e.target,"pos");
+                    value = Reflect.getProperty(e.target,"pos");
                     if(value == null)return;
 
                     changed = Reflect.field(_rawData.scale,id) != value;
                     Reflect.setProperty(_rawData.scale,id,value);
                 case "w" | "h" | "pz" | "rz":
                     id = defaults.get(e.target.id);
-                    var value = Reflect.getProperty(e.target,"pos");
+                    value = Reflect.getProperty(e.target,"pos");
                     if(value == null)return;
                     
-                    changed = Reflect.field(_rawData,id) != value;
-                    Reflect.setProperty(_rawData,id,value);
-                    Reflect.setProperty(State.active._entities[index],id,value);
+                    if(id== "z"){
+                        changed = Reflect.field(_rawData.rotation,id) != value;
+                        Reflect.setProperty(_rawData.rotation,id,value);
+                    }else{
+                        changed = Reflect.field(_rawData,id) != value;
+                        Reflect.setProperty(_rawData,id,value);
+                    }
+                    
                 case "active":
-                    var value = Reflect.getProperty(e.target,"selected");
+                    value = Reflect.getProperty(e.target,"selected");
                     if(value == null)return;
                     
                     changed = Reflect.field(_rawData,id) != value;
@@ -73,12 +91,12 @@ class EditorInspector extends EditorTab {
                 case "imagePath":
                     var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
                     if(tf.isActive && !tf._caretInfo.visible ){
-                        var value = Reflect.getProperty(e.target,"text");
+                        value = Reflect.getProperty(e.target,"text");
                         if(value == null)return;
                     
                         changed = Reflect.field(_rawData,id) != value;
                         Reflect.setProperty(_rawData,id,value);
-                        // State.active._entities[index].refreshObjectData(_rawData);
+                        cast(State.active._entities[index],coin.anim.Sprite).set(cast(_rawData));
                     }
                 default:
             }
@@ -87,6 +105,7 @@ class EditorInspector extends EditorTab {
         if(changed){
             if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
 			    App.editorui.hierarchy.path.text+='*';
+            Reflect.setProperty(State.active._entities[index],id,value);
             State.active._entities[index].dataChanged = true;
 
         }
@@ -103,8 +122,9 @@ class EditorInspector extends EditorTab {
                 }
                 State.active._entities[uid].raw.position = data;
             case "_rotations":
+                var z = Reflect.getProperty(data,"z");
                 if(index == uid){
-                    Reflect.setProperty(tree.curNode.transform.rz,"pos",data);
+                    Reflect.setProperty(tree.curNode.transform.rz,"pos",z);
                 }
                 State.active._entities[uid].raw.rotation = data;
             case "_scales":

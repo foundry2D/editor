@@ -11,6 +11,7 @@ typedef TItem ={
     var name:String;
     var expands:Bool;
     var onClicked:MouseEvent->Void;
+    var ?filter:String;
 }
 
 class EditorTab extends TabView {
@@ -26,9 +27,11 @@ class EditorTab extends TabView {
     }
     
     
-    function onRightclickcall(e:MouseEvent) {
+    function onRightclickcall(e:MouseEvent){
         var menu = new Menu();
         for(i in titems){
+            trace(i.name);
+            // if(i.filter != null && e.target.id != i.filter)continue;
             var item = new MenuItem();
             item.text  = i.name;
             item.expandable = i.expands;
