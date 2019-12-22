@@ -3,6 +3,7 @@ import haxe.ui.extended.NodeData;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.events.MouseEvent;
+import haxe.ui.containers.menus.MenuItem;
 #if arm_csm
 import iron.data.SceneFormat;
 #elseif coin
@@ -34,7 +35,10 @@ class EditorInspector extends EditorTab {
         TraitsDialog.open(e);
     }
     function rmTrait(e:MouseEvent){
-
+        // var item:MenuItem = cast(e.target);
+        // if(item.icon != "Traits:"){
+        //     trace(item);
+        // }
     }
     #if coin
     public static var defaults:Map<String,String> = [
@@ -45,7 +49,7 @@ class EditorInspector extends EditorTab {
         "path"=>"",
         "traits"=>""
     ];
-    @:access(haxe.ui.backend.kha.TextField)
+    @:access(haxe.ui.backend.kha.TextField,coin.Scene)
     function updateData(e:UIEvent){
         var _rawData = rawData;
         var changed:Bool = false;
@@ -98,6 +102,12 @@ class EditorInspector extends EditorTab {
                         Reflect.setProperty(_rawData,id,value);
                         cast(State.active._entities[index],coin.anim.Sprite).set(cast(_rawData));
                     }
+                case "traits":
+                    var trait = cast(e.target,TraitsDialog).feed.selectedItem;
+                    tree.curNode.traits.addField({type:trait.type,class_name: trait.classname});
+                    State.active._entities[index].raw.traits.push({type:trait.type,class_name: trait.classname});
+                    coin.Scene.createTraits([{type:trait.type,class_name: trait.classname}],State.active._entities[index]);
+                    changed = true;
                 default:
             }
 
