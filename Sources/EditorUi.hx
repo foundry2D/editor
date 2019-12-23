@@ -112,10 +112,10 @@ class EditorUi extends Trait{
         var doUpdate = true;
         var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
-        var scaleFactor = Math.ceil(gameView.width)/Coin.WIDTH;
+        var scaleFactor = Math.ceil(gameView.w)/Coin.WIDTH;
 
-        var px = ((x-gameView.screenX-minusX)/gameView.width)*Coin.WIDTH;
-        var py = ((y-gameView.screenY-minusY)/gameView.height)*Coin.HEIGHT;
+        var px = ((x-gameView.x-minusX)/gameView.w)*Coin.WIDTH;
+        var py = ((y-gameView.y-minusY)/gameView.h)*Coin.HEIGHT;
         
         //Get scaling values
         var direction = 1;
@@ -158,7 +158,7 @@ class EditorUi extends Trait{
             
         }
         
-        if(px+((minusX+(minusX/5)*2)/gameView.width)*Coin.WIDTH > Coin.WIDTH || px < 0 || py > Coin.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.height)*Coin.HEIGHT < 0){
+        if(px+((minusX+(minusX/5)*2)/gameView.w)*Coin.WIDTH > Coin.WIDTH || px < 0 || py > Coin.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.h)*Coin.HEIGHT < 0){
             activeMouse = false;
             return;
         }

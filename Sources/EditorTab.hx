@@ -16,7 +16,7 @@ typedef TItem ={
 
 class EditorTab extends TabView {
 
-    var bar:TabBar;
+    public var bar:TabBar;
     var titems:Array<TItem> = [];
     public function new(){
         super();

@@ -17,8 +17,27 @@ import coin.State;
 import coin.Trait;
 import coin.data.SceneFormat;
 #end
+@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-gameview.xml"))
 class EditorGameView extends EditorTab {
     var drawTrait:Trait = new Trait();
+	
+	public var x(get,never):Int;
+	function get_x() {
+		return Math.floor(screenX);
+	}
+	public var y(get,never):Int;
+	function get_y() {
+		return Math.floor(screenY+bar.height);
+	}
+	public var w(get,never):Int;
+	function get_w() {
+		return Math.ceil(cast(this, Component).componentWidth);
+	}
+	public var h(get,never):Int;
+	function get_h() {
+		return Math.ceil(cast(this, Component).componentHeight-bar.height);
+	}
+
     public function new(){
         super();
         #if arm_csm
@@ -28,8 +47,8 @@ class EditorGameView extends EditorTab {
 			iron.Scene.active.root.addTrait(drawTrait);
 			drawTrait.notifyOnRender2D(function(g:kha.graphics2.Graphics){
 				if(cscript.ready){
-					cscript.canvas.x = this.screenX;
-					cscript.canvas.y = this.screenY;
+					cscript.canvas.x = this.x;
+					cscript.canvas.y = this.y;
 					var wscale = Std.int(this.width)/cscript.canvas.width;
 					var hscale = Std.int(this.height)/cscript.canvas.height;
 					for(el in cscript.canvas.elements){
@@ -53,10 +72,6 @@ class EditorGameView extends EditorTab {
 	@:access(haxe.ui.core.Component)
 	public override function renderTo(g:kha.graphics2.Graphics) {
 		super.renderTo(g);
-		var x:Int = Math.floor(screenX);
-        var y:Int = Math.floor(screenY);
-        var w:Int = Math.ceil(cast(this, Component).componentWidth);
-		var h:Int = Math.ceil(cast(this, Component).componentHeight);
 		g.drawScaledImage(Coin.scenebuffer, x ,y, w, h);
 	}
 	function drawGameView(g:kha.graphics2.Graphics) {
@@ -87,10 +102,6 @@ class EditorGameView extends EditorTab {
 		if(coin.App.editorui.inspector.index >= 0 ){
 			var i = coin.App.editorui.inspector.index;
 			var e = State.active._entities[i];
-			var x:Float = screenX;
-        	var y:Float = screenY;
-			var w:Float = this.componentWidth;
-			var h:Float = this.componentHeight;
 			EditorTools.arrows.left = e.position.x;
 			EditorTools.arrows.top = e.position.y;
 			EditorTools.render(image.g2,x,y,w,h);
