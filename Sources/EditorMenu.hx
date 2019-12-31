@@ -9,7 +9,7 @@ import haxe.ui.containers.menus.Menu.MenuEvent;
 import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;
 
-import haxe.ui.extended.FileSystem;
+import kha.FileSystem;
 import coin.data.SceneFormat;
 import coin.data.Data;
 

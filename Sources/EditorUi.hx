@@ -5,7 +5,7 @@ import haxe.ui.core.Component;
 import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
 import haxe.ui.Toolkit;
-import haxe.ui.extended.FileSystem;
+import kha.FileSystem;
 import haxe.ui.events.UIEvent;
 #if arm_csm
 import iron.Trait;
@@ -30,7 +30,7 @@ class EditorUi extends Trait{
     public var gameView:EditorGameView; 
     static public var raw:TSceneFormat =null;
     static public var scenePath:String = "";
-    static public var projectPath:String = "~/Documents/projects/raccoon-tests/";
+    static public var projectPath:String = "..";
     // static var bl:BlendParser = null;
     var isBlend = false;
     public function new(plist:Array<foundry.data.Project.TProject> = null){
@@ -57,26 +57,29 @@ class EditorUi extends Trait{
 
     }
     function init(){
-        gameView = new EditorGameView();
-        editor = new EditorView();
-        // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
-        // if(StringTools.endsWith(path,"blend")){
-        //     isBlend = true;
-        // }//'$path
+        kha.FileSystem.init(function(){
+            trace('Hello Cruel World !');
+            gameView = new EditorGameView();
+            editor = new EditorView();
+            // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
+            // if(StringTools.endsWith(path,"blend")){
+            //     isBlend = true;
+            // }//'$path
 
-        // iron.data.Data.getBlob(path,createHierarchy);
-        #if arm_csm
-        createHierarchy(iron.Scene.active.raw);
-        #elseif coin
-        createHierarchy(coin.State.active.raw);
-        #end
-        
-        var tab = new ProjectExplorer(projectPath);
-        var menu  = new EditorMenu();
-        editor.header.addComponent(menu);
-        editor.ePanelBottom.addComponent(tab);
-        var tools = new EditorTools(editor);
-        Screen.instance.addComponent(editor);
+            // iron.data.Data.getBlob(path,createHierarchy);
+            #if arm_csm
+            createHierarchy(iron.Scene.active.raw);
+            #elseif coin
+            createHierarchy(coin.State.active.raw);
+            #end
+            
+            var tab = new ProjectExplorer(projectPath);
+            var menu  = new EditorMenu();
+            editor.header.addComponent(menu);
+            editor.ePanelBottom.addComponent(tab);
+            var tools = new EditorTools(editor);
+            Screen.instance.addComponent(editor);
+        });
     }
     function createHierarchy(blob:TSceneFormat){
         // if(isBlend){

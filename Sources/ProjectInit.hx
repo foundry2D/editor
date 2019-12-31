@@ -1,6 +1,6 @@
 package;
 
-import haxe.ui.extended.FileSystem;
+import kha.FileSystem;
 import foundry.data.Project.Type;
 
 class ProjectInit {
@@ -58,7 +58,7 @@ class ProjectInit {
             list.push({name: project,path: path,scenes:[],type: Type.twoD});
             var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list));
             path = Main.cwd+"/pjml.coin";
-			haxe.ui.extended.FileSystem.saveToFile(path,data);
+			kha.FileSystem.saveToFile(path,data);
 
         });
         

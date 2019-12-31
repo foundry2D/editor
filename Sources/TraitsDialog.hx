@@ -4,7 +4,7 @@ import haxe.ui.events.MouseEvent;
 import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.data.ListDataSource;
-import haxe.ui.extended.FileSystem;
+import kha.FileSystem;
 import ListTraits.Data;
 import ListTraits.TraitDef;
 
@@ -26,17 +26,20 @@ class TraitsDialog extends Dialog {
         this.height = Screen.instance.height*0.95;
         feed.percentHeight = 93.0;
 		filename.percentHeight = 4.0;
-        FileSystem.getContent('./Assets/listTraits.json',function(data:String){
-            traits = haxe.Json.parse(data);
+        // FileSystem.getContent('./Assets/listTraits.json',function(data:String){
+            var data = kha.Assets.blobs.get("listTraits_json");
+            traits = haxe.Json.parse(data.toString());
             var ds = new ListDataSource<TraitDef>();
-            trace(traits);
-            for(trait in traits.traits){
-                ds.add(trait);
+            if(traits.traits != null){
+                for(trait in traits.traits){
+                    ds.add(trait);
+                }
             }
+            
             feed.dataSource = ds;
             this.invalidateComponentLayout();
             this.show();
-        });
+        // });
         
     }
     @:access(EditorInspector)

@@ -5,7 +5,7 @@ import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.NodeData;
 import haxe.ui.core.Screen;
-import haxe.ui.extended.FileSystem;
+import kha.FileSystem;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/project-creator.xml"))
 class ProjectCreator extends Dialog {

@@ -3,9 +3,8 @@ package;
 import haxe.io.Bytes;
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import haxe.ui.extended.FileSystem;
+import kha.FileSystem;
 import haxe.Json;
-
 
 typedef TraitDef = {
 	public var type:String;
@@ -19,6 +18,10 @@ typedef Data= {
 class ListTraits {
     static var list:Data = null;
     public macro static function build():Array<Field> {
+        // var p = new sys.io.Process("pwd", []);
+        // var out:String = p.stdout.readAll().toString();
+        // p.close();
+        // trace(out);
         if(list == null){
             list = Json.parse(sys.io.File.getContent('../Assets/listTraits.json'));
             if(list.traits == null)
