@@ -1,6 +1,6 @@
 package;
 
-import coin.Coin;
+import found.Found;
 import haxe.ui.core.Component;
 import haxe.ui.core.Screen;
 import haxe.ui.events.MouseEvent;
@@ -25,19 +25,19 @@ class EditorTools {
     static public function render(g:Graphics,p_x:Float,p_y:Float,w:Float,h:Float){
         var x = arrows.left;
         var y = arrows.top; 
-        arrows.left = (arrows.left)/Coin.WIDTH*Math.ceil(w)+Math.floor(p_x);
-        arrows.top = (arrows.top)/Coin.HEIGHT*Math.ceil(h)+Math.floor(p_y);
+        arrows.left = (arrows.left)/Found.WIDTH*Math.ceil(w)+Math.floor(p_x);
+        arrows.top = (arrows.top)/Found.HEIGHT*Math.ceil(h)+Math.floor(p_y);
         vArrow.renderGraph(g,x,y);
         hArrow.renderGraph(g,x,y);
         rect.renderGraph(g,x,y);
     }
     static public function drawGrid(g:Graphics){
-        var size:Int = coin.Coin.GRID;
+        var size:Int = found.Found.GRID;
         var str = 3.0;
         var x = 0.0;
         var y = 0.0;
         g.color = 0xff282828;
-        while(x < Coin.WIDTH){
+        while(x < Found.WIDTH){
             g.drawRect(x,y,size,size,str);
             x+=size;
             if(g.color == 0xff282828){
@@ -45,7 +45,7 @@ class EditorTools {
             } else{
                 g.color = 0xff282828;
             }
-            if(x >= Coin.WIDTH && y < Coin.HEIGHT){
+            if(x >= Found.WIDTH && y < Found.HEIGHT){
                 y+=size;
                 x = 0;
             }
@@ -107,7 +107,7 @@ class Arrow extends Component{
         
     }
     public function renderGraph(g:Graphics,x:Float,y:Float){
-        if(coin.App.editorui.inspector.index < 0)return;
+        if(found.App.editorui.inspector.index < 0)return;
         var w = size*10;
 		var h = w;
         if(type == 0){
@@ -139,7 +139,7 @@ class Arrow extends Component{
         }
     }
     public override function renderTo(g:Graphics){
-        if(coin.App.editorui.inspector.index < 0)return;
+        if(found.App.editorui.inspector.index < 0)return;
         var x = EditorTools.arrows.left;
         var y = EditorTools.arrows.top;
         var w = size*5;

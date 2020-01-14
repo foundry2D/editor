@@ -9,13 +9,13 @@ import iron.data.SceneFormat;
 import armory.renderpath.RenderPathCreator;
 import iron.RenderPath;
 #end
-#if coin
+#if found
 import kha.Scaler;
 import kha.math.Vector2;
-import coin.Coin;
-import coin.State;
-import coin.Trait;
-import coin.data.SceneFormat;
+import found.Found;
+import found.State;
+import found.Trait;
+import found.data.SceneFormat;
 #end
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-gameview.xml"))
 class EditorGameView extends EditorTab {
@@ -63,8 +63,8 @@ class EditorGameView extends EditorTab {
 			});
 			drawTrait.notifyOnRender2D(drawGameView);
 		});
-		#elseif coin
-		coin.Coin.renderfunc = drawGameView;
+		#elseif found
+		found.Found.renderfunc = drawGameView;
         #end
 
     }
@@ -72,7 +72,7 @@ class EditorGameView extends EditorTab {
 	@:access(haxe.ui.core.Component)
 	public override function renderTo(g:kha.graphics2.Graphics) {
 		super.renderTo(g);
-		g.drawScaledImage(Coin.scenebuffer, x ,y, w, h);
+		g.drawScaledImage(Found.scenebuffer, x ,y, w, h);
 	}
 	function drawGameView(g:kha.graphics2.Graphics) {
 		#if arm_csm
@@ -90,17 +90,17 @@ class EditorGameView extends EditorTab {
 			g.drawScaledImage(image, this.screenX ,this.screenY +this.height, this.width, this.height);
 		}
 
-		#elseif coin
+		#elseif found
 
 		g.end();
-		var image = Coin.scenebuffer;
+		var image = Found.scenebuffer;
 		image.g2.begin();
 		EditorTools.drawGrid(image.g2);
 		if (State.active != null){
 			State.active.render(image);
 		}
-		if(coin.App.editorui.inspector.index >= 0 ){
-			var i = coin.App.editorui.inspector.index;
+		if(found.App.editorui.inspector.index >= 0 ){
+			var i = found.App.editorui.inspector.index;
 			var e = State.active._entities[i];
 			EditorTools.arrows.left = e.position.x;
 			EditorTools.arrows.top = e.position.y;
@@ -108,7 +108,7 @@ class EditorGameView extends EditorTab {
 
 		}
 		image.g2.end();
-		coin.App.frameCounter.render(image);
+		found.App.frameCounter.render(image);
 		g.begin();
 		haxe.ui.core.Screen.instance.renderTo(g);
 		#end

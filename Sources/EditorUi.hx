@@ -12,12 +12,12 @@ import iron.Trait;
 import iron.data.SceneFormat;
 import iron.system.ArmPack;
 // import iron.format.BlendParser;
-#elseif coin
-import coin.Trait;
-import coin.State;
-import coin.Coin;
-import coin.object.Object.MoveData;
-import coin.data.SceneFormat;
+#elseif found
+import found.Trait;
+import found.State;
+import found.Found;
+import found.object.Object.MoveData;
+import found.data.SceneFormat;
 #end
 
 class EditorUi extends Trait{
@@ -28,58 +28,57 @@ class EditorUi extends Trait{
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     public var gameView:EditorGameView; 
-    static public var raw:TSceneFormat =null;
-    static public var scenePath:String = "";
-    static public var projectPath:String = "..";
+    public static var raw:TSceneFormat =null;
+    public static var scenePath:String = "";
+    public static  var projectPath:String = ".";
+    public static var cwd:String = '~';
     // static var bl:BlendParser = null;
     var isBlend = false;
     public function new(plist:Array<foundry.data.Project.TProject> = null){
         super();
         Toolkit.init();
-        if(plist != null){
-            projectmanager = new ManagerView(plist);
-            Screen.instance.addComponent(projectmanager);
-        }
-        else {
-            #if arm_csm
-            iron.App.notifyOnInit(function(){
-                iron.Scene.active.notifyOnInit(init);
-            });
-            iron.App.notifyOnReset(function(){
-                iron.Scene.active.notifyOnInit(init);
-            });
-            iron.App.notifyOnRender2D(render);
-            #elseif coin
-            init();
-            #end
-        }
-        
+        kha.FileSystem.init(function(){
+            if(plist != null){
+                projectmanager = new ManagerView(plist);
+                Screen.instance.addComponent(projectmanager);
+            }
+            else {
+                #if arm_csm
+                iron.App.notifyOnInit(function(){
+                    iron.Scene.active.notifyOnInit(init);
+                });
+                iron.App.notifyOnReset(function(){
+                    iron.Scene.active.notifyOnInit(init);
+                });
+                iron.App.notifyOnRender2D(render);
+                #elseif found
+                init();
+                #end
+            }
+        });
 
     }
     function init(){
-        kha.FileSystem.init(function(){
-            trace('Hello Cruel World !');
-            gameView = new EditorGameView();
-            editor = new EditorView();
-            // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
-            // if(StringTools.endsWith(path,"blend")){
-            //     isBlend = true;
-            // }//'$path
+        gameView = new EditorGameView();
+        editor = new EditorView();
+        // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
+        // if(StringTools.endsWith(path,"blend")){
+        //     isBlend = true;
+        // }//'$path
 
-            // iron.data.Data.getBlob(path,createHierarchy);
-            #if arm_csm
-            createHierarchy(iron.Scene.active.raw);
-            #elseif coin
-            createHierarchy(coin.State.active.raw);
-            #end
-            
-            var tab = new ProjectExplorer(projectPath);
-            var menu  = new EditorMenu();
-            editor.header.addComponent(menu);
-            editor.ePanelBottom.addComponent(tab);
-            var tools = new EditorTools(editor);
-            Screen.instance.addComponent(editor);
-        });
+        // iron.data.Data.getBlob(path,createHierarchy);
+        #if arm_csm
+        createHierarchy(iron.Scene.active.raw);
+        #elseif found
+        createHierarchy(found.State.active.raw);
+        #end
+        
+        var tab = new ProjectExplorer(projectPath);
+        var menu  = new EditorMenu();
+        editor.header.addComponent(menu);
+        editor.ePanelBottom.addComponent(tab);
+        var tools = new EditorTools(editor);
+        Screen.instance.addComponent(editor);
     }
     function createHierarchy(blob:TSceneFormat){
         // if(isBlend){
@@ -102,7 +101,7 @@ class EditorUi extends Trait{
 
     }
 
-    #if coin
+    #if found
     public static var activeMouse:Bool = false;
     public static var gridMove:Bool = false;
     public static var arrow:Int = -1;
@@ -115,10 +114,10 @@ class EditorUi extends Trait{
         var doUpdate = true;
         var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
-        var scaleFactor = Math.ceil(gameView.w)/Coin.WIDTH;
+        var scaleFactor = Math.ceil(gameView.w)/Found.WIDTH;
 
-        var px = ((x-gameView.x-minusX)/gameView.w)*Coin.WIDTH;
-        var py = ((y-gameView.y-minusY)/gameView.h)*Coin.HEIGHT;
+        var px = ((x-gameView.x-minusX)/gameView.w)*Found.WIDTH;
+        var py = ((y-gameView.y-minusY)/gameView.h)*Found.HEIGHT;
         
         //Get scaling values
         var direction = 1;
@@ -128,19 +127,19 @@ class EditorUi extends Trait{
         else if(arrow == 1){
             direction = curPos.y-py < 0 ? -1:1;
         }
-        var sx = direction*(Math.abs(curPos.x-px)/Coin.WIDTH);
-        var sy = direction*(Math.abs(curPos.y-py)/Coin.HEIGHT);
+        var sx = direction*(Math.abs(curPos.x-px)/Found.WIDTH);
+        var sy = direction*(Math.abs(curPos.y-py)/Found.HEIGHT);
         
         //Clamp position to grid
         if(gridMove || keys.ctrl){//Clamp to grid
-            doUpdate  = Math.abs(curPos.x-px) > Coin.GRID*0.99 || Math.abs(px-curPos.x) > Coin.GRID*0.99;
+            doUpdate  = Math.abs(curPos.x-px) > Found.GRID*0.99 || Math.abs(px-curPos.x) > Found.GRID*0.99;
             px = Math.floor(px);
-            px += (Coin.GRID-(px % Coin.GRID));
+            px += (Found.GRID-(px % Found.GRID));
         }
         if(gridMove || keys.ctrl ){//Clamp to grid
-            doUpdate  = doUpdate ? doUpdate : Math.abs(curPos.y-py) > Coin.GRID*0.99 || Math.abs(py-curPos.y) > Coin.GRID*0.99;
+            doUpdate  = doUpdate ? doUpdate : Math.abs(curPos.y-py) > Found.GRID*0.99 || Math.abs(py-curPos.y) > Found.GRID*0.99;
             py = Math.floor(py);
-            py += (Coin.GRID-(py % Coin.GRID));
+            py += (Found.GRID-(py % Found.GRID));
         }
 
         if(doUpdate){
@@ -161,7 +160,7 @@ class EditorUi extends Trait{
             
         }
         
-        if(px+((minusX+(minusX/5)*2)/gameView.w)*Coin.WIDTH > Coin.WIDTH || px < 0 || py > Coin.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.h)*Coin.HEIGHT < 0){
+        if(px+((minusX+(minusX/5)*2)/gameView.w)*Found.WIDTH > Found.WIDTH || px < 0 || py > Found.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.h)*Found.HEIGHT < 0){
             activeMouse = false;
             return;
         }

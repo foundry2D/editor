@@ -49,14 +49,14 @@ class TraitsDialog extends Dialog {
             
             if(e.button == "Add Trait"){
                 var hasAlready = false;
-                for(trait in coin.App.editorui.inspector.rawData.traits){
+                for(trait in found.App.editorui.inspector.rawData.traits){
                     if(trait.class_name == inst.filename.text){
                         hasAlready =true;
                         break;
                     }
                 }
                 if(!hasAlready)
-                    coin.App.editorui.inspector.updateData(e);
+                    found.App.editorui.inspector.updateData(e);
             }
                 
         }

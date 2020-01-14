@@ -12,9 +12,9 @@ import iron.data.SceneFormat;
 #else
 import kha.math.Vector2;
 import kha.math.Vector3;
-import coin.State;
-import coin.object.Object;
-import coin.data.SceneFormat;
+import found.State;
+import found.object.Object;
+import found.data.SceneFormat;
 #end
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
 class EditorHierarchy extends EditorTab {
@@ -98,12 +98,12 @@ class EditorHierarchy extends EditorTab {
         tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
     }
 
-    @:access(coin.object.Object,coin.object.Executor)
+    @:access(found.object.Object,found.object.Executor)
     function rmvData2Scn(uid:Int){
 
         State.active._entities[uid].active  = false;
-        for(exe in coin.object.Executor.executors){
-			var modified:Array<Any> = Reflect.field(coin.object.Object,exe.field);
+        for(exe in found.object.Executor.executors){
+			var modified:Array<Any> = Reflect.field(found.object.Object,exe.field);
 			modified.splice(uid,1);
 		}
 
@@ -222,11 +222,11 @@ class EditorHierarchy extends EditorTab {
             inspector.tree.dataSource = out.ds;
             inspector.rawData = out.obj;
             if(inspector.rawData.type == "tilemap_object"){
-                coin.Coin.tileeditor.selectMap(out.index);
+                found.Found.tileeditor.selectMap(out.index);
                 
             } 
             else{
-                coin.Coin.tileeditor.selectMap(-1);
+                found.Found.tileeditor.selectMap(-1);
             }
         }
     }
@@ -322,7 +322,7 @@ class EditorHierarchy extends EditorTab {
             tilesheetActionRef: fetch(obj,"tilesheetActionRef",'String'),
             sampled: fetch(obj,"sampled",'Bool')
         });
-    #elseif coin
+    #elseif found
         var dat:{obj:TObj, index:Int} = getObj(State.active._entities,path);
         var obj:TObj = dat.obj;
         ds.add(getIDataFrom(obj));

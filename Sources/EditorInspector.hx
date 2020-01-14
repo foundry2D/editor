@@ -6,10 +6,10 @@ import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.menus.MenuItem;
 #if arm_csm
 import iron.data.SceneFormat;
-#elseif coin
-import coin.App;
-import coin.State;
-import coin.data.SceneFormat;
+#elseif found
+import found.App;
+import found.State;
+import found.data.SceneFormat;
 #end
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
@@ -40,7 +40,7 @@ class EditorInspector extends EditorTab {
         //     trace(item);
         // }
     }
-    #if coin
+    #if found
     public static var defaults:Map<String,String> = [
         "px" =>"x","py"=>"y","pz"=>"depth",
         "rz"=>"z",
@@ -49,7 +49,7 @@ class EditorInspector extends EditorTab {
         "path"=>"",
         "traits"=>""
     ];
-    @:access(haxe.ui.backend.kha.TextField,coin.Scene)
+    @:access(haxe.ui.backend.kha.TextField,found.Scene)
     function updateData(e:UIEvent){
         var _rawData = rawData;
         var changed:Bool = false;
@@ -100,13 +100,13 @@ class EditorInspector extends EditorTab {
                     
                         changed = Reflect.field(_rawData,id) != value;
                         Reflect.setProperty(_rawData,id,value);
-                        cast(State.active._entities[index],coin.anim.Sprite).set(cast(_rawData));
+                        cast(State.active._entities[index],found.anim.Sprite).set(cast(_rawData));
                     }
                 case "traits":
                     var trait = cast(e.target,TraitsDialog).feed.selectedItem;
                     tree.curNode.traits.addField({type:trait.type,class_name: trait.classname});
                     State.active._entities[index].raw.traits.push({type:trait.type,class_name: trait.classname});
-                    coin.Scene.createTraits([{type:trait.type,class_name: trait.classname}],State.active._entities[index]);
+                    found.Scene.createTraits([{type:trait.type,class_name: trait.classname}],State.active._entities[index]);
                     changed = true;
                 default:
             }

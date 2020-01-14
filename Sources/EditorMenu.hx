@@ -10,8 +10,8 @@ import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;
 
 import kha.FileSystem;
-import coin.data.SceneFormat;
-import coin.data.Data;
+import found.data.SceneFormat;
+import found.data.Data;
 
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-menu.xml"))
@@ -59,7 +59,7 @@ class EditorMenu extends HBox {
             if(path == null)return;
             var sep = FileSystem.sep;
             var name = path.split(sep)[path.split(sep).length-1];
-            #if coin
+            #if found
             var scene:TSceneFormat = {
                 name: StringTools.replace(name,'.json',""),
                 _entities:[],
@@ -76,9 +76,9 @@ class EditorMenu extends HBox {
         }
     }
     function loadScene(scene:TSceneFormat){
-        coin.App.reset();
-        coin.State.addState(scene.name,scene.name+'.json');
-        coin.State.set(scene.name);
-        coin.App.editorui.hierarchy.setFromScene(scene);
+        found.App.reset();
+        found.State.addState(scene.name,scene.name+'.json');
+        found.State.set(scene.name);
+        found.App.editorui.hierarchy.setFromScene(scene);
     }
 }

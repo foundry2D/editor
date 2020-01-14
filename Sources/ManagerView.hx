@@ -12,6 +12,11 @@ class ManagerView extends Box {
         super();
         percentWidth = 100;
         percentHeight = 100;
+        if(data != null){
+            for(proj in data){
+                projectslist.dataSource.add(proj);
+            }
+        }
     }
 
     @:bind(newproject,MouseEvent.CLICK)
