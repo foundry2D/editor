@@ -12,6 +12,6 @@
         <textarea id="path" width="90%" height="100%" />
         <button id="browse" text="..." width="10%" />
     </hbox>
-    <checkbox id="createParDir" text="Create a folder with project name: " />
+    <!-- <checkbox id="createParDir" text="Create a folder with project name: " /> -->
         
 </vbox>

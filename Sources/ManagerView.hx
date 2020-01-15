@@ -8,7 +8,7 @@ import haxe.ui.containers.dialogs.Dialog;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/project-manager.xml"))
 class ManagerView extends Box {
-    public function new(data:Array<foundry.data.Project.TProject> =null) {
+    public function new(data:Array<found.data.Project.TProject> =null) {
         super();
         percentWidth = 100;
         percentHeight = 100;
@@ -21,7 +21,15 @@ class ManagerView extends Box {
 
     @:bind(newproject,MouseEvent.CLICK)
     function creator(e:MouseEvent){
-        var inst = new ProjectCreator();
+        var inst = new ProjectCreator(function(){
+
+            kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+                var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+                var test = out.list.pop();
+                //@TODO: Even if we add to the list it doesnt add an item(test invalidate or using ItemRenderer)
+                projectslist.dataSource.add(test);
+            });
+        });
         inst.show();
     }
 

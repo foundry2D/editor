@@ -1,6 +1,6 @@
 package;
 
-import foundry.data.Project.Type;
+import found.data.Project.Type;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.NodeData;
@@ -9,8 +9,10 @@ import kha.FileSystem;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/project-creator.xml"))
 class ProjectCreator extends Dialog {
-    public function new() {
+    var onDone:Void->Void;
+    public function new(done:Void->Void=null) {
         super();
+        onDone = done;
         title = "New Project";
         modal = false;
         buttons =  DialogButton.APPLY | DialogButton.CANCEL;
@@ -26,11 +28,13 @@ class ProjectCreator extends Dialog {
             if(FileSystem.isDirectory(p)){
                 var outp = p;
                 var type = twoD.selected ? Type.twoD: Type.threeD;
-                var projName = name.text;
-                if(createParDir.selected && projName != ""){
-                    outp = p+FileSystem.sep+name.text;
-                    FileSystem.createDirectory(outp);
-                }
+                var projName = name.text != null ? name.text:"Project";
+                trace(name.text);
+                trace(projName);
+                outp = p+FileSystem.sep+projName;
+                trace(outp);
+                FileSystem.createDirectory(outp);
+                ProjectInit.done = onDone;
                 ProjectInit.run(outp,type,projName);
             }
         }

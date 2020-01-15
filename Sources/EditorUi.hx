@@ -31,14 +31,15 @@ class EditorUi extends Trait{
     public static var raw:TSceneFormat =null;
     public static var scenePath:String = "";
     public static  var projectPath:String = ".";
-    public static var cwd:String = '~';
+    public static var cwd:String = '.';
     // static var bl:BlendParser = null;
     var isBlend = false;
-    public function new(plist:Array<foundry.data.Project.TProject> = null){
+    public function new(plist:Array<found.data.Project.TProject> = null){
         super();
         Toolkit.init();
         kha.FileSystem.init(function(){
-            if(plist != null){
+            gameView = new EditorGameView();
+            if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")){
                 projectmanager = new ManagerView(plist);
                 Screen.instance.addComponent(projectmanager);
             }
@@ -59,7 +60,6 @@ class EditorUi extends Trait{
 
     }
     function init(){
-        gameView = new EditorGameView();
         editor = new EditorView();
         // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
         // if(StringTools.endsWith(path,"blend")){

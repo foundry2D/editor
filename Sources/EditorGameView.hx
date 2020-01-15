@@ -99,7 +99,7 @@ class EditorGameView extends EditorTab {
 		if (State.active != null){
 			State.active.render(image);
 		}
-		if(found.App.editorui.inspector.index >= 0 ){
+		if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
 			var i = found.App.editorui.inspector.index;
 			var e = State.active._entities[i];
 			EditorTools.arrows.left = e.position.x;

@@ -1,16 +1,17 @@
 package;
 
 import kha.FileSystem;
-import foundry.data.Project.Type;
+import found.data.Project.Type;
+import found.data.SceneFormat;
 
 class ProjectInit {
-
+    public static var done:Void->Void;
     static var path = "";
     static var project = "";
-    static public function run(p_path:String,type:foundry.data.Project.Type,p_project:String ="") {
+    static public function run(p_path:String,type:found.data.Project.Type,p_project:String ="") {
         path = p_path;
         if(type == Type.twoD){
-            project = p_project != "" ? p_project: "Foundry Project";
+            project = p_project != "" ? p_project: "found Project";
             generateProject2d();
         }
         else{
@@ -49,18 +50,28 @@ class ProjectInit {
         if(!FileSystem.exists(path+"/Shaders")) FileSystem.createDirectory(path+"/Shaders");
         if(!FileSystem.exists(path+"/Sources")) FileSystem.createDirectory(path+"/Sources",main2d);
         if(!FileSystem.exists(path+"/Sources/scripts")) FileSystem.createDirectory(path+"/Sources/scripts");
-        if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")) FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString("{[]}"));
+        if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")) FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString('{"list":[]}'),createDefaults);
         
+        
+        
+    }
+    static function createDefaults(){
         FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
-            var list:Array<foundry.data.Project.TProject> = haxe.Json.parse(blob);
-            
-            list.push({name: project,path: path,scenes:[],type: Type.twoD});
-            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list));
+            var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+
+            var scene:TSceneFormat = haxe.Json.parse(kha.Assets.blobs.default_json.toString());
+            scene.name = "PlayState";
+            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(scene));
+            kha.FileSystem.saveToFile(path+"/Assets/PlayState.json",data);
+
+            out.list.push({name: project,path: path,scenes:[path+"/Assets/PlayState.json"],type: Type.twoD});
+            data = haxe.io.Bytes.ofString(haxe.Json.stringify(out));
             path = EditorUi.cwd+"/pjml.found";
-			kha.FileSystem.saveToFile(path,data);
+            kha.FileSystem.saveToFile(path,data);
+            if(ProjectInit.done != null)
+                ProjectInit.done();
 
         });
-        
     }
     static function main2d(){
         if(!FileSystem.exists(path+"/Sources/Main.hx")){

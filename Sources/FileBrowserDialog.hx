@@ -20,7 +20,7 @@ class FileBrowserDialog extends Dialog {
     }
 
     #if debug
-    static var defaultPath = "/home/jsnadeau/Documents/projects/raccoon-tests/";
+    static var defaultPath = ".";
     #else
     static var defaultPath = "/";
     #end

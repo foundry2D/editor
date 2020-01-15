@@ -1,7 +1,7 @@
 package;
 
 
-import foundry.data.Project.Type;
+import found.data.Project.Type;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.NodeData;
