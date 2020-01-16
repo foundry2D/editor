@@ -12,7 +12,10 @@ class ManagerView extends Box {
         super();
         percentWidth = 100;
         percentHeight = 100;
+        projectslist.itemRenderer =  haxe.ui.macros.ComponentMacros.buildComponent(
+			"../Assets/custom/projectlist-items.xml");
         if(data != null){
+            // projectslist.dataSource
             for(proj in data){
                 projectslist.dataSource.add(proj);
             }
@@ -26,7 +29,6 @@ class ManagerView extends Box {
             kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                 var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
                 var test = out.list.pop();
-                //@TODO: Even if we add to the list it doesnt add an item(test invalidate or using ItemRenderer)
                 projectslist.dataSource.add(test);
             });
         });

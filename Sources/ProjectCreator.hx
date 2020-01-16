@@ -29,10 +29,7 @@ class ProjectCreator extends Dialog {
                 var outp = p;
                 var type = twoD.selected ? Type.twoD: Type.threeD;
                 var projName = name.text != null ? name.text:"Project";
-                trace(name.text);
-                trace(projName);
                 outp = p+FileSystem.sep+projName;
-                trace(outp);
                 FileSystem.createDirectory(outp);
                 ProjectInit.done = onDone;
                 ProjectInit.run(outp,type,projName);

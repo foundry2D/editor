@@ -1,0 +1,12 @@
+<item-renderer id="paths" width="100%" >
+    <vbox>
+        <label id="name" width="100%" />
+        <label id="path" width="100%" />
+        <!-- <dropdown id="type" selectedIndex="0" width="100%" >
+            <data>
+                <item value="2D" />
+                <item value="3D" />
+            </data>
+        </dropdown> -->
+    </vbox>
+</item-renderer>
