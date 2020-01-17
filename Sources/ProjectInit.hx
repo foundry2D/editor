@@ -49,7 +49,7 @@ class ProjectInit {
         if(!FileSystem.exists(path+"/Assets")) FileSystem.createDirectory(path+"/Assets");
         if(!FileSystem.exists(path+"/Shaders")) FileSystem.createDirectory(path+"/Shaders");
         if(!FileSystem.exists(path+"/Sources")) FileSystem.createDirectory(path+"/Sources",main2d);
-        if(!FileSystem.exists(path+"/Sources/scripts")) FileSystem.createDirectory(path+"/Sources/scripts");
+        if(!FileSystem.exists(path+"/Sources/Scripts")) FileSystem.createDirectory(path+"/Sources/Scripts");
         if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")) FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString('{"list":[]}'),createDefaults);
         
         
@@ -103,6 +103,7 @@ class ProjectInit {
             +'\t\tsuper.render(canvas);\n'    
             +'\t}\n'
             +'}');
+            FileSystem.saveToFile(path+"/Sources/Main.hx",out);
         }
     }
     static function generateProject3d(){

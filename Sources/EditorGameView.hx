@@ -72,7 +72,8 @@ class EditorGameView extends EditorTab {
 	@:access(haxe.ui.core.Component)
 	public override function renderTo(g:kha.graphics2.Graphics) {
 		super.renderTo(g);
-		g.drawScaledImage(Found.scenebuffer, x ,y, w, h);
+		if(selectedPage != null && selectedPage.text == "Game")
+			g.drawScaledImage(Found.scenebuffer, x ,y, w, h);
 	}
 	function drawGameView(g:kha.graphics2.Graphics) {
 		#if arm_csm
@@ -93,22 +94,24 @@ class EditorGameView extends EditorTab {
 		#elseif found
 
 		g.end();
-		var image = Found.scenebuffer;
-		image.g2.begin();
-		EditorTools.drawGrid(image.g2);
-		if (State.active != null){
-			State.active.render(image);
-		}
-		if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
-			var i = found.App.editorui.inspector.index;
-			var e = State.active._entities[i];
-			EditorTools.arrows.left = e.position.x;
-			EditorTools.arrows.top = e.position.y;
-			EditorTools.render(image.g2,x,y,w,h);
+		if(selectedPage != null && selectedPage.text == "Game"){
+			var image = Found.scenebuffer;
+			image.g2.begin();
+			EditorTools.drawGrid(image.g2);
+			if (State.active != null){
+				State.active.render(image);
+			}
+			if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
+				var i = found.App.editorui.inspector.index;
+				var e = State.active._entities[i];
+				EditorTools.arrows.left = e.position.x;
+				EditorTools.arrows.top = e.position.y;
+				EditorTools.render(image.g2,x,y,w,h);
 
+			}
+			image.g2.end();
+			found.App.frameCounter.render(image);
 		}
-		image.g2.end();
-		found.App.frameCounter.render(image);
 		g.begin();
 		haxe.ui.core.Screen.instance.renderTo(g);
 		#end

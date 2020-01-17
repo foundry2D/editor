@@ -9,6 +9,7 @@ project.addLibrary('/home/jsnadeau/foundsdk/hscript');
 project.addLibrary('/home/jsnadeau/foundsdk/haxeui-core');
 project.addLibrary('/home/jsnadeau/foundsdk/haxeui-kha');
 project.addLibrary('/home/jsnadeau/foundsdk/haxeui-kha-extended');
+project.addLibrary('/home/jsnadeau/foundsdk/haxeui-code-editor');
 project.addDefine("debug");
 project.addDefine("editor");
 project.addDefine("tile_editor");

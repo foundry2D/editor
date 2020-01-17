@@ -5,10 +5,11 @@ import kha.Assets;
 import haxe.ui.containers.Box;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
+import found.data.Project.TProject;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/project-manager.xml"))
 class ManagerView extends Box {
-    public function new(data:Array<found.data.Project.TProject> =null) {
+    public function new(data:Array<TProject> =null) {
         super();
         percentWidth = 100;
         percentHeight = 100;
@@ -27,14 +28,22 @@ class ManagerView extends Box {
         var inst = new ProjectCreator(function(){
 
             kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
-                var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
-                var test = out.list.pop();
-                projectslist.dataSource.add(test);
+                var out:{list:Array<TProject>} = haxe.Json.parse(blob);
+                projectslist.dataSource.add(out.list.pop());
             });
         });
         inst.show();
     }
 
+    @:bind(run,MouseEvent.CLICK)
+    function runProject(e:MouseEvent){
+        if(projectslist.selectedItem != null){
+            var project:TProject = projectslist.selectedItem;
+            found.State.addState('default',project.scenes[0]);
+            EditorUi.projectPath = project.path;
+            found.State.set('default',found.App.editorui.init);//
+        }
+    }
     @:bind(open,MouseEvent.CLICK)
     function openProject(e:MouseEvent) {
         FileBrowserDialog.open(e);

@@ -27,7 +27,8 @@ class EditorUi extends Trait{
     public var hierarchy:EditorHierarchy;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
-    public var gameView:EditorGameView; 
+    public var gameView:EditorGameView;
+    var codeView:EditorCodeView;
     public static var raw:TSceneFormat =null;
     public static var scenePath:String = "";
     public static  var projectPath:String = ".";
@@ -40,7 +41,10 @@ class EditorUi extends Trait{
         kha.FileSystem.init(function(){
             gameView = new EditorGameView();
             if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")){
-                projectmanager = new ManagerView(plist);
+                if(projectmanager == null)
+                    projectmanager = new ManagerView(plist);
+                if(editor != null)
+                    Screen.instance.removeComponent(editor);
                 Screen.instance.addComponent(projectmanager);
             }
             else {
@@ -59,8 +63,11 @@ class EditorUi extends Trait{
         });
 
     }
-    function init(){
+    public function init(){
+        if(projectmanager != null)
+            Screen.instance.removeComponent(projectmanager);
         editor = new EditorView();
+        codeView = new EditorCodeView();
         // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
         // if(StringTools.endsWith(path,"blend")){
         //     isBlend = true;
@@ -93,7 +100,8 @@ class EditorUi extends Trait{
             editor.ePanelRight.addComponent(inspector);
             hierarchy = new EditorHierarchy(blob,inspector);
             editor.ePanelLeft.addComponent(hierarchy);
-            editor.ePanelTop.addComponent(gameView);
+            editor.ePanelTop.addComponent(gameView);// @TODO: Do we really need to put this here ?
+            gameView.addComponent(codeView);
         // }
         
     }

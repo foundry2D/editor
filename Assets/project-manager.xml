@@ -9,7 +9,7 @@
             <vbox id="projects-tab" text="Projects" width="100%" height="100%" >
                 <listview id="projectslist" width="100%" height="100%" />
             </vbox>
-            <vbox id="templates-tab" text="Templates" >
+            <vbox id="templates-tab" text="Templates" width="100%" height="100%" >
                 <listview id="templates" width="100%" height="100%" />
             </vbox>
         </tabview>
