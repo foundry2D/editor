@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <vbox id="container" width="100%" height="100%" >
-    <codeeditor id="code" width="100%" height="100%" />
+    <hbox id="bar" width="95%" height="10%" >
+        <label text="Coding Method"  width="29%" height="100%" />
+        <dropdown id="codetype" selectedIndex="0" width="70%" height="100%" >
+                <data>
+                    <item value="Visual" />
+                    <item value="Textual" />
+                </data>
+        </dropdown>
+    </hbox>
+    <!-- <codeeditor id="textual" width="100%" height="90%" /> -->
 </vbox>
