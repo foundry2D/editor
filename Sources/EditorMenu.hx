@@ -14,6 +14,7 @@ import found.data.SceneFormat;
 import found.data.Data;
 
 
+
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-menu.xml"))
 class EditorMenu extends HBox {
     public function new() {
@@ -28,7 +29,16 @@ class EditorMenu extends HBox {
                 createScene(e);
             case "Open Scene":
                 openScene(e);
+            case "Save Project":
+                saveProject(e);
         }
+    }
+    @:access(EditorUi)
+    function saveProject(e:UIEvent){
+        #if html5
+        
+        #else//use the filesystem
+        #end
     }
     function openScene(e:UIEvent){
         FileBrowserDialog.open(e);

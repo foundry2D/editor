@@ -24,15 +24,15 @@ class EditorCodeView extends VBox {
     }
     
     var visualEditor:found.tool.NodeEditor;
-    var textEditor:CodeComponent;
+    // var textEditor:CodeComponent;
     public function new(){
         super();
         percentWidth = 100;
         percentHeight = 100;
         this.text = "Code";
-        textEditor = new CodeComponent();
-        container.addComponent(textEditor);
-        textEditor.hidden = true;
+        // textEditor = new CodeComponent();
+        // container.addComponent(textEditor);
+        // textEditor.hidden = true;
         visualEditor = new found.tool.NodeEditor(x,y,w,h);
         visualEditor.visible = true;
         var nData = {
@@ -49,14 +49,14 @@ class EditorCodeView extends VBox {
     }
     public override function renderTo(g:kha.graphics2.Graphics) {
         super.renderTo(g);
-        if(codetype.selectedIndex == 0){// Visual
-            textEditor.hidden = true;
+        // if(codetype.selectedIndex == 0){// Visual
+            // textEditor.hidden = true;
             visualEditor.setAll(x,y,w,h);
             visualEditor.render(g);
-        }
-        else {//Textual
-            textEditor.hidden = false;
-        }
+        // }
+        // else {//Textual
+        //     textEditor.hidden = false;
+        // }
 
 	}
 

@@ -35,31 +35,44 @@ class EditorUi extends Trait{
     public static var cwd:String = '.';
     // static var bl:BlendParser = null;
     var isBlend = false;
-    public function new(plist:Array<found.data.Project.TProject> = null){
+
+    public function new(){
         super();
         Toolkit.init();
         kha.FileSystem.init(function(){
             gameView = new EditorGameView();
-            if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")){
-                if(projectmanager == null)
-                    projectmanager = new ManagerView(plist);
+            var plistExists = FileSystem.exists(EditorUi.cwd+"/pjml.found");
+            var done = function(){
                 if(editor != null)
                     Screen.instance.removeComponent(editor);
                 Screen.instance.addComponent(projectmanager);
             }
-            else {
-                #if arm_csm
-                iron.App.notifyOnInit(function(){
-                    iron.Scene.active.notifyOnInit(init);
-                });
-                iron.App.notifyOnReset(function(){
-                    iron.Scene.active.notifyOnInit(init);
-                });
-                iron.App.notifyOnRender2D(render);
-                #elseif found
-                init();
-                #end
+            if(!plistExists){
+                projectmanager = new ManagerView();
+                done();
             }
+            else {
+                kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
+                    var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
+                    projectmanager = new ManagerView(out.list);
+                    done();
+                });
+            }
+                
+            
+            // else {
+            //     #if arm_csm
+            //     iron.App.notifyOnInit(function(){
+            //         iron.Scene.active.notifyOnInit(init);
+            //     });
+            //     iron.App.notifyOnReset(function(){
+            //         iron.Scene.active.notifyOnInit(init);
+            //     });
+            //     iron.App.notifyOnRender2D(render);
+            //     #elseif found
+            //     init();
+            //     #end
+            // }
         });
 
     }
