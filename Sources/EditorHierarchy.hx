@@ -163,7 +163,7 @@ class EditorHierarchy extends EditorTab {
         var data:TTilemapData = {
             name: "Tilemap",
             type: "tilemap_object",
-            position: new Vector2(),
+            position: new Vector2(0.0,0.0),
             rotation:new Vector3(),
             width: 1280.0,
             height:960.0,

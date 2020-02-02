@@ -43,6 +43,7 @@ class EditorUi extends Trait{
             gameView = new EditorGameView();
             var plistExists = FileSystem.exists(EditorUi.cwd+"/pjml.found");
             var done = function(){
+
                 if(editor != null)
                     Screen.instance.removeComponent(editor);
                 Screen.instance.addComponent(projectmanager);
@@ -52,6 +53,16 @@ class EditorUi extends Trait{
                 done();
             }
             else {
+                #if kha_html5
+                for(key in kha.FileSystem.dbKeys.keys()){
+                    if(key == EditorUi.cwd+"/pjml.found")continue;
+                    kha.FileSystem.getContent(key,function(data:String){
+                        #if debug
+                        trace('Fetched data from $key');
+                        #end
+                    });
+                }
+                #end
                 kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
                     var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
                     projectmanager = new ManagerView(out.list);
