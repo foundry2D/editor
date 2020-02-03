@@ -50,7 +50,10 @@ class ProjectInit {
         if(!FileSystem.exists(path+"/Shaders")) FileSystem.createDirectory(path+"/Shaders");
         if(!FileSystem.exists(path+"/Sources")) FileSystem.createDirectory(path+"/Sources",main2d);
         if(!FileSystem.exists(path+"/Sources/Scripts")) FileSystem.createDirectory(path+"/Sources/Scripts");
-        if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")) FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString('{"list":[]}'),createDefaults);
+        if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")) 
+            FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString('{"list":[]}'),createDefaults);
+        else
+            createDefaults();
         
         
         

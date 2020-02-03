@@ -41,14 +41,13 @@ class EditorUi extends Trait{
         Toolkit.init();
         kha.FileSystem.init(function(){
             gameView = new EditorGameView();
-            var plistExists = FileSystem.exists(EditorUi.cwd+"/pjml.found");
             var done = function(){
 
                 if(editor != null)
                     Screen.instance.removeComponent(editor);
                 Screen.instance.addComponent(projectmanager);
             }
-            if(!plistExists){
+            if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")){
                 projectmanager = new ManagerView();
                 done();
             }

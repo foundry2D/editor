@@ -18,10 +18,10 @@ class CustomDialog extends Dialog {
         super();
         if(def == null)def ={name:"Info",type:"warning"}; 
         title = def.name;
-        this.width = Screen.instance.width*0.95;
-        this.height = Screen.instance.height*0.60;
         // type.resource = def.type; @TODO: Add this when default icons are added to extended
-        // modal = false;
+        modal = false;
         buttons =  DialogButton.APPLY | DialogButton.CANCEL;
+        width = Screen.instance.width*0.75;
+        height = Screen.instance.height*0.75;
     }
 }

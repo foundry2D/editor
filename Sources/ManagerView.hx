@@ -4,7 +4,7 @@ import kha.Image;
 import kha.Assets;
 
 import haxe.ui.core.Screen;
-import haxe.ui.data.DataSource;
+import haxe.ui.data.ArrayDataSource;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.components.DropDown;
 import haxe.ui.containers.Box;
@@ -56,12 +56,13 @@ class ManagerView extends Box {
     function deleteProject(e:MouseEvent){
         var cust = new CustomDialog({name:"Delete Projects",type:"warning"});
         var dropdown = new DropDown();
-        var data:DataSource<String> = new DataSource<String>();
-        data.add("All");
+        dropdown.dataSource = new ArrayDataSource<String>();
+        dropdown.dataSource.add("All");
+
         if(projectslist.selectedItem != null){
             var project:TProject = projectslist.selectedItem;
             cust.info.text = StringTools.replace(proj,"$proj",project.name);
-            data.add(project.name);
+            dropdown.dataSource.add(project.name);
             dropdown.selectedIndex = 1;
             lastIndex = 1;
         }
@@ -69,7 +70,6 @@ class ManagerView extends Box {
             cust.info.text = allProj;
             dropdown.selectedIndex = 0;
         }
-        dropdown.dataSource = data;
         cust.container.addComponent(dropdown);
         dropdown.onChange = function(e:haxe.ui.events.UIEvent){
             var curI = dropdown.selectedIndex;
@@ -88,23 +88,34 @@ class ManagerView extends Box {
             if(e.button == DialogButton.APPLY){
                 var index = dropdown.selectedIndex;
                 if(index == 0){
-                    for( i in 0...projectslist.dataSource.size-1){
+                    #if kha_webgl
+                    kha.FileSystem.dbKeys.clear();
+                    #end
+                    kha.FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString('{"list":[]}'));
+                    for( i in 0...projectslist.dataSource.size){
                         var proj:TProject = projectslist.dataSource.get(i);
-                        trace(proj.path);
+                        kha.FileSystem.deleteDirectory(proj.path,true);
                     }
+                    projectslist.dataSource.clear();
                 }
                 else {
                     var project:TProject = projectslist.selectedItem;
-                    trace(project.path);
-
+                    projectslist.dataSource.remove(projectslist.dataSource.get(index-1));
+                    kha.FileSystem.deleteDirectory(project.path,true);
+                    kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+                        var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+                        out.list.remove(project);
+                        var data = haxe.Json.stringify(out);
+                        kha.FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString(data));
+                    });
                 }
             }
         };
-        Screen.instance.addComponent(cust);
+        cust.show();
     }
 
     
-    @:bind(open,MouseEvent.CLICK)
+    @:bind(importProject,MouseEvent.CLICK)
     function openProject(e:MouseEvent) {
         FileBrowserDialog.open(e);
         FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
