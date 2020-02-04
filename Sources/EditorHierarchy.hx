@@ -6,6 +6,7 @@ import haxe.ui.extended.NodeData;
 import haxe.ui.extended.InspectorNode;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
+import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.events.KeyboardEvent;
 import EditorTab.TItem;
@@ -34,6 +35,18 @@ class EditorHierarchy extends EditorTab {
         tree.rclickItems = [
             {name:"Duplicate Object",expands:false,onClicked: duplicateObject},
             {name:"Remove Object",expands:false,onClicked: removeObject},
+        ];
+        pathItems = [
+            {name:"Rename Scene",expands:false,onClicked:function(e:MouseEvent){
+                trace("Implement renaming");
+            }},
+            {name: "Edit Scene Settings",expands:false,onClicked:function(e:MouseEvent){
+                var cust = new CustomDialog({name:"Scene Settings",type:"warning"});
+                var settings = new SceneSettings();
+                cust.container.addComponent(settings);
+                cust.show();
+                cust.onDialogClosed = closeSceneEdit;
+            }}
         ];
         setFromScene(raw,true);
 
@@ -365,21 +378,43 @@ class EditorHierarchy extends EditorTab {
     }
 
    
-    static var items:Array<TItem> = [
-        {name:"Rename Scene",expands:false,onClicked:function(e:MouseEvent){
-            trace("Implement renaming");
-        }},
-        {name: "Edit Scene Settings",expands:false,onClicked:function(e:MouseEvent){
-            var cust = new CustomDialog({name:"Scene Settings",type:"warning"});
-            var settings = new SceneSettings();
-            cust.container.addComponent(settings);
-            cust.show();
-        }}
-    ];
+    var pathItems:Array<TItem> = null;// Initialized in new
+    function closeSceneEdit(e:DialogEvent){
+        var settings:SceneSettings = e.target.findComponent(SceneSettings,true);
+        var nraw:TSceneFormat = {name:settings.sceneName.text,_depth: settings.depthSort.value};
+        if(nraw._depth)nraw._Zsort = settings.zsort.value;
+        if(settings.physOpts.text != '+'){
+            nraw.physicsWorld = {
+                width: settings.physWidth.value,
+                height: settings.physHeight.value,
+                x: settings.physX.value,
+                y: settings.physY.value,
+                gravity_x: settings.gravity_x.value,
+                gravity_y: settings.gravity_y.value,
+                iterations: settings.iterations.value,
+                history: settings.history.value
+            };
+        }
+        nraw._entities = State.active.raw._entities;
+        nraw.traits = State.active.raw.traits;
+        trace(nraw.name);
+        trace(State.active.raw.name);
+        trace(path.text);
+        if(State.active.raw.name != nraw.name){
+            var add = "";
+            if(StringTools.contains(path.text,'*'))
+                add = '*';
+            path.text = nraw.name+add;
+        }
+        Reflect.setProperty(State.active,"raw",nraw);
+        if(!StringTools.contains(path.text,'*'))
+            path.text+='*';
+        
+    };
     @:bind(path,MouseEvent.RIGHT_CLICK)
     function sceneEdit(e:MouseEvent){
         var menu = new Menu();
-        for(i in items){
+        for(i in pathItems){
             trace(i.name);
             // if(i.filter != null && e.target.id != i.filter)continue;
             var item = new MenuItem();

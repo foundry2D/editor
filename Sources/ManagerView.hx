@@ -46,6 +46,7 @@ class ManagerView extends Box {
             var project:TProject = projectslist.selectedItem;
             found.State.addState('default',project.scenes[0]);
             EditorUi.projectPath = project.path;
+            EditorUi.scenePath = project.scenes[0];
             found.State.set('default',found.App.editorui.init);//
         }
     }

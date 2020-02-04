@@ -12,8 +12,17 @@ class SceneSettings extends Component{
         super();
         sceneName.text = State.active.raw.name != null ? State.active.raw.name : '';
         depthSort.value = State.active.raw._depth != null ? State.active.raw._depth : true;
-        if(_zsort.hidden && depthSort.value )_zsort.hidden = false;
-
+        if(depthSort.value )zsort.hidden =  State.active.raw._Zsort != null ? State.active.raw._Zsort: false;
+        if(State.active.raw.physicsWorld != null){
+            physWidth.value = State.active.raw.physicsWorld.width;
+            physHeight.value = State.active.raw.physicsWorld.height;
+            physX.value = State.active.raw.physicsWorld.x;
+            physY.value = State.active.raw.physicsWorld.y;
+            gravity_x.value = State.active.raw.physicsWorld.gravity_x;
+            gravity_y.value = State.active.raw.physicsWorld.gravity_y;
+            iterations.value = State.active.raw.physicsWorld.iterations;
+            history.value = State.active.raw.physicsWorld.history;
+        }
     }
     @:bind(physOpts,MouseEvent.CLICK)
     function onEdit(e:MouseEvent){
