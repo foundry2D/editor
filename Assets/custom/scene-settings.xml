@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<vbox>
+    <textfield id="sceneName" text="Scene Name: " />
+    <checkbox id="depthSort" text="If active will draw based on depth order: " />
+    <checkbox id="_zsort" hidden="true" text="If active will zsort instead of Y sort: " />
+    <hbox>
+        <label text="Scene Physics options: " />
+        <button id="physOpts" text="+" />
+    </hbox>
+    <vbox id="physOptions" hidden="true" width="100%" >
+        <numberstepper id="physWidth" pos="0.0" step="0.1" width="35%" />
+        <numberstepper id="physHeight" pos="0.0" step="0.1" width="35%" />
+        <numberstepper id="physX" pos="0.0" step="0.1" width="35%" />
+        <numberstepper id="physY" pos="0.0" step="0.1" width="35%" />
+        <numberstepper id="gravity_x" pos="0.0" step="0.1" width="35%" />
+        <numberstepper id="gravity_y" pos="0.0" step="0.1" width="35%" />
+        <hbox>
+            <slider id="iterations" pos="0" precision="1" min="1" max="10" />
+            <label id="itText" text="0" />
+        </hbox>
+        <hbox>
+            <slider id="history" pos="0" precision="1" min="1" max="100" />
+            <label id="histText" text="0" />
+        </hbox>
+    </vbox>
+</vbox>

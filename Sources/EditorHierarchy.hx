@@ -1,11 +1,14 @@
 package;
 
+import haxe.ui.containers.menus.*;
+import haxe.ui.core.Screen;
 import haxe.ui.extended.NodeData;
 import haxe.ui.extended.InspectorNode;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.events.KeyboardEvent;
+import EditorTab.TItem;
 
 #if arm_csm
 import iron.data.SceneFormat;
@@ -359,6 +362,36 @@ class EditorHierarchy extends EditorTab {
             traits: fetch(obj,"traits",'Array'),
         };
         return data;
+    }
+
+   
+    static var items:Array<TItem> = [
+        {name:"Rename Scene",expands:false,onClicked:function(e:MouseEvent){
+            trace("Implement renaming");
+        }},
+        {name: "Edit Scene Settings",expands:false,onClicked:function(e:MouseEvent){
+            var cust = new CustomDialog({name:"Scene Settings",type:"warning"});
+            var settings = new SceneSettings();
+            cust.container.addComponent(settings);
+            cust.show();
+        }}
+    ];
+    @:bind(path,MouseEvent.RIGHT_CLICK)
+    function sceneEdit(e:MouseEvent){
+        var menu = new Menu();
+        for(i in items){
+            trace(i.name);
+            // if(i.filter != null && e.target.id != i.filter)continue;
+            var item = new MenuItem();
+            item.text  = i.name;
+            item.expandable = i.expands;
+            item.onClick = i.onClicked;
+            menu.addComponent(item);
+        }
+        menu.show();
+        menu.left = e.screenX;
+        menu.top = e.screenY;
+        Screen.instance.addComponent(menu);
     }
     
 }
