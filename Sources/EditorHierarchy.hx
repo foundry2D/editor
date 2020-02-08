@@ -262,6 +262,8 @@ class EditorHierarchy extends EditorTab {
                 out = "";
             case 'Array':
                 out = [];
+            case "Typedef":
+                out = {};
             default:
                 out = null;
         }
@@ -373,6 +375,7 @@ class EditorHierarchy extends EditorTab {
             active: obj.active,
             imagePath: fetch(obj,"imagePath",'String'),
             traits: fetch(obj,"traits",'Array'),
+            rigidBody: fetch(obj,"rigidBody",'Typedef'),
         };
         return data;
     }
