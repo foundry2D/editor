@@ -1,5 +1,9 @@
 package;
 
+import found.data.SceneFormat.LogicTreeData;
+import found.App;
+import found.Scene;
+import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.VBox;
 import haxe.ui.core.Component;
 
@@ -33,8 +37,15 @@ class EditorCodeView extends VBox {
         // textEditor = new CodeComponent();
         // container.addComponent(textEditor);
         // textEditor.hidden = true;
+        addVisualCode.onClick = createVisualTrait;
+        saveVisualCode.onClick = saveVisualTrait;
         visualEditor = new found.tool.NodeEditor(x,y,w,h);
         visualEditor.visible = true;
+        
+        
+    }
+    
+    function createVisualTrait(e:MouseEvent){
         var nData = {
             name: "Name",
             nodes: new found.zui.Nodes(),
@@ -45,10 +56,36 @@ class EditorCodeView extends VBox {
             }
         }
         found.tool.NodeEditor.nodesArray.push(nData);
-		found.tool.NodeEditor.selectedNode = nData;
+        found.tool.NodeEditor.selectedNode = nData;
+        saveVisualTrait(new MouseEvent(MouseEvent.CLICK));
+    }
+
+    @:access(found.Scene)
+    function saveVisualTrait(e:MouseEvent){
+        var nodeData:LogicTreeData = found.tool.NodeEditor.selectedNode;
+        var trait = {type:"VisualScript",class_name:"./dev/Project/Sources/visualTrait.json"};
+        trace(nodeData);
+        var data = haxe.io.Bytes.ofString(haxe.Json.stringify(nodeData));
+        kha.FileSystem.saveToFile(trait.class_name,data,function(){
+            Scene.createTraits([trait],App.editorui.inspector.currentObject);
+            if(App.editorui.inspector.currentObject.raw.traits != null){
+                App.editorui.inspector.currentObject.raw.traits.push(trait);
+            }
+            else {
+                App.editorui.inspector.currentObject.raw.traits = [trait];
+            }
+            if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
+			    App.editorui.hierarchy.path.text+='*';
+        });
     }
     public override function renderTo(g:kha.graphics2.Graphics) {
         super.renderTo(g);
+        if(App.editorui.inspector.index != -1){
+            addVisualCode.hidden = false;
+        }
+        else {
+            addVisualCode.hidden = true;
+        }
         // if(codetype.selectedIndex == 0){// Visual
             // textEditor.hidden = true;
             visualEditor.setAll(x,y,w,h);

@@ -1,15 +1,18 @@
 
+import haxe.ui.core.Component;
 import haxe.ui.extended.NodeData;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.menus.MenuItem;
+import haxe.ui.extended.InspectorField;
 #if arm_csm
 import iron.data.SceneFormat;
 #elseif found
 import found.App;
 import found.State;
 import found.data.SceneFormat;
+import found.object.Object;
 #end
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
@@ -22,6 +25,11 @@ class EditorInspector extends EditorTab {
     function set_index(value:Int){
         return index = value;
     }
+    public var currentObject(get,null):Null<Object>;
+    function get_currentObject(){
+        if(index == -1)return null;
+        return State.active._entities[index];
+    }
     public function new() {
         super();
         tree.rclickItems = [ 
@@ -29,7 +37,28 @@ class EditorInspector extends EditorTab {
             {name:"Remove Trait",expands:false,onClicked: rmTrait,filter: "traits"},
         ];
         tree.updateData = updateData;
+        tree.initFields.set("addRigidbody",initRbodyButton);
+        tree.buttonsClick.set("browseImage",browseImage);
+        tree.buttonsClick.set("addTraits",addTrait);
+        tree.buttonsClick.set("addRigidbody",addRigidbody);
         
+    }
+    function initRbodyButton(c:Component){
+        var node:InspectorField = c.parentComponent.findComponent("rigidBody",InspectorField);
+        if(node.hasChildren && c.text == "+"){
+            c.text = "-";
+        }
+    }
+    function addRigidbody(e:MouseEvent){
+        var node:InspectorField = e.target.parentComponent.findComponent("rigidBody",InspectorField) ;
+        if(e.target.text == "+"){
+            e.target.text = "-";
+        }
+        else if(e.target.text == "-"){
+
+            e.target.text = "+";
+        }
+        this.updateData(e);
     }
     function addTrait(e:MouseEvent){
         TraitsDialog.open(e);
@@ -39,6 +68,9 @@ class EditorInspector extends EditorTab {
         // if(item.icon != "Traits:"){
         //     trace(item);
         // }
+    }
+    function browseImage(e:MouseEvent){
+
     }
     #if found
     public static var defaults:Map<String,String> = [
@@ -108,6 +140,8 @@ class EditorInspector extends EditorTab {
                     State.active._entities[index].raw.traits.push({type:trait.type,class_name: trait.classname});
                     found.Scene.createTraits([{type:trait.type,class_name: trait.classname}],State.active._entities[index]);
                     changed = true;
+                case "rigidBody":
+                    trace("Rigidbody called");
                 default:
             }
 

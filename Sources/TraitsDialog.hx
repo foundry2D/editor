@@ -19,7 +19,7 @@ class TraitsDialog extends Dialog {
         id = "traits";
         title = "Traits";
         modal = false;
-        buttons =  button | DialogButton.CANCEL;
+        buttons =  "Add Trait" | DialogButton.CANCEL;
         feed.itemRenderer =  haxe.ui.macros.ComponentMacros.buildComponent(
 			"../Assets/custom/traits-items.xml");
 		this.width = Screen.instance.width*0.95;
