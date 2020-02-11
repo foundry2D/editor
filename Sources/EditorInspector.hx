@@ -5,7 +5,9 @@ import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.menus.MenuItem;
+import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.InspectorField;
+import kha.FileSystem;
 #if arm_csm
 import iron.data.SceneFormat;
 #elseif found
@@ -58,6 +60,7 @@ class EditorInspector extends EditorTab {
 
             e.target.text = "+";
         }
+        // e.target = node;
         this.updateData(e);
     }
     function addTrait(e:MouseEvent){
@@ -70,7 +73,33 @@ class EditorInspector extends EditorTab {
         // }
     }
     function browseImage(e:MouseEvent){
+        FileBrowserDialog.open(e);
+        FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
+            var path = null;
+            if(e.button == DialogButton.APPLY)
+                path = FileBrowserDialog.inst.fb.filepath.text;
+            var error = true;
+            var sep = FileSystem.sep;
+            var name = path.split(sep)[path.split(sep).length-1];
+            if(path != null){
+                var type = name.split('.')[1];
+                switch(type){
+                    case 'png' | 'jpg':
+                        if(index != -1 && rawData != null){
+                            Reflect.setProperty(rawData,"imagePath",path);
+                            cast(State.active._entities[index],found.anim.Sprite).set(cast(rawData));
+                            dirtyScene("imagePath",path);
+                        }
+                        error = false;
+                    default:
+                        trace('Error: file has filetype $type which is not a valid filetype for images ');
+                }
+            }
+            if(error){
+                trace('Error: file with name $name is not a valid image name or the path "$path" was invalid ');
+            }
 
+        }
     }
     #if found
     public static var defaults:Map<String,String> = [
@@ -147,12 +176,14 @@ class EditorInspector extends EditorTab {
 
         }
         if(changed){
-            if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
-			    App.editorui.hierarchy.path.text+='*';
-            Reflect.setProperty(State.active._entities[index],id,value);
-            State.active._entities[index].dataChanged = true;
-
+            dirtyScene(id,value);
         }
+    }
+    function dirtyScene(id:String,value:Any){
+        if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
+            App.editorui.hierarchy.path.text+='*';
+        Reflect.setProperty(State.active._entities[index],id,value);
+        State.active._entities[index].dataChanged = true;
     }
     public function updateField(uid:Int,id:String,data:Any){
         if(uid > State.active._entities.length-1) return;

@@ -1,6 +1,6 @@
 package;
 
-
+import haxe.ui.events.MouseEvent;
 import haxe.ui.extended.Handler;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/project-explorer.xml"))
@@ -13,5 +13,9 @@ class ProjectExplorer extends EditorTab {
             projectPath = defaultPath;
         Handler.updateData(this.panelRight,projectPath);
         this.panelLeft.brother = this.panelRight;
+    }
+    @:bind(addResource,MouseEvent.CLICK)
+    function openOnSystem(e:MouseEvent){
+        
     }
 }
