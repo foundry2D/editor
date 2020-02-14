@@ -86,6 +86,7 @@ class EditorUi extends Trait{
         });
 
     }
+
     public function init(){
         if(projectmanager != null)
             Screen.instance.removeComponent(projectmanager);

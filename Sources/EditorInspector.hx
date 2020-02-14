@@ -1,6 +1,7 @@
 
 import haxe.ui.core.Component;
 import haxe.ui.extended.NodeData;
+import haxe.ui.extended.InspectorNode;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.events.MouseEvent;
@@ -8,6 +9,7 @@ import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.InspectorField;
 import kha.FileSystem;
+import utilities.JsonObjectExplorer;
 #if arm_csm
 import iron.data.SceneFormat;
 #elseif found
@@ -18,7 +20,7 @@ import found.object.Object;
 #end
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
-class EditorInspector extends EditorTab {
+class EditorInspector implements EditorHierarchyObserver extends EditorTab {
     public var rawData(default,set):TObj;
     function set_rawData(obj:TObj){
         return rawData = obj;
@@ -43,8 +45,112 @@ class EditorInspector extends EditorTab {
         tree.buttonsClick.set("browseImage",browseImage);
         tree.buttonsClick.set("addTraits",addTrait);
         tree.buttonsClick.set("addRigidbody",addRigidbody);
-        
+        EditorHierarchy.register(this);
     }
+
+    public function notifyObjectSelectedInHierarchy(selectedObjectPath:String) : Void {
+        trace('Object notified $selectedObjectPath');
+
+        var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(selectedObjectPath);
+        index = out.index;
+        tree.dataSource = out.ds;
+        rawData = out.obj;
+        if(rawData.type == "tilemap_object"){
+            found.Found.tileeditor.selectMap(out.index);                
+        } 
+        else{
+            found.Found.tileeditor.selectMap(-1);
+        }             
+    }
+
+    function getInspectorNode(path:String) {
+        var ds = new ListDataSource<InspectorData>();
+        var name = EditorUi.raw.name;
+        StringTools.replace(path,'$name/',"");
+    #if arm_csm
+        var dat:{obj:TObj, index:Int} =getObj(EditorUi.raw.objects,path);
+        var obj:TObj = dat.obj;
+        var mat = iron.math.Mat4.fromFloat32Array(obj.transform.values);
+        var pos = mat.getLoc();
+        var scale = mat.getScale();
+        var quat = new iron.math.Quat(); 
+        var rot = quat.fromMat(mat).getEuler();
+        var const = 180/Math.PI;
+        ds.add({
+            name: obj.name,
+            path: path,
+            type:"img/"+obj.type,
+            dataref: obj.data_ref,
+            px: pos.x,
+            py: pos.y,
+            pz: pos.z,
+            rx: rot.x*const,
+            ry: rot.y*const,
+            rz: rot.z*const,
+            sx: scale.x,
+            sy: scale.y,
+            sz: scale.z,
+            materialRefs: fetch(obj,'material_refs','Array'),
+            particleRefs: fetch(obj,'particle_refs','Array'),
+            isParticle: fetch(obj,"is_particle",'Bool'),
+            groupref: fetch(obj,"groupref",'String'),
+            lods: fetch(obj,"lods",'Array'),
+            traits: fetch(obj,"traits",'Array'),
+            constraints: fetch(obj,"constraints",'Array'),
+            properties: fetch(obj,"properties",'Array'),
+            objectActions: fetch(obj,'object_actions','Array'),
+            boneActions: fetch(obj,'bone_actions','Array') ,
+            visible: fetch(obj,"visible",'Bool'),
+            visibleMesh: fetch(obj,"visible_mesh",'Bool'),
+            visibleShadow: fetch(obj,"visible_shadow",'Bool'),
+            mobile: fetch(obj,"mobile",'Bool'),
+            autoSpawn: fetch(obj,"spawn",'Bool'),
+            localOnly: fetch(obj,"local_only",'Bool'),
+            tilesheetRef: fetch(obj,"tilesheetRef",'String'),
+            tilesheetActionRef: fetch(obj,"tilesheetActionRef",'String'),
+            sampled: fetch(obj,"sampled",'Bool')
+        });
+    #elseif found
+        var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromJsonObjects(State.active._entities, path);
+        var out = getIDataFrom(data.jsonObject);
+    
+        for(f in Reflect.fields(out)){
+            if(EditorInspector.defaults.exists(f)) continue;
+            
+            if(!Reflect.hasField(data.jsonObject,f)){
+                trace('Field $f was deleted from ' + out.name);
+                Reflect.deleteField(out,f);
+            }
+        }
+        ds.add(out);
+    #end
+        // @TODO Set class variables directly instead of returning values
+        return {ds:ds,obj:data.jsonObject,index:data.jsonObjectUid};
+    }
+
+    public static function getIDataFrom(obj:TObj){
+        var scale = Reflect.hasField(obj,'scale') ? obj.scale : new kha.math.Vector2(1.0,1.0);
+        var path = State.active.raw.name + "/" + obj.name;
+        var data:InspectorData = {
+            name: obj.name,
+            path: path,
+            type:"img/"+obj.type,
+            px: obj.position.x,
+            py: obj.position.y,
+            pz: obj.depth,
+            sx: scale.x,
+            sy: scale.y,
+            rz: obj.rotation.z,
+            w: obj.width,
+            h: obj.height,
+            active: obj.active,
+            imagePath: JsonObjectExplorer.getFieldValueInJsonObject(obj, "imagePath", 'String'),
+            traits: JsonObjectExplorer.getFieldValueInJsonObject(obj, "traits", 'Array'),
+            rigidBody: JsonObjectExplorer.getFieldValueInJsonObject(obj, "rigidBody", 'Typedef'),
+        };
+        return data;
+    }
+
     function initRbodyButton(c:Component){
         var node:InspectorField = c.parentComponent.findComponent("rigidBody",InspectorField);
         if(node.hasChildren && c.text == "+"){
