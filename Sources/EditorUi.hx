@@ -269,7 +269,7 @@ class EditorUi extends Trait{
                 }
                 i++;
             }
-            FileSystem.saveToFile(scenePath,haxe.io.Bytes.ofString(haxe.Json.stringify(State.active.raw)));
+            FileSystem.saveContent(scenePath,haxe.Json.stringify(State.active.raw));
             hierarchy.path.text = StringTools.replace(hierarchy.path.text,'*','');
         }
     }

@@ -80,9 +80,9 @@ class Main {
 
 		if(path == ""){
             var list:Array<foundry.data.Project.TProject> = [];
-            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(list));
+            var data = haxe.Json.stringify(list);
             path = cwd+"pjml.found";
-			haxe.ui.extended.FileSystem.saveToFile(path,data,loadProjectList);
+			haxe.ui.extended.FileSystem.saveContent(path,data,loadProjectList);
         }
 		else{
 			loadProjectList();

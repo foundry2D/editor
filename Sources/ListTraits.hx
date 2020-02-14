@@ -33,12 +33,12 @@ class ListTraits {
         
         list.traits.push({type: "Script",classname: c.module});
 
-        FileSystem.saveToFile('../Assets/listTraits.json',Bytes.ofString(Json.stringify(list)));
+        FileSystem.saveContent('../Assets/listTraits.json',Json.stringify(list));
         
         return Context.getBuildFields();
     }
     public macro static function init():Array<Field> {
-        FileSystem.saveToFile('../Assets/listTraits.json',Bytes.ofString('{}'));
+        FileSystem.saveContent('../Assets/listTraits.json','{}');
         return Context.getBuildFields();
     }
 }

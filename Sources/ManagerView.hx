@@ -92,7 +92,7 @@ class ManagerView extends Box {
                     #if kha_webgl
                     kha.FileSystem.dbKeys.clear();
                     #end
-                    kha.FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString('{"list":[]}'));
+                    kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
                     for( i in 0...projectslist.dataSource.size){
                         var proj:TProject = projectslist.dataSource.get(i);
                         kha.FileSystem.deleteDirectory(proj.path,true);
@@ -107,7 +107,7 @@ class ManagerView extends Box {
                         var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
                         out.list.remove(project);
                         var data = haxe.Json.stringify(out);
-                        kha.FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString(data));
+                        kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",data);
                     });
                 }
             }
@@ -118,11 +118,16 @@ class ManagerView extends Box {
     
     @:bind(importProject,MouseEvent.CLICK)
     function openProject(e:MouseEvent) {
-        FileBrowserDialog.open(e);
-        FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
+        #if kha_html5
+        kha.FileSystem.curDir = EditorUi.cwd;
+        kha.FileSystem.input.click();
+        #else
+        // FileBrowserDialog.open(e);
+        // FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
             // if(e.button == DialogButton.APPLY)
                 // path.text = FileBrowserDialog.inst.fb.path.text;
-        }
+        // }
+        #end
         // kha.Assets.loadImageFromPath
         // Image.fromEncodedBytes(haxe.io.Bytes.ofString(""),"",function(img:kha.Image){},function(img:String){},true);
     }

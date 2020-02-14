@@ -42,7 +42,7 @@ class ProjectInit {
         //     + 'await project.addProject(\'$cwd/editor\');\n'
         //     + 'project.addDefine(\'foundry_editor\');\n'
 		// 	+ 'resolve(project);\n');
-        //     FileSystem.saveToFile(path+"/khafile.js",out);
+        //     FileSystem.saveBytes(path+"/khafile.js",out);
 
         // }
 
@@ -51,7 +51,7 @@ class ProjectInit {
         if(!FileSystem.exists(path+"/Sources")) FileSystem.createDirectory(path+"/Sources",main2d);
         if(!FileSystem.exists(path+"/Sources/Scripts")) FileSystem.createDirectory(path+"/Sources/Scripts");
         if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")) 
-            FileSystem.saveToFile(EditorUi.cwd+"/pjml.found",haxe.io.Bytes.ofString('{"list":[]}'),createDefaults);
+            FileSystem.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}',createDefaults);
         else
             createDefaults();
         
@@ -64,13 +64,13 @@ class ProjectInit {
 
             var scene:TSceneFormat = haxe.Json.parse(kha.Assets.blobs.default_json.toString());
             scene.name = "PlayState";
-            var data = haxe.io.Bytes.ofString(haxe.Json.stringify(scene));
-            kha.FileSystem.saveToFile(path+"/Assets/PlayState.json",data);
+            var data = haxe.Json.stringify(scene);
+            kha.FileSystem.saveContent(path+"/Assets/PlayState.json",data);
 
             out.list.push({name: project,path: path,scenes:[path+"/Assets/PlayState.json"],type: Type.twoD});
-            data = haxe.io.Bytes.ofString(haxe.Json.stringify(out));
+            data = haxe.Json.stringify(out);
             path = EditorUi.cwd+"/pjml.found";
-            kha.FileSystem.saveToFile(path,data);
+            kha.FileSystem.saveContent(path,data);
             if(ProjectInit.done != null)
                 ProjectInit.done();
 
@@ -78,20 +78,18 @@ class ProjectInit {
     }
     static function main2d(){
         if(!FileSystem.exists(path+"/Sources/Main.hx")){
-            var out = haxe.io.Bytes.ofString(
-            'package;\n\n'
+            var out = 'package;\n\n'
             +'import found.Found;\n\n'
             +'class Main {\n'
             +'\tpublic static inline var projectName = \'$project\';\n'
             +'\tpublic static function main() {\n'
             +'\t\tFound.setup({app:Project, title:"untitled", width:1920, height:1080});\n'
             +'\t}\n'
-            +'}');
-            FileSystem.saveToFile(path+"/Sources/Main.hx",out);
+            +'}';
+            FileSystem.saveContent(path+"/Sources/Main.hx",out);
         }
         if(!FileSystem.exists(path+"/Sources/Project.hx")){
-            var out = haxe.io.Bytes.ofString(
-            'package;\n\n'
+            var out ='package;\n\n'
             +'import kha.Canvas;\n'
             +'import found.App;\n'
             +'import found.State;\n\n'
@@ -105,8 +103,8 @@ class ProjectInit {
             +'\t override function render(canvas:Canvas){\n'
             +'\t\tsuper.render(canvas);\n'    
             +'\t}\n'
-            +'}');
-            FileSystem.saveToFile(path+"/Sources/Main.hx",out);
+            +'}';
+            FileSystem.saveContent(path+"/Sources/Project.hx",out);
         }
     }
     static function generateProject3d(){

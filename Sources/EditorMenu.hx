@@ -79,7 +79,7 @@ class EditorMenu extends HBox {
             }
             #end
             EditorUi.scenePath = path;
-            FileSystem.saveToFile(path,haxe.io.Bytes.ofString(haxe.Json.stringify(scene)),
+            FileSystem.saveContent(path,haxe.Json.stringify(scene),
             function(){
                 Data.getSceneRaw(path,loadScene);
             });

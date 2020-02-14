@@ -14,8 +14,12 @@ class ProjectExplorer extends EditorTab {
         Handler.updateData(this.panelRight,projectPath);
         this.panelLeft.brother = this.panelRight;
     }
-    @:bind(addResource,MouseEvent.CLICK)
+    @:bind(importAssets,MouseEvent.CLICK)
     function openOnSystem(e:MouseEvent){
-        
+        #if kha_html5
+        kha.FileSystem.curDir = EditorUi.projectPath+kha.FileSystem.sep+"Assets";
+        kha.FileSystem.input.click();
+        #else
+        #end
     }
 }

@@ -65,8 +65,8 @@ class EditorCodeView extends VBox {
         var nodeData:LogicTreeData = found.tool.NodeEditor.selectedNode;
         var trait = {type:"VisualScript",class_name:"./dev/Project/Sources/visualTrait.json"};
         trace(nodeData);
-        var data = haxe.io.Bytes.ofString(haxe.Json.stringify(nodeData));
-        kha.FileSystem.saveToFile(trait.class_name,data,function(){
+        var data = haxe.Json.stringify(nodeData);
+        kha.FileSystem.saveContent(trait.class_name,data,function(){
             Scene.createTraits([trait],App.editorui.inspector.currentObject);
             if(App.editorui.inspector.currentObject.raw.traits != null){
                 App.editorui.inspector.currentObject.raw.traits.push(trait);
