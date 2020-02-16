@@ -91,20 +91,22 @@ class EditorCodeView implements EditorHierarchyObserver extends VBox {
     function loadVisualTrait(path:String) {
         var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromJsonObjects(State.active._entities, path);
 
-        var firstTrait:Null<TTrait> = null;
-        var traits:Array<TTrait> = data.jsonObject.traits;
-        for(trait in traits) {
-            if (trait.type == "VisualScript") {
-                firstTrait = trait; 
+        if(data.jsonObject.traits != null){
+            var firstTrait:Null<TTrait> = null;
+            var traits:Array<TTrait> = data.jsonObject.traits;
+            for(trait in traits) {
+                if (trait.type == "VisualScript") {
+                    firstTrait = trait; 
+                }
             }
-        }
-        if(firstTrait != null){
-            found.data.Data.getBlob(firstTrait.class_name, function(data:kha.Blob){
-                var visualTraitData:LogicTreeData = haxe.Json.parse(data.toString());
-                trace(data.toString());
-                // found.tool.NodeEditor.nodesArray.push(visualTraitData);
-                // found.tool.NodeEditor.selectedNode = visualTraitData;
-            });
+            if(firstTrait != null){
+                found.data.Data.getBlob(firstTrait.class_name, function(data:kha.Blob){
+                    var visualTraitData:LogicTreeData = haxe.Json.parse(data.toString());
+                    trace(data.toString());
+                    // found.tool.NodeEditor.nodesArray.push(visualTraitData);
+                    // found.tool.NodeEditor.selectedNode = visualTraitData;
+                });
+            }
         }
                 
     }
