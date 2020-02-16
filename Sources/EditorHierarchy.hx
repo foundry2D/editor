@@ -3,12 +3,10 @@ package;
 import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
 import haxe.ui.extended.NodeData;
-import haxe.ui.extended.InspectorNode;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.events.MouseEvent;
-import haxe.ui.events.KeyboardEvent;
 import EditorTab.TItem;
 
 #if arm_csm
@@ -23,6 +21,26 @@ import found.data.SceneFormat;
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
 class EditorHierarchy extends EditorTab {
     static public var inspector:EditorInspector;
+    var selectedObjectUID : Int = -1;
+    static var observers:Array<EditorHierarchyObserver> = [];
+
+    public static function register(observer : EditorHierarchyObserver) : Void {
+        observers.push(observer);
+    }
+    
+    public static function unregister(observer : EditorHierarchyObserver) : Void {
+        observers.remove(observer);
+    }
+
+    @:bind(tree,UIEvent.CHANGE) // @TODO: add custom event for object selection
+    function onSelected(e:UIEvent) : Void {
+        if(tree.selectedNode != null) {
+            for(item in observers){
+                item.notifyObjectSelectedInHierarchy(tree.selectedNode.data.path);
+            }
+        }
+    }
+    
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
         inspector = p_inspector;
@@ -230,156 +248,6 @@ class EditorHierarchy extends EditorTab {
         };
         addData2Scn(data);
     }
-    @:bind(tree,UIEvent.CHANGE)
-    function updateInspector(e:UIEvent){
-        if(inspector != null && tree.selectedNode != null){
-            var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(tree.selectedNode.data.path);
-            inspector.index = out.index;
-            inspector.tree.dataSource = out.ds;
-            inspector.rawData = out.obj;
-            if(inspector.rawData.type == "tilemap_object"){
-                found.Found.tileeditor.selectMap(out.index);
-                
-            } 
-            else{
-                found.Found.tileeditor.selectMap(-1);
-            }
-        }
-    }
-
-    static function fetch(obj:TObj,field:String,type:String):Any{
-        if(Reflect.hasField(obj,field)){
-            var value = Reflect.field(obj,field);
-            if(value != null){
-                return value;
-            }
-        }
-        var out:Any;
-        switch(type){
-            case 'Bool':
-                out = field.indexOf("visible") >= 0 || field.indexOf("active") >= 0 ;
-            case 'String':
-                out = "";
-            case 'Array':
-                out = [];
-            case "Typedef":
-                out = {};
-            default:
-                out = null;
-        }
-        
-        return out;
-    }
-
-    function getObj(objs:Array<Object> , path:String){
-        var split = path.split("/"); 
-        var name = split[0];
-        var isLast = split[split.length-1] == name;
-        var i= -1;
-        var out:TObj = null;
-        for(obj in objs){
-            if((name == obj.name || name == obj.raw.name) && isLast){
-                out= obj.raw;
-                i = obj.uid;
-            }
-            // else if(name == obj.name && Reflect.hasField(obj,"children")){
-            //     out = getObj(obj.children,StringTools.replace(path,'$name/',""));
-            // }
-        }
-        if(i == -1){
-            path = StringTools.replace(path,'$name/','');
-            return getObj(objs,path);
-        }
-        return {obj: out, index: i};
-    }
-    
-    function getInspectorNode(path:String){
-        var ds = new ListDataSource<InspectorData>();
-        var name = EditorUi.raw.name;
-        StringTools.replace(path,'$name/',"");
-    #if arm_csm
-        var dat:{obj:TObj, index:Int} =getObj(EditorUi.raw.objects,path);
-        var obj:TObj = dat.obj;
-        var mat = iron.math.Mat4.fromFloat32Array(obj.transform.values);
-        var pos = mat.getLoc();
-        var scale = mat.getScale();
-        var quat = new iron.math.Quat(); 
-        var rot = quat.fromMat(mat).getEuler();
-        var const = 180/Math.PI;
-        ds.add({
-            name: obj.name,
-            path: path,
-            type:"img/"+obj.type,
-            dataref: obj.data_ref,
-            px: pos.x,
-            py: pos.y,
-            pz: pos.z,
-            rx: rot.x*const,
-            ry: rot.y*const,
-            rz: rot.z*const,
-            sx: scale.x,
-            sy: scale.y,
-            sz: scale.z,
-            materialRefs: fetch(obj,'material_refs','Array'),
-            particleRefs: fetch(obj,'particle_refs','Array'),
-            isParticle: fetch(obj,"is_particle",'Bool'),
-            groupref: fetch(obj,"groupref",'String'),
-            lods: fetch(obj,"lods",'Array'),
-            traits: fetch(obj,"traits",'Array'),
-            constraints: fetch(obj,"constraints",'Array'),
-            properties: fetch(obj,"properties",'Array'),
-            objectActions: fetch(obj,'object_actions','Array'),
-            boneActions: fetch(obj,'bone_actions','Array') ,
-            visible: fetch(obj,"visible",'Bool'),
-            visibleMesh: fetch(obj,"visible_mesh",'Bool'),
-            visibleShadow: fetch(obj,"visible_shadow",'Bool'),
-            mobile: fetch(obj,"mobile",'Bool'),
-            autoSpawn: fetch(obj,"spawn",'Bool'),
-            localOnly: fetch(obj,"local_only",'Bool'),
-            tilesheetRef: fetch(obj,"tilesheetRef",'String'),
-            tilesheetActionRef: fetch(obj,"tilesheetActionRef",'String'),
-            sampled: fetch(obj,"sampled",'Bool')
-        });
-    #elseif found
-        var dat:{obj:TObj, index:Int} = getObj(State.active._entities,path);
-        var obj:TObj = dat.obj;
-        ds.add(getIDataFrom(obj));
-        var out = ds.get(ds.size-1);
-
-        for(f in Reflect.fields(out)){
-            if(EditorInspector.defaults.exists(f)) continue;
-
-            if(!Reflect.hasField(obj,f)){
-                trace('Field $f was deleted from '+out.name);
-                Reflect.deleteField(out,f);
-            }
-        }
-    #end
-        return {ds:ds,obj:obj,index:dat.index};
-    }
-    public static function getIDataFrom(obj:TObj){
-        var scale = Reflect.hasField(obj,'scale') ? obj.scale: new kha.math.Vector2(1.0,1.0);
-        var path = State.active.raw.name+"/"+obj.name;
-        var data:InspectorData = {
-            name: obj.name,
-            path: path,
-            type:"img/"+obj.type,
-            px: obj.position.x,
-            py: obj.position.y,
-            pz: obj.depth,
-            sx: scale.x,
-            sy: scale.y,
-            rz: obj.rotation.z,
-            w: obj.width,
-            h: obj.height,
-            active: obj.active,
-            imagePath: fetch(obj,"imagePath",'String'),
-            traits: fetch(obj,"traits",'Array'),
-            rigidBody: fetch(obj,"rigidBody",'Typedef'),
-        };
-        return data;
-    }
-
    
     var pathItems:Array<TItem> = null;// Initialized in new
     function closeSceneEdit(e:DialogEvent){

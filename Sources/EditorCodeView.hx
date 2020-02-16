@@ -1,14 +1,16 @@
 package;
 
-import found.data.SceneFormat.LogicTreeData;
 import found.App;
 import found.Scene;
-import haxe.ui.events.MouseEvent;
+import found.State;
+import found.data.SceneFormat;
 import haxe.ui.containers.VBox;
 import haxe.ui.core.Component;
+import haxe.ui.events.MouseEvent;
+import utilities.JsonObjectExplorer;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-code.xml"))
-class EditorCodeView extends VBox {
+class EditorCodeView implements EditorHierarchyObserver extends VBox {
 
     public var x(get,never):Int;
 	function get_x() {
@@ -41,9 +43,15 @@ class EditorCodeView extends VBox {
         saveVisualCode.onClick = saveVisualTrait;
         visualEditor = new found.tool.NodeEditor(x,y,w,h);
         visualEditor.visible = true;
-        
-        
+        EditorHierarchy.register(this);
     }
+
+    public function notifyObjectSelectedInHierarchy(selectedObjectPath:String) : Void {
+        trace('Object notified $selectedObjectPath');
+        loadVisualTrait(selectedObjectPath);
+    }
+
+
     
     function createVisualTrait(e:MouseEvent){
         var nData = {
@@ -57,7 +65,6 @@ class EditorCodeView extends VBox {
         }
         found.tool.NodeEditor.nodesArray.push(nData);
         found.tool.NodeEditor.selectedNode = nData;
-        saveVisualTrait(new MouseEvent(MouseEvent.CLICK));
     }
 
     @:access(found.Scene)
@@ -78,6 +85,26 @@ class EditorCodeView extends VBox {
 			    App.editorui.hierarchy.path.text+='*';
         });
     }
+
+    function loadVisualTrait(path:String) {
+        var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromJsonObjects(State.active._entities, path);
+
+        var firstTrait:TTrait = null;
+        var traits:Array<TTrait> = data.jsonObject.traits;
+        for(trait in traits) {
+            if (trait.type == "VisualScript") {
+                firstTrait = trait; 
+            }
+        }
+
+        found.data.Data.getBlob(firstTrait.class_name, function(data:kha.Blob){
+            var visualTraitData:LogicTreeData = haxe.Json.parse(data.toString());
+            trace(data.toString());
+            // found.tool.NodeEditor.nodesArray.push(visualTraitData);
+            // found.tool.NodeEditor.selectedNode = visualTraitData;
+        });        
+    }
+
     public override function renderTo(g:kha.graphics2.Graphics) {
         super.renderTo(g);
         if(App.editorui.inspector.index != -1){
