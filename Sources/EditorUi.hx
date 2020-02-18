@@ -4,6 +4,7 @@ import haxe.ui.components.Button;
 import haxe.ui.core.Component;
 import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
+import haxe.ui.containers.TabView;
 import haxe.ui.Toolkit;
 import kha.FileSystem;
 import haxe.ui.events.UIEvent;
@@ -29,7 +30,7 @@ class EditorUi extends Trait{
     var dialog:FileBrowserDialog;
     public var gameView:EditorGameView;
     var codeView:EditorCodeView;
-    public static var raw:TSceneFormat =null;
+    var animationView:EditorAnimationView;
     public static var scenePath:String = "";
     public static  var projectPath:String = ".";
     public static var cwd:String = '.';
@@ -92,6 +93,7 @@ class EditorUi extends Trait{
             Screen.instance.removeComponent(projectmanager);
         editor = new EditorView();
         codeView = new EditorCodeView();
+        animationView = new EditorAnimationView();
         // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
         // if(StringTools.endsWith(path,"blend")){
         //     isBlend = true;
@@ -107,7 +109,7 @@ class EditorUi extends Trait{
         var tab = new ProjectExplorer(projectPath);
         var menu  = new EditorMenu();
         editor.header.addComponent(menu);
-        editor.ePanelBottom.addComponent(tab);
+        addToParent(editor.ePanelBottom,tab);
         var tools = new EditorTools(editor);
         Screen.instance.addComponent(editor);
     }
@@ -119,15 +121,20 @@ class EditorUi extends Trait{
         //     trace(scenes.length);
         // }else{
             // raw = ArmPack.decode(blob.bytes);
-            raw = blob;
             inspector = new EditorInspector();
-            editor.ePanelRight.addComponent(inspector);
+            addToParent(editor.ePanelRight,inspector);
             hierarchy = new EditorHierarchy(blob,inspector);
-            editor.ePanelLeft.addComponent(hierarchy);
-            editor.ePanelTop.addComponent(gameView);// @TODO: Do we really need to put this here ?
-            gameView.addComponent(codeView);
+            addToParent(editor.ePanelLeft,hierarchy);
+            addToParent(editor.ePanelTop,gameView);// @TODO: Do we really need to put this here ?
+            addToParent(editor.ePanelTop,codeView);
+            addToParent(editor.ePanelTop,animationView);
         // }
         
+    }
+    @:access(EditorTab)
+    public function addToParent(parent:TabView, child:EditorTab){
+        parent.addComponent(child);
+        child.init(parent);
     }
     public function update(): Void {
 

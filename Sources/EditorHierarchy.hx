@@ -43,6 +43,7 @@ class EditorHierarchy extends EditorTab {
     
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
+        this.text = "Hierarchy";
         inspector = p_inspector;
         titems = [
             {name:"Add Object",expands:false,onClicked: addObj2Scn},
@@ -128,7 +129,7 @@ class EditorHierarchy extends EditorTab {
     function addData2Scn(data:TObj){
         State.active.raw._entities.push(data);
         State.active.addEntity(data,true);
-        tree.dataSource.add(getObjData([data],EditorUi.raw.name).get(0));
+        tree.dataSource.add(getObjData([data],State.active.raw.name).get(0));
         tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
     }
 

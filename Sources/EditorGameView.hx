@@ -27,7 +27,8 @@ class EditorGameView extends EditorTab {
 	}
 	public var y(get,never):Int;
 	function get_y() {
-		return Math.floor(screenY+bar.height);
+		var value = bar != null ? screenY+bar.height:screenY;  
+		return Math.floor(value);
 	}
 	public var w(get,never):Int;
 	function get_w() {
@@ -35,11 +36,13 @@ class EditorGameView extends EditorTab {
 	}
 	public var h(get,never):Int;
 	function get_h() {
-		return Math.ceil(cast(this, Component).componentHeight-bar.height);
+		var value = bar != null ? cast(this, Component).componentHeight-bar.height:cast(this, Component).componentHeight;  
+		return Math.ceil(value);
 	}
 
     public function new(){
-        super();
+		super();
+		this.text = "Game";
         #if arm_csm
 		var cscript = iron.Scene.active.camera.getTrait(armory.trait.internal.CanvasScript);
 		iron.Scene.active.root.addTrait(drawTrait);
@@ -71,9 +74,10 @@ class EditorGameView extends EditorTab {
 	
 	@:access(haxe.ui.core.Component)
 	public override function renderTo(g:kha.graphics2.Graphics) {
+		if(selectedPage == null)return;
 		super.renderTo(g);
-		if(selectedPage != null && selectedPage.text == "Game")
-			g.drawScaledImage(Found.scenebuffer, x ,y, w, h);
+		if(selectedPage.text != "Game")return;
+		g.drawScaledImage(Found.scenebuffer, x ,y, w, h);
 	}
 	function drawGameView(g:kha.graphics2.Graphics) {
 		#if arm_csm
@@ -104,9 +108,7 @@ class EditorGameView extends EditorTab {
 			if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
 				var i = found.App.editorui.inspector.index;
 				var e = State.active._entities[i];
-				EditorTools.arrows.left = e.position.x;
-				EditorTools.arrows.top = e.position.y;
-				EditorTools.render(image.g2,x,y,w,h);
+				EditorTools.render(image.g2,e.position.x,e.position.y,w,h);
 
 			}
 			image.g2.end();

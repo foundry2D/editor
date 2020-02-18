@@ -1,5 +1,7 @@
 package;
 
+import haxe.ui.core.Component;
+import haxe.ui.containers.VBox;
 import haxe.ui.containers.menus.*;
 import haxe.ui.containers.TabView;
 import haxe.ui.components.TabBar;
@@ -14,18 +16,28 @@ typedef TItem ={
     var ?filter:String;
 }
 
-class EditorTab extends TabView {
+class EditorTab extends VBox {
 
+    public var selectedPage(get,null):Null<Component>;
+    function get_selectedPage(){
+        if(this.parentComponent != null && this.parentComponent.parentComponent != null){
+            return cast(this.parentComponent.parentComponent,TabView).selectedPage;
+        }
+        return null;
+    }
     public var bar:TabBar;
     var titems:Array<TItem> = [];
     public function new(){
         super();
         this.percentWidth = 100.0;
         this.percentHeight = 100.0;
-        bar = this.findComponent(TabBar, false);
-        bar.registerEvent(MouseEvent.RIGHT_CLICK,onRightclickcall); 
+        
     }
     
+    function init(parent:TabView){
+        bar = parent.findComponent(TabBar, false);
+        bar.registerEvent(MouseEvent.RIGHT_CLICK,onRightclickcall); 
+    }
     
     function onRightclickcall(e:MouseEvent){
         var menu = new Menu();

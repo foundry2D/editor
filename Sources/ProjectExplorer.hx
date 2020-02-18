@@ -9,6 +9,7 @@ class ProjectExplorer extends EditorTab {
     var defaultPath:String="/";
     public function new(projectPath:String=null) {
         super();
+        this.text = "Explorer";
         if(projectPath == null)
             projectPath = defaultPath;
         Handler.updateData(this.panelRight,projectPath);

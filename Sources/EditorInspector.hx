@@ -36,6 +36,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
     }
     public function new() {
         super();
+        this.text = "Inspector";
         tree.rclickItems = [ 
             {name:"Add Trait",expands:false,onClicked: addTrait,filter: "traits"},
             {name:"Remove Trait",expands:false,onClicked: rmTrait,filter: "traits"},
@@ -65,10 +66,10 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
 
     function getInspectorNode(path:String) {
         var ds = new ListDataSource<InspectorData>();
-        var name = EditorUi.raw.name;
+        var name = State.active.raw.name;
         StringTools.replace(path,'$name/',"");
     #if arm_csm
-        var dat:{obj:TObj, index:Int} =getObj(EditorUi.raw.objects,path);
+        var dat:{obj:TObj, index:Int} =getObj(raw.objects,path);//@FIXME: We should set the raw correctly
         var obj:TObj = dat.obj;
         var mat = iron.math.Mat4.fromFloat32Array(obj.transform.values);
         var pos = mat.getLoc();

@@ -10,15 +10,15 @@ import haxe.ui.events.MouseEvent;
 import utilities.JsonObjectExplorer;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-code.xml"))
-class EditorCodeView implements EditorHierarchyObserver extends VBox {
+class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 
     public var x(get,never):Int;
 	function get_x() {
-		return Math.floor(bar.screenX);
+		return Math.floor(topbar.screenX);
 	}
 	public var y(get,never):Int;
 	function get_y() {
-		return Math.floor(bar.screenY+bar.height);
+		return Math.floor(topbar.screenY+topbar.height);
 	}
 	public var w(get,never):Int;
 	function get_w() {
@@ -26,7 +26,7 @@ class EditorCodeView implements EditorHierarchyObserver extends VBox {
 	}
 	public var h(get,never):Int;
 	function get_h() {
-		return Math.ceil(cast(this, Component).componentHeight-bar.height);
+		return Math.ceil(cast(this, Component).componentHeight-topbar.height);
     }
     
     var visualEditor:found.tool.NodeEditor;
@@ -113,6 +113,7 @@ class EditorCodeView implements EditorHierarchyObserver extends VBox {
 
     public override function renderTo(g:kha.graphics2.Graphics) {
         super.renderTo(g);
+        if(selectedPage.text != "Code")return;
         if(App.editorui.inspector.index != -1){
             addVisualCode.hidden = false;
         }

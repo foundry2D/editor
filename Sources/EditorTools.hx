@@ -1,16 +1,20 @@
 package;
 
+import kha.math.Vector2;
 import found.Found;
 import haxe.ui.core.Component;
 import haxe.ui.core.Screen;
 import haxe.ui.events.MouseEvent;
 import kha.graphics2.Graphics;
 
+import utilities.Conversion;
+
 class EditorTools {
     static public var arrows:Container;
     static public var vArrow:Arrow;
     static public var hArrow:Arrow;
     static public var rect:Arrow;
+    static var position:Vector2 = new Vector2();
     public function new(editor:EditorView){
         arrows = new Container();
         vArrow = new Arrow(1);
@@ -23,21 +27,26 @@ class EditorTools {
         editor.addComponent(rect);
     }
     static public function render(g:Graphics,p_x:Float,p_y:Float,w:Float,h:Float){
-        var x = arrows.left;
-        var y = arrows.top; 
-        arrows.left = (arrows.left)/Found.WIDTH*Math.ceil(w)+Math.floor(p_x);
-        arrows.top = (arrows.top)/Found.HEIGHT*Math.ceil(h)+Math.floor(p_y);
-        vArrow.renderGraph(g,x,y);
-        hArrow.renderGraph(g,x,y);
-        rect.renderGraph(g,x,y);
+        var x = p_x;
+        var y = p_y;
+        position.x = x;
+        position.y = y;
+        // arrows.left = x;//(arrows.left)/Found.WIDTH*Math.ceil(w)+Math.floor(p_x);
+        // arrows.top = ;//(arrows.top)/Found.HEIGHT*Math.ceil(h)+Math.floor(p_y);
+        vArrow.render2Scene(g,x,y);
+        hArrow.render2Scene(g,x,y);
+        rect.render2Scene(g,x,y);
     }
     static public function drawGrid(g:Graphics){
+        var temp = g.popTransformation();
         var size:Int = found.Found.GRID;
         var str = 3.0;
-        var x = 0.0;
-        var y = 0.0;
+        var x = found.State.active.cam.position.x;
+        var y = found.State.active.cam.position.y;
+        var width = x+Found.WIDTH;
+        var height = y+Found.HEIGHT;
         g.color = 0xff282828;
-        while(x < Found.WIDTH){
+        while(x < width){
             g.drawRect(x,y,size,size,str);
             x+=size;
             if(g.color == 0xff282828){
@@ -45,13 +54,13 @@ class EditorTools {
             } else{
                 g.color = 0xff282828;
             }
-            if(x >= Found.WIDTH && y < Found.HEIGHT){
+            if(x >= width && y < height){
                 y+=size;
                 x = 0;
             }
         }
         g.color = kha.Color.White;
-
+        g.pushTransformation(temp);
     }
 }
 class Container  extends Component{
@@ -106,7 +115,7 @@ class Arrow extends Component{
         this.size = size;
         
     }
-    public function renderGraph(g:Graphics,x:Float,y:Float){
+    public function render2Scene(g:Graphics,x:Float,y:Float){
         if(found.App.editorui.inspector.index < 0)return;
         var w = size*10;
 		var h = w;
@@ -138,10 +147,13 @@ class Arrow extends Component{
 			
         }
     }
+    @:access(EditorTools)
+    //Debug render and set ui collision
     public override function renderTo(g:Graphics){
         if(found.App.editorui.inspector.index < 0)return;
-        var x = EditorTools.arrows.left;
-        var y = EditorTools.arrows.top;
+        var pos = Conversion.WorldToScreen(cast(EditorTools.position),g.transformation);
+        var x = pos.x;
+        var y =  pos.y;
         var w = size*5;
 		var h = w;
         
