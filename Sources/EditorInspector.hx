@@ -224,7 +224,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         var value:Null<Any> = null; 
         if(e.target != null){
             id = e.target.id;
-            trace(id);
+            // trace(id);
             var prop = "pos";
             switch(e.target.id){
                 case "px" | "py":
