@@ -62,7 +62,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	function createVisualTrait(e:MouseEvent) {
 		var nData = {
 			name: "Name",
-			nodes: new found.zui.Nodes(),
+			nodes: new zui.Nodes(),
 			nodeCanvas: {
 				name: "My Nodes",
 				nodes: [],
@@ -105,7 +105,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 			if (firstTrait != null) {
 				kha.FileSystem.getContent(firstTrait.class_name, function(data:String) {
 					var visualTraitData:LogicTreeData = haxe.Json.parse(data);
-					visualTraitData.nodes = new found.zui.Nodes();
+					visualTraitData.nodes = new zui.Nodes();
 					found.tool.NodeEditor.nodesArray.push(visualTraitData);
 					found.tool.NodeEditor.selectedNode = visualTraitData;
 				});
