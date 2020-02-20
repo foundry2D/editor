@@ -151,14 +151,14 @@ class Arrow extends Component{
     //Debug render and set ui collision
     public override function renderTo(g:Graphics){
         if(found.App.editorui.inspector.index < 0)return;
-        var pos = Conversion.WorldToScreen(cast(EditorTools.position),g.transformation);
+        var pos = Conversion.WorldToScreen(cast(EditorTools.position));
         var x = pos.x;
         var y =  pos.y;
         var w = size*5;
 		var h = w;
         
         if(type ==1){
-            this.set(x-this.componentWidth*0.5,y-this.componentHeight*0.5-size*5);
+            this.set(x-this.componentWidth*0.5,y-this.componentHeight*0.5-size*4);
             #if debug_editor
             g.color = kha.Color.fromBytes(255,128,128,128);
             g.fillRect(this.left,this.top,this.componentWidth,this.componentHeight);

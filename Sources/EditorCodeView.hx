@@ -76,9 +76,9 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	@:access(found.Scene)
 	function saveVisualTrait(e:MouseEvent) {
 		var nodeData:LogicTreeData = found.tool.NodeEditor.selectedNode;
-		nodeData.nodes = null;
+
 		var trait = {type: "VisualScript", class_name: "./dev/Project/Sources/visualTrait.json"};
-		var data = haxe.Json.stringify(nodeData);
+		var data = haxe.Json.stringify({name: nodeData.name,nodes:null,nodeCanvas: nodeData.nodeCanvas});
 		kha.FileSystem.saveContent(trait.class_name, data, function() {
 			Scene.createTraits([trait], App.editorui.inspector.currentObject);
 			if (App.editorui.inspector.currentObject.raw.traits != null) {

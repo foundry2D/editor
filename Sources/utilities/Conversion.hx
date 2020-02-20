@@ -6,7 +6,7 @@ import kha.math.FastVector2;
 import kha.math.FastMatrix3;
 
 class Conversion {
-    public static function WorldToScreen(position:FastVector2,?test:FastMatrix3):FastVector2 {
+    public static function WorldToScreen(position:FastVector2):FastVector2 {
         var screen:FastVector2 = new FastVector2();
         var x = found.App.editorui.gameView.x;
         var y = found.App.editorui.gameView.y;
@@ -23,11 +23,12 @@ class Conversion {
         var world:FastVector2 = new FastVector2();
         var x = State.active.cam.position.x;
         var y = State.active.cam.position.y;
-        var width = found.App.editorui.gameView.w;
-        var height = found.App.editorui.gameView.h;
-        var viewTranslation = FastMatrix3.translation(position.x,position.y);
-        var viewScale = FastMatrix3.scale(1.0/width,1.0/height);
-
+        var gv = found.App.editorui.gameView;
+        var screenTranslation = FastMatrix3.translation(position.x-gv.x,position.y-gv.y);
+        var viewScale = FastMatrix3.scale(1.0/gv.w,1.0/gv.h);
+        var result= viewScale.multmat(screenTranslation);
+        world.x = x+Found.WIDTH*result._20;
+        world.y = y+Found.HEIGHT*result._21;
         return world;
     }
 }

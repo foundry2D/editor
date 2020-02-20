@@ -26,9 +26,8 @@ class EditorGameView extends EditorTab {
 		return Math.floor(screenX);
 	}
 	public var y(get,never):Int;
-	function get_y() {
-		var value = bar != null ? screenY+bar.height:screenY;  
-		return Math.floor(value);
+	function get_y() {  
+		return Math.floor(screenY);
 	}
 	public var w(get,never):Int;
 	function get_w() {
@@ -36,8 +35,7 @@ class EditorGameView extends EditorTab {
 	}
 	public var h(get,never):Int;
 	function get_h() {
-		var value = bar != null ? cast(this, Component).componentHeight-bar.height:cast(this, Component).componentHeight;  
-		return Math.ceil(value);
+		return Math.ceil(cast(this, Component).componentHeight);
 	}
 
     public function new(){
