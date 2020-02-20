@@ -136,8 +136,10 @@ class EditorUi extends Trait{
         parent.addComponent(child);
         child.init(parent);
     }
-    public function update(): Void {
-
+    public function update(dt:Float): Void {
+        if(animationView != null) {
+            animationView.update(dt);
+        }
     }
 
     #if found

@@ -4,24 +4,36 @@ import found.data.SceneFormat;
 import found.object.Object;
 
 class JsonObjectExplorer {
-    public static function getObjectFromJsonObjects(jsonObjects:Array<Object>, pathToJsonObject:String) : {jsonObject:TObj, jsonObjectUid:Int} {
+    static var lastUid:Int = -1;
+    static var lastName:String = "";
+    public static function getObjectFromSceneObjects(pathToJsonObject:String) : {jsonObject:TObj, jsonObjectUid:Int} {
         var split = pathToJsonObject.split("/"); 
         var name = split[0];
         var isLast = split[split.length-1] == name;
 
         var uid= -1;
         var object:TObj = null;
-
-        for(jsonObject in jsonObjects){
-            if((name == jsonObject.name || name == jsonObject.raw.name) && isLast){
-                object= jsonObject.raw;
-                uid = jsonObject.uid;
+        var jsonObjects:Array<Object> = found.State.active._entities;
+        if(isLast){
+            if(lastName == name){// If cached
+                uid = lastUid;
+                object = jsonObjects[uid].raw;
+            } 
+            else { // or Search
+                for(jsonObject in jsonObjects){
+                    if((name == jsonObject.name || name == jsonObject.raw.name)){
+                        object= jsonObject.raw;
+                        uid = jsonObject.uid;
+                        lastName = name;
+                        lastUid = uid;
+                    }
+                }
             }
         }
 
         if(uid == -1){
             pathToJsonObject = StringTools.replace(pathToJsonObject,'$name/','');
-            return getObjectFromJsonObjects(jsonObjects, pathToJsonObject);
+            return getObjectFromSceneObjects(pathToJsonObject);
         }
 
         return {jsonObject: object, jsonObjectUid: uid};

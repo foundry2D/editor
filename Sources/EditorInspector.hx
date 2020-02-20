@@ -112,7 +112,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
             sampled: fetch(obj,"sampled",'Bool')
         });
     #elseif found
-        var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromJsonObjects(State.active._entities, path);
+        var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromSceneObjects( path);
         var out = getIDataFrom(data.jsonObject);
     
         for(f in Reflect.fields(out)){

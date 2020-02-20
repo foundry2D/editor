@@ -92,7 +92,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	}
 
 	function loadVisualTrait(path:String) {
-		var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromJsonObjects(State.active._entities, path);
+		var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromSceneObjects(path);
 
 		if (data.jsonObject.traits != null) {
 			var firstTrait:Null<TTrait> = null;
