@@ -2,7 +2,6 @@ package;
 
 import found.App;
 import found.Scene;
-import found.State;
 import found.data.SceneFormat;
 import haxe.ui.containers.VBox;
 import haxe.ui.core.Component;
@@ -73,22 +72,34 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		found.tool.NodeEditor.selectedNode = nData;
 	}
 
-	@:access(found.Scene)
 	function saveVisualTrait(e:MouseEvent) {
 		var nodeData:LogicTreeData = found.tool.NodeEditor.selectedNode;
-
-		var trait = {type: "VisualScript", class_name: "./dev/Project/Sources/visualTrait.json"};
-		var data = haxe.Json.stringify({name: nodeData.name,nodes:null,nodeCanvas: nodeData.nodeCanvas});
+		var trait:TTrait = {type: "VisualScript", class_name: "./dev/Project/Sources/visualTrait.json"};
+		var data = haxe.Json.stringify({name: nodeData.name, nodes: null, nodeCanvas: nodeData.nodeCanvas});
 		kha.FileSystem.saveContent(trait.class_name, data, function() {
-			Scene.createTraits([trait], App.editorui.inspector.currentObject);
-			if (App.editorui.inspector.currentObject.raw.traits != null) {
-				App.editorui.inspector.currentObject.raw.traits.push(trait);
-			} else {
-				App.editorui.inspector.currentObject.raw.traits = [trait];
-			}
-			if (!StringTools.contains(App.editorui.hierarchy.path.text, '*'))
-				App.editorui.hierarchy.path.text += '*';
+			saveVisualTraitOnCurrentObject(trait);
 		});
+	}
+
+	@:access(found.Scene)
+	function saveVisualTraitOnCurrentObject(trait:TTrait) {
+		Scene.createTraits([trait], App.editorui.inspector.currentObject);
+		var currentObject = App.editorui.inspector.currentObject;
+		if (currentObject.raw.traits != null) {
+			var alreadyHasTrait = false;
+			for (oldTrait in currentObject.raw.traits) {
+				if (oldTrait.class_name == trait.class_name) {
+					alreadyHasTrait = true;
+				}
+			}
+			if (!alreadyHasTrait) {
+				currentObject.raw.traits.push(trait);
+			}
+		} else {
+			currentObject.raw.traits = [trait];
+		}
+		if (!StringTools.contains(App.editorui.hierarchy.path.text, '*'))
+			App.editorui.hierarchy.path.text += '*';
 	}
 
 	function loadVisualTrait(path:String) {
