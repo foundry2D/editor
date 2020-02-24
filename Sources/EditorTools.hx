@@ -150,7 +150,7 @@ class Arrow extends Component{
     @:access(EditorTools)
     //Debug render and set ui collision
     public override function renderTo(g:Graphics){
-        if(found.App.editorui.inspector.index < 0)return;
+        if(found.App.editorui.inspector.index < 0 || found.App.editorui.gameView.selectedPage.text != "Game" )return;
         var pos = Conversion.WorldToScreen(cast(EditorTools.position));
         var x = pos.x;
         var y =  pos.y;

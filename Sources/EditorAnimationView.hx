@@ -50,6 +50,11 @@ class EditorAnimationView  implements EditorHierarchyObserver extends EditorTab 
         animationEditor.selectedUID = data.jsonObjectUid;
         
     }
+    @:access(found.tool.AnimationEditor)
+    public function notifyPlayPause(){
+        if(selectedPage.text != "Animation")return;
+        animationEditor.doUpdate = !animationEditor.doUpdate;
+    }
     public override function renderTo(g:kha.graphics2.Graphics) {
         super.renderTo(g);
         

@@ -106,6 +106,10 @@ class ManagerView extends Box {
                     kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                         var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
                         out.list.remove(project);
+                        projectslist.dataSource.clear();
+                        for(proj in out.list){
+                            projectslist.dataSource.add(proj);
+                        }
                         var data = haxe.Json.stringify(out);
                         kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",data);
                     });

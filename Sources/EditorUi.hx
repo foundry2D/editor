@@ -1,5 +1,6 @@
 package;
 
+import kha.input.KeyCode;
 import haxe.ui.components.Button;
 import haxe.ui.core.Component;
 import haxe.ui.containers.menus.*;
@@ -141,8 +142,60 @@ class EditorUi extends Trait{
             animationView.update(dt);
         }
     }
+    public function onKeyDown(keyCode:KeyCode){
+        if(keyCode == KeyCode.F11){
+			Found.fullscreen = !Found.fullscreen;
+		}
+		if(keyCode == KeyCode.F1){
+			EditorUi.arrowMode = 0;
+		}
+		if(keyCode == KeyCode.F2){
+			EditorUi.arrowMode = 1;
+        }
+        if(keyCode == KeyCode.Space && animationView != null){
+            animationView.notifyPlayPause();
+        }
+		if(keyCode == KeyCode.S && keys.ctrl)
+			saveSceneData();
+		if(keyCode == KeyCode.Control)
+			keys.ctrl = true;
+		if(keyCode == KeyCode.Alt)
+			keys.alt = true;
+		if(keyCode == KeyCode.Shift)
+			keys.shift = true;
+    }
+    public function onKeyUp(keyCode:KeyCode):Void {
+        if(keyCode == KeyCode.Control)
+			keys.ctrl = false;
+		if(keyCode == KeyCode.Alt)
+			keys.alt = false;
+		if(keyCode == KeyCode.Shift)
+			keys.shift = false;
+    }
+    public function onMouseDown(button:Int, x:Int, y:Int):Void {
+        if(activeMouse && button == 0/* Left */){
+			activeMouse = false;
+		}
+        if(button==2){
+            activeMiddleMouse = true;
+        }
+    }
+    public function onMouseUp(button:Int, x:Int, y:Int):Void {
+        if(button==2){
+            activeMiddleMouse = false;
+        }
+    }
+    public function onMouseMove(x:Int, y:Int, mx:Int, my:Int):Void {
+        if(activeMiddleMouse){
+            if(State.active!= null){
+                State.active.cam.position.x+=mx;
+                State.active.cam.position.y+=my;
+            }
+        }
+    }
 
     #if found
+    public static var activeMiddleMouse:Bool = false;
     public static var activeMouse:Bool = false;
     public static var gridMove:Bool = false;
     public static var arrow:Int = -1;
