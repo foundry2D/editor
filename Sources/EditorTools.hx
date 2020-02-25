@@ -29,8 +29,8 @@ class EditorTools {
     static public function render(g:Graphics,p_x:Float,p_y:Float,w:Float,h:Float){
         var x = p_x;
         var y = p_y;
-        position.x = x;
-        position.y = y;
+        position.x = x-found.State.active.cam.position.x;
+        position.y = y-found.State.active.cam.position.y;
         // arrows.left = x;//(arrows.left)/Found.WIDTH*Math.ceil(w)+Math.floor(p_x);
         // arrows.top = ;//(arrows.top)/Found.HEIGHT*Math.ceil(h)+Math.floor(p_y);
         vArrow.render2Scene(g,x,y);
@@ -153,7 +153,7 @@ class Arrow extends Component{
         if(found.App.editorui.inspector.index < 0 || found.App.editorui.gameView.selectedPage.text != "Game" )return;
         var pos = Conversion.WorldToScreen(cast(EditorTools.position));
         var x = pos.x;
-        var y =  pos.y;
+        var y = pos.y;
         var w = size*5;
 		var h = w;
         
