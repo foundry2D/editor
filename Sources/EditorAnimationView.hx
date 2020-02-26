@@ -52,7 +52,7 @@ class EditorAnimationView  implements EditorHierarchyObserver extends EditorTab 
     }
     @:access(found.tool.AnimationEditor)
     public function notifyPlayPause(){
-        if(selectedPage.text != "Animation")return;
+        if(selectedPage == null || selectedPage.text != "Animation")return;
         animationEditor.doUpdate = !animationEditor.doUpdate;
     }
     public override function renderTo(g:kha.graphics2.Graphics) {
