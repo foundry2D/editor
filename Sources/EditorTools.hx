@@ -38,13 +38,16 @@ class EditorTools {
         rect.render2Scene(g,x,y);
     }
     static public function drawGrid(g:Graphics){
-        var temp = g.popTransformation();
         var size:Int = found.Found.GRID;
         var str = 3.0;
         var x = found.State.active.cam.position.x;
+        x += (Found.GRID-(x % Found.GRID));
+        x += -Found.GRID*2;
         var y = found.State.active.cam.position.y;
-        var width = x+Found.WIDTH;
-        var height = y+Found.HEIGHT;
+        y += (Found.GRID-(y % Found.GRID));
+        y += -Found.GRID*2;
+        var width = Math.abs(x)+Found.WIDTH+Found.GRID*2;
+        var height = Math.abs(y)+Found.HEIGHT+Found.GRID*2;
         g.color = 0xff282828;
         while(x < width){
             g.drawRect(x,y,size,size,str);
@@ -56,11 +59,12 @@ class EditorTools {
             }
             if(x >= width && y < height){
                 y+=size;
-                x = 0;
+                x = found.State.active.cam.position.x;
+                x += (Found.GRID-(x % Found.GRID));
+                x += -Found.GRID*2;
             }
         }
         g.color = kha.Color.White;
-        g.pushTransformation(temp);
     }
 }
 class Container  extends Component{
