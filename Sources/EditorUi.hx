@@ -142,7 +142,7 @@ class EditorUi extends Trait{
             animationView.update(dt);
         }
     }
-    public function onKeyDown(keyCode:KeyCode){
+    public function onKeyPressed(keyCode:KeyCode){
         if(keyCode == KeyCode.F11){
 			Found.fullscreen = !Found.fullscreen;
 		}
@@ -164,7 +164,7 @@ class EditorUi extends Trait{
 		if(keyCode == KeyCode.Shift)
 			keys.shift = true;
     }
-    public function onKeyUp(keyCode:KeyCode):Void {
+    public function onKeyReleased(keyCode:KeyCode):Void {
         if(keyCode == KeyCode.Control)
 			keys.ctrl = false;
 		if(keyCode == KeyCode.Alt)
