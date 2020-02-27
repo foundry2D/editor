@@ -173,14 +173,14 @@ class EditorUi extends Trait{
 			keys.shift = false;
     }
     public function onMouseDown(button:Int, x:Int, y:Int):Void {
-        if(activeMouse && button == 0/* Left */){
-			activeMouse = false;
-		}
         if(button==2){
             activeMiddleMouse = true;
         }
     }
     public function onMouseUp(button:Int, x:Int, y:Int):Void {
+        if(activeMouse && button == 0/* Left */){
+			activeMouse = false;
+		}
         if(button==2){
             activeMiddleMouse = false;
         }
@@ -205,13 +205,15 @@ class EditorUi extends Trait{
     static var event:UIEvent = new UIEvent(UIEvent.CHANGE);
     @:access(EditorInspector)
     public function updateMouse(x:Int,y:Int,cx:Int,cy:Int){
+        // x += Std.int(State.active.cam.position.x);
+        // y += Std.int(State.active.cam.position.y);
         var doUpdate = true;
         var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
         var scaleFactor = Math.ceil(gameView.w)/Found.WIDTH;
 
-        var px = ((x-gameView.x-minusX)/gameView.w)*Found.WIDTH;
-        var py = ((y-gameView.y-minusY)/gameView.h)*Found.HEIGHT;
+        var px = ((x-gameView.x-minusX)/gameView.w)*Found.WIDTH+State.active.cam.position.x;
+        var py = ((y-gameView.y-minusY)/gameView.h)*Found.HEIGHT+State.active.cam.position.y;
         
         //Get scaling values
         var direction = 1;
@@ -254,7 +256,7 @@ class EditorUi extends Trait{
             
         }
         
-        if(px+((minusX+(minusX/5)*2)/gameView.w)*Found.WIDTH > Found.WIDTH || px < 0 || py > Found.HEIGHT ||py+((minusY+(minusY/5)*2)/gameView.h)*Found.HEIGHT < 0){
+        if(px+((minusX+(minusX/5)*2)/gameView.w)*Found.WIDTH > Found.WIDTH +State.active.cam.position.x || px < State.active.cam.position.x || py > Found.HEIGHT+State.active.cam.position.y ||py+((minusY+(minusY/5)*2)/gameView.h)*Found.HEIGHT < State.active.cam.position.y){
             activeMouse = false;
             return;
         }
@@ -293,7 +295,7 @@ class EditorUi extends Trait{
         }
     }
     @:access(EditorInspector)
-    function updatePos(px:Float,py:Float){
+    function updatePos(px:Float,py:Float){ 
         switch(arrow){
             case 0:
                 State.active._entities[inspector.index].translate(

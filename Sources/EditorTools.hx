@@ -29,8 +29,8 @@ class EditorTools {
     static public function render(g:Graphics,p_x:Float,p_y:Float,w:Float,h:Float){
         var x = p_x;
         var y = p_y;
-        position.x = x;
-        position.y = y;
+        position.x = x-found.State.active.cam.position.x;
+        position.y = y-found.State.active.cam.position.y;
         // arrows.left = x;//(arrows.left)/Found.WIDTH*Math.ceil(w)+Math.floor(p_x);
         // arrows.top = ;//(arrows.top)/Found.HEIGHT*Math.ceil(h)+Math.floor(p_y);
         vArrow.render2Scene(g,x,y);
@@ -38,13 +38,16 @@ class EditorTools {
         rect.render2Scene(g,x,y);
     }
     static public function drawGrid(g:Graphics){
-        var temp = g.popTransformation();
         var size:Int = found.Found.GRID;
         var str = 3.0;
         var x = found.State.active.cam.position.x;
+        x += (Found.GRID-(x % Found.GRID));
+        x += -Found.GRID*2;
         var y = found.State.active.cam.position.y;
-        var width = x+Found.WIDTH;
-        var height = y+Found.HEIGHT;
+        y += (Found.GRID-(y % Found.GRID));
+        y += -Found.GRID*2;
+        var width = Math.abs(x)+Found.WIDTH+Found.GRID*2;
+        var height = Math.abs(y)+Found.HEIGHT+Found.GRID*2;
         g.color = 0xff282828;
         while(x < width){
             g.drawRect(x,y,size,size,str);
@@ -56,11 +59,12 @@ class EditorTools {
             }
             if(x >= width && y < height){
                 y+=size;
-                x = 0;
+                x = found.State.active.cam.position.x;
+                x += (Found.GRID-(x % Found.GRID));
+                x += -Found.GRID*2;
             }
         }
         g.color = kha.Color.White;
-        g.pushTransformation(temp);
     }
 }
 class Container  extends Component{
@@ -153,7 +157,7 @@ class Arrow extends Component{
         if(found.App.editorui.inspector.index < 0 || found.App.editorui.gameView.selectedPage.text != "Game" )return;
         var pos = Conversion.WorldToScreen(cast(EditorTools.position));
         var x = pos.x;
-        var y =  pos.y;
+        var y = pos.y;
         var w = size*5;
 		var h = w;
         
