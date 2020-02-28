@@ -172,12 +172,12 @@ class EditorUi extends Trait{
 		if(keyCode == KeyCode.Shift)
 			keys.shift = false;
     }
-    public function onMouseDown(button:Int, x:Int, y:Int):Void {
+    public function onMousePressed(button:Int, x:Int, y:Int):Void {
         if(button==2){
             activeMiddleMouse = true;
         }
     }
-    public function onMouseUp(button:Int, x:Int, y:Int):Void {
+    public function onMouseReleased(button:Int, x:Int, y:Int):Void {
         if(activeMouse && button == 0/* Left */){
 			activeMouse = false;
 		}
