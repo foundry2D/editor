@@ -325,12 +325,19 @@ class EditorUi extends Trait{
                 inspector.updateData(event);
         }
     }
+    @:access(found.anim.Sprite)
     public function saveSceneData(){
         if(StringTools.contains(hierarchy.path.text,'*')){
             var i = 0;
             for(entity in State.active._entities){
                 if(entity.dataChanged){
-                    State.active.raw._entities[i] = entity.raw; 
+                    if(Std.is(entity,found.anim.Sprite)){
+                        State.active.raw._entities[i] = cast(entity,found.anim.Sprite).data.raw;
+                    }
+                    else {
+                        State.active.raw._entities[i] = entity.raw;
+                    }
+                     
                 }
                 i++;
             }

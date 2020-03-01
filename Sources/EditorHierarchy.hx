@@ -41,6 +41,12 @@ class EditorHierarchy extends EditorTab {
         }
     }
     
+    public static function makeDirty(){
+        if(!StringTools.contains(found.App.editorui.hierarchy.path.text,'*'))
+            found.App.editorui.hierarchy.path.text+='*';
+        if(inspector.index == -1)return;
+        State.active._entities[inspector.index].dataChanged = true;
+    }
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
         this.text = "Hierarchy";

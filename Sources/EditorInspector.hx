@@ -287,10 +287,8 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         }
     }
     function dirtyScene(id:String,value:Any){
-        if(!StringTools.contains(App.editorui.hierarchy.path.text,'*'))
-            App.editorui.hierarchy.path.text+='*';
+        EditorHierarchy.makeDirty();
         Reflect.setProperty(State.active._entities[index],id,value);
-        State.active._entities[index].dataChanged = true;
     }
     public function updateField(uid:Int,id:String,data:Any){
         if(uid > State.active._entities.length-1) return;
