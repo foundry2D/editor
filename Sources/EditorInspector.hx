@@ -50,8 +50,6 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
     }
 
     public function notifyObjectSelectedInHierarchy(selectedObjectPath:String) : Void {
-        trace('Object notified $selectedObjectPath');
-
         var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(selectedObjectPath);
         index = out.index;
         tree.dataSource = out.ds;

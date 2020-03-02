@@ -331,13 +331,7 @@ class EditorUi extends Trait{
             var i = 0;
             for(entity in State.active._entities){
                 if(entity.dataChanged){
-                    if(Std.is(entity,found.anim.Sprite)){
-                        State.active.raw._entities[i] = cast(entity,found.anim.Sprite).data.raw;
-                    }
-                    else {
-                        State.active.raw._entities[i] = entity.raw;
-                    }
-                     
+                    State.active.raw._entities[i] = entity.raw;
                 }
                 i++;
             }
