@@ -195,7 +195,8 @@ class EditorHierarchy extends EditorTab {
             c_height:0.0,
             c_center: new Vector2(),
             shape: "",
-            imagePath: "basic"
+            imagePath: "basic",
+            anims: []
         };
         addData2Scn(data);
     }
@@ -230,6 +231,7 @@ class EditorHierarchy extends EditorTab {
             c_center: new Vector2(),
             shape: "",
             imagePath: "tilesheet",
+            anims: [],
             usedIds: [0],
             tileWidth: 64,
             tileHeight: 64 }],

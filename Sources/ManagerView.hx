@@ -92,26 +92,31 @@ class ManagerView extends Box {
                     #if kha_webgl
                     kha.FileSystem.dbKeys.clear();
                     #end
-                    kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
                     for( i in 0...projectslist.dataSource.size){
                         var proj:TProject = projectslist.dataSource.get(i);
                         kha.FileSystem.deleteDirectory(proj.path,true);
                     }
                     projectslist.dataSource.clear();
+                    kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
                 }
                 else {
                     var project:TProject = projectslist.selectedItem;
-                    projectslist.dataSource.remove(projectslist.dataSource.get(index-1));
-                    kha.FileSystem.deleteDirectory(project.path,true);
+                    projectslist.dataSource.remove(project);
                     kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                         var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
-                        out.list.remove(project);
-                        projectslist.dataSource.clear();
+                        var toRemove = null;
                         for(proj in out.list){
-                            projectslist.dataSource.add(proj);
+                            if(proj.name == project.name && proj.path == project.path){
+                                toRemove = proj;
+                                continue;
+                            }
+                         
                         }
+                        out.list.remove(toRemove);
                         var data = haxe.Json.stringify(out);
-                        kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",data);
+                        kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
+                            kha.FileSystem.deleteDirectory(project.path,true);
+                        });
                     });
                 }
             }
