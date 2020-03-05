@@ -81,7 +81,7 @@ class EditorHierarchy extends EditorTab {
         path.text = raw.name;
         if(!onBoot){
             tree.clear();
-            inspector.tree.clear();
+            inspector.clear();
         }
             
         #if arm_csm

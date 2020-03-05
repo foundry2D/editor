@@ -1,4 +1,5 @@
 
+import Inspector.Handles;
 import haxe.ui.core.Component;
 import haxe.ui.extended.NodeData;
 import haxe.ui.extended.InspectorNode;
@@ -17,10 +18,33 @@ import found.App;
 import found.State;
 import found.data.SceneFormat;
 import found.object.Object;
+import found.math.Util;
 #end
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
 class EditorInspector implements EditorHierarchyObserver extends EditorTab {
+
+    public var x(get,never):Int;
+	function get_x() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.floor(this.screenX);
+	}
+	public var y(get,never):Int;
+	function get_y() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.floor(this.screenY);
+	}
+	public var w(get,never):Int;
+	function get_w() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.ceil(this.componentWidth);
+	}
+	public var h(get,never):Int;
+	function get_h() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.ceil(this.componentHeight);
+    }
+
     public var rawData(default,set):TObj;
     function set_rawData(obj:TObj){
         return rawData = obj;
@@ -34,32 +58,52 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         if(index == -1)return null;
         return State.active._entities[index];
     }
+    var inspector:Inspector;
     public function new() {
         super();
         this.text = "Inspector";
-        tree.rclickItems = [ 
-            {name:"Add Trait",expands:false,onClicked: addTrait,filter: "traits"},
-            {name:"Remove Trait",expands:false,onClicked: rmTrait,filter: "traits"},
-        ];
-        tree.updateData = updateData;
-        tree.initFields.set("addRigidbody",initRbodyButton);
-        tree.buttonsClick.set("browseImage",browseImage);
-        tree.buttonsClick.set("addTraits",addTrait);
-        tree.buttonsClick.set("addRigidbody",addRigidbody);
+        inspector = new Inspector(x,y,w,h);
+        inspector.searchImage = browseImage;
+        // tree.rclickItems = [ 
+        //     {name:"Add Trait",expands:false,onClicked: addTrait,filter: "traits"},
+        //     {name:"Remove Trait",expands:false,onClicked: rmTrait,filter: "traits"},
+        // ];
+        // tree.updateData = updateData;
+        // tree.initFields.set("addRigidbody",initRbodyButton);
+        // tree.buttonsClick.set("browseImage",browseImage);
+        // tree.buttonsClick.set("addTraits",addTrait);
+        // tree.buttonsClick.set("addRigidbody",addRigidbody);
         EditorHierarchy.register(this);
     }
-
+    @:access(Inspector)
+    public function clear(){
+        inspector.scene.resize(0);
+        inspector.object.resize(0);
+    }
     public function notifyObjectSelectedInHierarchy(selectedObjectPath:String) : Void {
         var out:{ds:ListDataSource<InspectorData>,obj:TObj,index:Int} = getInspectorNode(selectedObjectPath);
         index = out.index;
-        tree.dataSource = out.ds;
+        // tree.dataSource = out.ds;
         rawData = out.obj;
+        inspector.setObject(out.obj);
         if(rawData.type == "tilemap_object"){
             found.Found.tileeditor.selectMap(out.index);                
         } 
         else{
             found.Found.tileeditor.selectMap(-1);
         }             
+    }
+    public override function renderTo(g:kha.graphics2.Graphics) {
+        super.renderTo(g);
+        
+        if(selectedPage.text != "Inspector")return;
+        else{
+            inspector.visible = true;
+        }
+        inspector.setAll(x,y,w,h);
+        inspector.render(g);
+        
+        
     }
 
     function getInspectorNode(path:String) {
@@ -166,10 +210,10 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
             e.target.text = "+";
         }
         // e.target = node;
-        this.updateData(e);
+        // this.updateData(e);
     }
     function addTrait(e:MouseEvent){
-        TraitsDialog.open(e);
+        
     }
     function rmTrait(e:MouseEvent){
         // var item:MenuItem = cast(e.target);
@@ -177,16 +221,16 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         //     trace(item);
         // }
     }
-    function browseImage(e:MouseEvent){
-        FileBrowserDialog.open(e);
+    function browseImage(){
+        FileBrowserDialog.open(new UIEvent(UIEvent.CHANGE));
         FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
             var path = null;
             if(e.button == DialogButton.APPLY)
                 path = FileBrowserDialog.inst.fb.filepath.text;
             var error = true;
             var sep = FileSystem.sep;
-            var name = path.split(sep)[path.split(sep).length-1];
             if(path != null){
+                var name = path.split(sep)[path.split(sep).length-1];
                 var type = name.split('.')[1];
                 switch(type){
                     case 'png' | 'jpg':
@@ -215,75 +259,75 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         "path"=>"",
         "traits"=>""
     ];
-    @:access(haxe.ui.backend.kha.TextField,found.Scene)
-    function updateData(e:UIEvent){
-        var _rawData = rawData;
-        var changed:Bool = false;
-        var value:Null<Any> = null; 
-        if(e.target != null){
-            id = e.target.id;
-            // trace(id);
-            var prop = "pos";
-            switch(e.target.id){
-                case "px" | "py":
-                    id = defaults.get(e.target.id);
-                    value = Reflect.getProperty(e.target,"pos");
-                    if(value == null)return;
+    // @:access(haxe.ui.backend.kha.TextField,found.Scene)
+    // function updateData(e:UIEvent){
+    //     var _rawData = rawData;
+    //     var changed:Bool = false;
+    //     var value:Null<Any> = null; 
+    //     if(e.target != null){
+    //         id = e.target.id;
+    //         // trace(id);
+    //         var prop = "pos";
+    //         switch(e.target.id){
+    //             case "px" | "py":
+    //                 id = defaults.get(e.target.id);
+    //                 value = Reflect.getProperty(e.target,"pos");
+    //                 if(value == null)return;
 
-                    changed = Reflect.field(_rawData.position,id) != value;
-                    Reflect.setProperty(_rawData.position,id,value);
-                case "sx" | "sy":
-                    id = defaults.get(e.target.id);
-                    value = Reflect.getProperty(e.target,"pos");
-                    if(value == null)return;
+    //                 changed = Reflect.field(_rawData.position,id) != value;
+    //                 Reflect.setProperty(_rawData.position,id,value);
+    //             case "sx" | "sy":
+    //                 id = defaults.get(e.target.id);
+    //                 value = Reflect.getProperty(e.target,"pos");
+    //                 if(value == null)return;
 
-                    changed = Reflect.field(_rawData.scale,id) != value;
-                    Reflect.setProperty(_rawData.scale,id,value);
-                case "w" | "h" | "pz" | "rz":
-                    id = defaults.get(e.target.id);
-                    value = Reflect.getProperty(e.target,"pos");
-                    if(value == null)return;
+    //                 changed = Reflect.field(_rawData.scale,id) != value;
+    //                 Reflect.setProperty(_rawData.scale,id,value);
+    //             case "w" | "h" | "pz" | "rz":
+    //                 id = defaults.get(e.target.id);
+    //                 value = Reflect.getProperty(e.target,"pos");
+    //                 if(value == null)return;
                     
-                    if(id== "z"){
-                        changed = Reflect.field(_rawData.rotation,id) != value;
-                        Reflect.setProperty(_rawData.rotation,id,value);
-                    }else{
-                        changed = Reflect.field(_rawData,id) != value;
-                        Reflect.setProperty(_rawData,id,value);
-                    }
+    //                 if(id== "z"){
+    //                     changed = Reflect.field(_rawData.rotation,id) != value;
+    //                     Reflect.setProperty(_rawData.rotation,id,value);
+    //                 }else{
+    //                     changed = Reflect.field(_rawData,id) != value;
+    //                     Reflect.setProperty(_rawData,id,value);
+    //                 }
                     
-                case "active":
-                    value = Reflect.getProperty(e.target,"selected");
-                    if(value == null)return;
+    //             case "active":
+    //                 value = Reflect.getProperty(e.target,"selected");
+    //                 if(value == null)return;
                     
-                    changed = Reflect.field(_rawData,id) != value;
-                    Reflect.setProperty(_rawData,id,value);
-                case "imagePath":
-                    var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
-                    if(tf.isActive && !tf._caretInfo.visible ){
-                        value = Reflect.getProperty(e.target,"text");
-                        if(value == null)return;
+    //                 changed = Reflect.field(_rawData,id) != value;
+    //                 Reflect.setProperty(_rawData,id,value);
+    //             case "imagePath":
+    //                 var tf:haxe.ui.backend.kha.TextField = Reflect.getProperty(e.target,"_textInput")._tf;
+    //                 if(tf.isActive && !tf._caretInfo.visible ){
+    //                     value = Reflect.getProperty(e.target,"text");
+    //                     if(value == null)return;
                     
-                        changed = Reflect.field(_rawData,id) != value;
-                        Reflect.setProperty(_rawData,id,value);
-                        cast(State.active._entities[index],found.anim.Sprite).set(cast(_rawData));
-                    }
-                case "traits":
-                    var trait = cast(e.target,TraitsDialog).feed.selectedItem;
-                    tree.curNode.traits.addField({type:trait.type,class_name: trait.classname});
-                    State.active._entities[index].raw.traits.push({type:trait.type,class_name: trait.classname});
-                    found.Scene.createTraits([{type:trait.type,class_name: trait.classname}],State.active._entities[index]);
-                    changed = true;
-                case "rigidBody":
-                    trace("Rigidbody called");
-                default:
-            }
+    //                     changed = Reflect.field(_rawData,id) != value;
+    //                     Reflect.setProperty(_rawData,id,value);
+    //                     cast(State.active._entities[index],found.anim.Sprite).set(cast(_rawData));
+    //                 }
+    //             case "traits":
+    //                 var trait = cast(e.target,TraitsDialog).feed.selectedItem;
+    //                 tree.curNode.traits.addField({type:trait.type,class_name: trait.classname});
+    //                 State.active._entities[index].raw.traits.push({type:trait.type,class_name: trait.classname});
+    //                 found.Scene.createTraits([{type:trait.type,class_name: trait.classname}],State.active._entities[index]);
+    //                 changed = true;
+    //             case "rigidBody":
+    //                 trace("Rigidbody called");
+    //             default:
+    //         }
 
-        }
-        if(changed){
-            dirtyScene(id,value);
-        }
-    }
+    //     }
+    //     if(changed){
+    //         dirtyScene(id,value);
+    //     }
+    // }
     function dirtyScene(id:String,value:Any){
         EditorHierarchy.makeDirty();
         Reflect.setProperty(State.active._entities[index],id,value);
@@ -292,13 +336,14 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         if(uid > State.active._entities.length-1) return;
         switch(id){
             case "_positions":
-                var x = Reflect.getProperty(data,"x");
-                var y = Reflect.getProperty(data,"y");
+                var x = Util.fround(Reflect.getProperty(data,"x"),2);
+                var y = Util.fround(Reflect.getProperty(data,"y"),2);
                 if(index == uid){
-                    Reflect.setProperty(tree.curNode.transform.px,"pos",x);
-                    Reflect.setProperty(tree.curNode.transform.py,"pos",y);
+                    rawData.position.x = x;
+                    rawData.position.y = y;
+                    inspector.redraw();
                 }
-                State.active._entities[uid].raw.position = data;
+                // State.active._entities[uid].raw.position = data;
             case "_rotations":
                 var z = Reflect.getProperty(data,"z");
                 if(index == uid){

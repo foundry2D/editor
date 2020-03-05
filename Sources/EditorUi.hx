@@ -271,7 +271,6 @@ class EditorUi extends Trait{
                     return data;
             });
             Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);
-            inspector.updateData(event);
         }
         else{
             switch(arrow){
@@ -282,7 +281,6 @@ class EditorUi extends Trait{
                             return data;
                     });
                     Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);
-                    inspector.updateData(event);
                 case 1:
                     State.active._entities[inspector.index].resize(
                         function(data:kha.math.Vector2){
@@ -290,7 +288,6 @@ class EditorUi extends Trait{
                             return data;
                     });
                     Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"y",sy);
-                    inspector.updateData(event);
             }
         }
     }
@@ -304,7 +301,6 @@ class EditorUi extends Trait{
                         return data;
                 });
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
-                inspector.updateData(event);
             case 1:
                 State.active._entities[inspector.index].translate(
                     function(data:MoveData){
@@ -312,7 +308,6 @@ class EditorUi extends Trait{
                         return data;
                 });
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
-                inspector.updateData(event);
             case 2:
                 State.active._entities[inspector.index].translate(
                     function(data:MoveData){
@@ -322,7 +317,6 @@ class EditorUi extends Trait{
                 });
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
-                inspector.updateData(event);
         }
     }
     @:access(found.anim.Sprite)

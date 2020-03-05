@@ -44,7 +44,7 @@ class TraitsDialog extends Dialog {
     }
     @:access(EditorInspector)
     public static function open(e:UIEvent){
-        inst = new TraitsDialog(e.target.text);
+        inst = new TraitsDialog("Add Trait");
         inst.onDialogClosed = function(e:DialogEvent){
             
             if(e.button == "Add Trait"){
@@ -55,8 +55,12 @@ class TraitsDialog extends Dialog {
                         break;
                     }
                 }
-                if(!hasAlready)
-                    found.App.editorui.inspector.updateData(e);
+                if(!hasAlready){
+                    var trait = inst.feed.selectedItem;
+                    found.App.editorui.inspector.rawData.traits.push({type:trait.type,class_name: trait.classname});
+                    EditorHierarchy.makeDirty();
+                }
+                    
             }
                 
         }
