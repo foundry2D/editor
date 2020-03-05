@@ -98,6 +98,9 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		} else {
 			currentObject.raw.traits = [trait];
 		}
+
+		currentObject.dataChanged = true;
+		
 		if (!StringTools.contains(App.editorui.hierarchy.path.text, '*'))
 			App.editorui.hierarchy.path.text += '*';
 	}
