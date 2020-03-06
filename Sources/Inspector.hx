@@ -3,22 +3,13 @@ package;
 import echo.Body;
 import haxe.ui.events.UIEvent;
 import found.data.SceneFormat;
+import found.math.Util;
+import found.object.Object;
 import zui.Zui;
 import zui.Id;
 import zui.Ext;
 
-enum abstract Handles(Int) from Int to Int {
-    var active;
-    var xPos;
-    var yPos;
-    var zRot;
-    var xScale;
-    var yScale;
-    var depth;
-    var width;
-    var height;
-    var imagePath;
-}
+
 
 class Inspector
 {
@@ -34,6 +25,17 @@ class Inspector
     var itemsLength:Int = 10;
     var data:TObj = null;
     public var searchImage:Void->Void = null;
+
+    public var index(default,set):Int = -1;
+    function set_index(value:Int){
+        return index = value;
+    }
+    public var currentObject(get,null):Null<Object>;
+    function get_currentObject(){
+        if(index == -1)return null;
+        return found.State.active._entities[index];
+    }
+
     public function new(px:Int,py:Int,w:Int,h:Int) {
         this.visible = false;
         ui = new Zui({font: kha.Assets.fonts.font_default});
@@ -42,9 +44,11 @@ class Inspector
             objItemHandles.push(base.nest(i));
         }
         setAll(px,py,w,h);
+        ui.t.FILL_WINDOW_BG = true;
     }
     public function redraw(){
         windowHandle.redraws = 2;
+        objectHandle.redraws = 2;
     }
     public function setAll(px:Int,py:Int,w:Int,h:Int){
         x = px;
@@ -53,17 +57,29 @@ class Inspector
         height = h;
     }
 
-    public function setObject(objectData:TObj) {
+    public function setObject(objectData:TObj,i:Int) {
         if(object.length > 0 ){
             object.pop();
         }
         object.push(objectData);
+        index = i;
+        redraw();
+    }
+    public function selectScene(){
+        if(object.length > 0 ){
+            object.pop();
+        }
+        if(scene.length > 0){
+            scene.pop();
+        }
+        scene.push(found.State.active.raw);
         redraw();
     }
 
     var objectHandle:Handle = Id.handle();
-
+    var sceneHandle:Handle = Id.handle();
     
+    @:access(zui.Zui)
     public function render(g:kha.graphics2.Graphics){
         if(!visible)return;
         g.end();
@@ -71,13 +87,18 @@ class Inspector
         ui.begin(g);
 
         if(ui.window(windowHandle, this.x, this.y, this.width, this.height)){
-            if( object.length > 0){ 
-                Ext.panelList(ui,objectHandle,object,null,dontDelete,getObjectName,setObjectName,drawObjectItems,true,false);
+            if( object.length > 0){
+                Ext.panelList(ui,objectHandle,object,null,dontDelete,getName,setObjectName,drawObjectItems,true,false);
                 var children:Map<Int,Handle> = Reflect.getProperty(objectHandle,"children");
                 children.get(0).selected = true; // Make the panel always open
+                children.get(0).text =  object[0].name; //Set object name in texInput field
+                
             }
             else if(scene.length > 0){
-
+                Ext.panelList(ui,sceneHandle,scene,null,dontDelete,getName,setSceneName,drawSceneItems,true,false);
+                var children:Map<Int,Handle> = Reflect.getProperty(sceneHandle,"children");
+                children.get(0).selected = true; // Make the panel always open
+                children.get(0).text =  scene[0].name; //Set scene name in texInput field
             } 
             
         }
@@ -88,19 +109,65 @@ class Inspector
     }
     @:keep
     function dontDelete(i:Int) {
+    }
+    function getName(i:Int){
+        return "";
+    }
+
+    function setSceneName(i:Int,name:String){
+        if(name=="")return;
+        scene[i].name = name;
+    }
+
+    var depthSortText:String = "If active will draw based on depth order";
+    var zSortText:String = "If active will zsort instead of Y sort";
+
+    @:access(found.Scene)
+    function drawSceneItems(handle:Handle,i:Int){
+        if(i == -1)return;
+        var data = scene[i];
+        var current = found.State.active;
+
+        var depthSortHandle = Id.handle();
+        var zsortHandle = Id.handle();
+
+        depthSortHandle.selected = data._depth != null ? data._depth : false;
+        ui.check(depthSortHandle," Depth Sort");
+        ui.tooltip(depthSortText);
+        if(depthSortHandle.changed){
+            data._depth = depthSortHandle.selected;
+            current._depth = data._depth;
+            changed = true;
+        }
+
+        if(data._depth){
+
+            zsortHandle.selected = data._Zsort != null ? data._Zsort : true;
+            ui.check(zsortHandle," Z sort");
+            ui.tooltip(zSortText);
+            if(zsortHandle.changed){
+                data._Zsort = zsortHandle.selected;
+                Reflect.setProperty(found.Scene,"zsort",data._Zsort);
+                changed = true;
+            }
+        }
+
+        if(changed){
+            EditorHierarchy.makeDirty();
+        }
 
     }
-    function getObjectName(i:Int){
-        return object[i].name;
-    }
+
     function setObjectName(i:Int,name:String) {
         if(name=="")return;
         object[i].name = name;
     }
     public var objItemHandles:Array<zui.Zui.Handle> = [];
+    var changed = false;
     function drawObjectItems(handle:Handle,i:Int){
+        if(i == -1)return;
         data = object[i];
-        var changed = false;
+        changed = false;
         ui.text(data.type);
 
         var activeHandle = objItemHandles[0];
@@ -125,24 +192,30 @@ class Inspector
         var gravityScaleHandle = Id.handle();
 
         activeHandle.selected = data.active;
-        ui.check(activeHandle,"active: ");
+        ui.check(activeHandle," active");
         if(activeHandle.changed){
             data.active = activeHandle.selected;
+            currentObject.active = data.active;
+            currentObject.dataChanged = true;
             changed = true;
         }
 
         ui.row([0.1,0.45,0.45]);
         ui.text("P");
-        xPosHandle.value = data.position.x;
+        xPosHandle.value = Util.fround(data.position.x,2);
         var px = Ext.floatInput(ui,xPosHandle,"X",Align.Right);
         if(xPosHandle.changed){
-            data.position.x = px;
+            data.position.x = Util.fround(px,2);
+            currentObject.position.x = data.position.x;
+            currentObject.dataChanged = true;
             changed = true;
         }
-        yPosHandle.value = data.position.y;
+        yPosHandle.value = Util.fround(data.position.y,2);
         var py = Ext.floatInput(ui,yPosHandle,"Y",Align.Right);
         if(yPosHandle.changed){
-            data.position.y = py;
+            data.position.y = Util.fround(py,2);
+            currentObject.position.y = data.position.y;
+            currentObject.dataChanged = true;
             changed = true;
         }
         ui.row([0.1,0.99]);
@@ -152,6 +225,8 @@ class Inspector
         if(zRotHandle.changed){
             rz = rz > 360 ? rz-360 : rz;
             data.rotation.z = rz;
+            currentObject.rotation.z = data.rotation.z;
+            currentObject.dataChanged = true;
             changed = true;
         }
         ui.row([0.1,0.45,0.45]);
@@ -160,6 +235,8 @@ class Inspector
         var sx = Ext.floatInput(ui,xScaleHandle,"X",Align.Right);
         if(xScaleHandle.changed){
             data.scale.x = sx;
+            currentObject.scale.x = data.scale.x;
+            currentObject.dataChanged = true;
             changed = true;
         }
 
@@ -167,6 +244,8 @@ class Inspector
         var sy = Ext.floatInput(ui,yScaleHandle,"Y",Align.Right);
         if(yScaleHandle.changed){
             data.scale.y = sy;
+            currentObject.scale.y = data.scale.y;
+            currentObject.dataChanged = true;
             changed = true;
         }
 
@@ -174,6 +253,8 @@ class Inspector
         var depth = Ext.floatInput(ui,depthHandle,"Depth: ",Align.Right);
         if(depthHandle.changed){
             data.depth = depth;
+            currentObject.depth = data.depth;
+            currentObject.dataChanged = true;
             changed = true;
         }
 
@@ -182,6 +263,8 @@ class Inspector
         var width = Ext.floatInput(ui,wHandle,"Width: ",Align.Right);
         if(wHandle.changed){
             data.width = width;
+            currentObject.width = data.width;
+            currentObject.dataChanged = true;
             changed = true;
         }
 
@@ -189,6 +272,8 @@ class Inspector
         var height = Ext.floatInput(ui,hHandle,"Height: ",Align.Right);
         if(hHandle.changed){
             data.height = height;
+            currentObject.height = data.height;
+            currentObject.dataChanged = true;
             changed = true;
         }
 
@@ -208,77 +293,115 @@ class Inspector
             }
         }
         
-        if(ui.panel(Id.handle(),"Trait: ")){
+        if(ui.panel(Id.handle(),"Traits: ")){
             ui.indent();
-            if(data.traits != null){
-                Ext.panelList(ui,Id.handle(),data.traits,addTrait,removeTrait,getTraitName,null,drawTrait,false,true,"New Trait");
-            }
+            var traits:Array<TTrait> = data.traits != null ? data.traits : [];
+            Ext.panelList(ui,Id.handle(),traits,addTrait,removeTrait,getTraitName,null,drawTrait,false,true,"New Trait");
+            data.traits = traits;
             ui.unindent();
         }
         ui.row([0.5,0.5]);
+        var text = data.rigidBody != null ? "-": "+";
+        var addRigidbody = function(state:String){
+            if(state == "+"){
+                data.rigidBody = Body.defaults;
+                
+            }
+            else if(state=="-"){
+                data.rigidBody = null;
+            }
+            currentObject.dataChanged = true;
+            changed = true;
+        };
         if(ui.panel(Id.handle(),"Rigidbody: ")){
+            if(ui.button(text)){
+                addRigidbody(text);
+            }
             if(data.rigidBody != null){
 
                 kinematicHandle.selected = data.rigidBody.kinematic;
                 ui.check(kinematicHandle,"is Kinematic");
                 if(kinematicHandle.changed){
                     data.rigidBody.kinematic = kinematicHandle.selected;
+                    currentObject.body.kinematic = data.rigidBody.kinematic;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
 
                 massHandle.value = data.rigidBody.mass;
                 var mass = Ext.floatInput(ui,massHandle,"Mass:",Align.Right);
                 if(massHandle.changed){
                     data.rigidBody.mass = mass;
+                    currentObject.body.mass = data.rigidBody.mass;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
 
                 elasticityHandle.value = data.rigidBody.elasticity;
                 var elasticity = Ext.floatInput(ui,elasticityHandle,"Elasticity:",Align.Right);
                 if(elasticityHandle.changed){
                     data.rigidBody.elasticity = elasticity;
+                    currentObject.body.elasticity = data.rigidBody.elasticity;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
                 maxXvelHandle.value = data.rigidBody.max_velocity_x;
                 var maxVelX = Ext.floatInput(ui,maxXvelHandle,"Max X Velocity:",Align.Right);
                 if(maxXvelHandle.changed){
                     data.rigidBody.max_velocity_x =  maxVelX;
+                    currentObject.body.max_velocity.x = data.rigidBody.max_velocity_x;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
                 maxYvelHandle.value = data.rigidBody.max_velocity_x;
                 var maxVelY = Ext.floatInput(ui,Id.handle(),"Max Y Velocity:",Align.Right);
                 if(maxYvelHandle.changed){
                     data.rigidBody.max_velocity_y =  maxVelY;
+                    currentObject.body.max_velocity.y = data.rigidBody.max_velocity_y;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
                 maxRotVelHandle.value = data.rigidBody.max_rotational_velocity;
                 var maxRot = Ext.floatInput(ui,Id.handle(),"Max Rotation Velocity:",Align.Right);
                 if(maxRotVelHandle.changed){
                     data.rigidBody.max_rotational_velocity = maxRot;
+                    currentObject.body.max_rotational_velocity = data.rigidBody.max_rotational_velocity;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
                 
                 dragXHandle.value = data.rigidBody.drag_x;
                 var dragX = Ext.floatInput(ui,Id.handle(),"Drag X:",Align.Right);
                 if(dragXHandle.changed){
                     data.rigidBody.drag_x = dragX;
+                    currentObject.body.drag.x = data.rigidBody.drag_x;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
 
                 dragYHandle.value = data.rigidBody.drag_y;
                 var dragY = Ext.floatInput(ui,Id.handle(),"Drag Y:",Align.Right);
                 if(dragYHandle.changed){
                     data.rigidBody.drag_y = dragY;
+                    currentObject.body.drag.y = data.rigidBody.drag_y;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
 
                 gravityScaleHandle.value = data.rigidBody.gravity_scale;
                 var gravityScale = Ext.floatInput(ui,gravityScaleHandle,"Gravity Scale:",Align.Right);
                 if(gravityScaleHandle.changed){
                     data.rigidBody.gravity_scale = gravityScale;
+                    currentObject.body.gravity_scale = data.rigidBody.gravity_scale;
+                    currentObject.dataChanged = true;
+                    changed = true;
                 }
                 
             }
-            var text = data.rigidBody != null ? "-": "+";
+        }
+        else {
             if(ui.button(text)){
-                if(text == "+"){
-                    data.rigidBody = Body.defaults;
-                }
-                if(text=="-"){
-                    data.rigidBody = null;
-                }
+                addRigidbody(text);
             }
         }
 
@@ -297,8 +420,16 @@ class Inspector
         TraitsDialog.open(new UIEvent(UIEvent.CHANGE));
     }
     function removeTrait(i:Int){
-        //@:TODO the other stuff
-        data.traits.splice(i,1);
+        //@:TODO the other stuff to update objects in realtime
+        currentObject.height = data.height;
+        var out = data.traits.splice(i,1);
+        if(out[0].type == "Script"){
+            var trait = currentObject.getTrait(Type.resolveClass(out[0].class_name));
+            if(trait != null)
+                currentObject.removeTrait(trait);
+        }
+        currentObject.dataChanged = true;
+        changed = true;
         EditorHierarchy.makeDirty();
     }
     function getTraitName(i:Int){

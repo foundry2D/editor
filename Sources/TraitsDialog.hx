@@ -57,8 +57,7 @@ class TraitsDialog extends Dialog {
                 }
                 if(!hasAlready){
                     var trait = inst.feed.selectedItem;
-                    found.App.editorui.inspector.rawData.traits.push({type:trait.type,class_name: trait.classname});
-                    EditorHierarchy.makeDirty();
+                    found.App.editorui.inspector.addTrait({type:trait.type,class_name: trait.classname});
                 }
                     
             }

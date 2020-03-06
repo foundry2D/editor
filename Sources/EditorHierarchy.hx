@@ -41,6 +41,11 @@ class EditorHierarchy extends EditorTab {
         }
     }
     
+    @:bind(path,MouseEvent.CLICK)
+    function selectScene(e:MouseEvent){
+        inspector.notifySceneSelect();
+    }
+    
     public static function makeDirty(){
         if(!StringTools.contains(found.App.editorui.hierarchy.path.text,'*'))
             found.App.editorui.hierarchy.path.text+='*';
