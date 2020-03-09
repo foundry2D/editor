@@ -26,6 +26,11 @@ class Inspector
     var scene:Array<TSceneFormat> = [];
     var itemsLength:Int = 10;
     var data:TObj = null;
+
+    
+    var objectHandle:Handle = Id.handle();
+    var sceneHandle:Handle = Id.handle();
+
     public var searchImage:Void->Void = null;
 
     public var index(default,set):Int = -1;
@@ -46,6 +51,7 @@ class Inspector
             objItemHandles.push(base.nest(i));
         }
         setAll(px,py,w,h);
+        objectHandle.nest(0); // Pre create children
         ui.t.FILL_WINDOW_BG = true;
     }
     public function redraw(){
@@ -77,9 +83,6 @@ class Inspector
         scene.push(found.State.active.raw);
         redraw();
     }
-
-    var objectHandle:Handle = Id.handle();
-    var sceneHandle:Handle = Id.handle();
     
     @:access(zui.Zui)
     public function render(g:kha.graphics2.Graphics){
@@ -90,11 +93,13 @@ class Inspector
 
         if(ui.window(windowHandle, this.x, this.y, this.width, this.height)){
             if( object.length > 0){
-                Ext.panelList(ui,objectHandle,object,null,dontDelete,getName,setObjectName,drawObjectItems,true,false);
+                
                 var children:Map<Int,Handle> = Reflect.getProperty(objectHandle,"children");
                 children.get(0).selected = true; // Make the panel always open
                 children.get(0).text =  object[0].name; //Set object name in texInput field
                 
+                Ext.panelList(ui,objectHandle,object,null,dontDelete,getName,setObjectName,drawObjectItems,true,false);
+                                    
             }
             else if(scene.length > 0){
                 Ext.panelList(ui,sceneHandle,scene,null,dontDelete,getName,setSceneName,drawSceneItems,true,false);
@@ -173,6 +178,8 @@ class Inspector
             }
             else if(state=="-"){
                 data.physicsWorld = null;
+                found.State.active.physicsUpdate = function(f:Float){};
+                found.State.active.physics_world = null;
             }
             changed = true;
         };
@@ -390,10 +397,13 @@ class Inspector
         var addRigidbody = function(state:String){
             if(state == "+"){
                 data.rigidBody = Body.defaults;
+                if(currentObject.body == null)
+                    currentObject.body = new echo.Body(data.rigidBody);
                 
             }
             else if(state=="-"){
                 data.rigidBody = null;
+                currentObject.body = null;
             }
             currentObject.dataChanged = true;
             changed = true;

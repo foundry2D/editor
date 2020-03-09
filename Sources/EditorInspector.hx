@@ -73,6 +73,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         inspector.object.resize(0);
     }
     public function notifyObjectSelectedInHierarchy(selectedObjectPath:String) : Void {
+        clear();
         var name = State.active.raw.name;
         StringTools.replace(selectedObjectPath,'$name/',"");
         var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromSceneObjects( selectedObjectPath);
