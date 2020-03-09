@@ -1,5 +1,7 @@
 package;
 
+import found.Found;
+import echo.World;
 import echo.Body;
 import haxe.ui.events.UIEvent;
 import found.data.SceneFormat;
@@ -122,7 +124,7 @@ class Inspector
     var depthSortText:String = "If active will draw based on depth order";
     var zSortText:String = "If active will zsort instead of Y sort";
 
-    @:access(found.Scene)
+    @:access(found.Scene,zui.Zui)
     function drawSceneItems(handle:Handle,i:Int){
         if(i == -1)return;
         var data = scene[i];
@@ -130,10 +132,17 @@ class Inspector
 
         var depthSortHandle = Id.handle();
         var zsortHandle = Id.handle();
+        var widthHandle = Id.handle();
+        var heightHandle = Id.handle();
+        var gravityXHandle = Id.handle();
+        var gravityYHandle = Id.handle();
+        var iterationsHandle = Id.handle();
+        var historyHandle = Id.handle();
 
+        if(ui.getHover())
+            ui.tooltip(depthSortText);
         depthSortHandle.selected = data._depth != null ? data._depth : false;
         ui.check(depthSortHandle," Depth Sort");
-        ui.tooltip(depthSortText);
         if(depthSortHandle.changed){
             data._depth = depthSortHandle.selected;
             current._depth = data._depth;
@@ -142,13 +151,89 @@ class Inspector
 
         if(data._depth){
 
+            if(ui.getHover())
+                ui.tooltip(zSortText);
             zsortHandle.selected = data._Zsort != null ? data._Zsort : true;
             ui.check(zsortHandle," Z sort");
-            ui.tooltip(zSortText);
             if(zsortHandle.changed){
                 data._Zsort = zsortHandle.selected;
                 Reflect.setProperty(found.Scene,"zsort",data._Zsort);
                 changed = true;
+            }
+        }
+
+        ui.row([0.5,0.5]);
+        
+        var text = data.physicsWorld != null ? "-": "+";
+        var addPhysWorld = function(state:String){
+            if(state == "+"){
+                data.physicsWorld = {width: Found.WIDTH,height: Found.HEIGHT,iterations: 5,gravity_y: 50};
+                if(found.State.active.physics_world == null)
+                    found.State.active.addPhysicsWorld(data.physicsWorld);
+            }
+            else if(state=="-"){
+                data.physicsWorld = null;
+            }
+            changed = true;
+        };
+        if(ui.panel(Id.handle(),"Physics World: ")){
+            if(ui.button(text)){
+                addPhysWorld(text);
+            }
+            if(data.physicsWorld != null){
+
+                widthHandle.value = data.physicsWorld.width;
+                var width = Ext.floatInput(ui,widthHandle,"Width:",Align.Right);
+                if(widthHandle.changed){
+                    data.physicsWorld.width = width;
+                    found.State.active.physics_world.width = width;
+                    changed = true;
+                }
+
+                heightHandle.value = data.physicsWorld.height;
+                var height = Ext.floatInput(ui,heightHandle,"Height:",Align.Right);
+                if(heightHandle.changed){
+                    data.physicsWorld.height = height;
+                    found.State.active.physics_world.height = height;
+                    changed = true;
+                }
+
+                gravityXHandle.value = data.physicsWorld.gravity_x != null ? data.physicsWorld.gravity_x: 0 ;
+                var gravityX = Ext.floatInput(ui,gravityXHandle,"Gravity X:",Align.Right);
+                if(gravityXHandle.changed){
+                    data.physicsWorld.gravity_x = gravityX;
+                    found.State.active.physics_world.gravity.x =gravityX;
+                    changed = true;
+                }
+                
+                gravityYHandle.value = data.physicsWorld.gravity_y;
+                var gravityY = Ext.floatInput(ui,gravityYHandle,"Gravity Y:",Align.Right);
+                if(gravityYHandle.changed){
+                    data.physicsWorld.gravity_y = gravityY;
+                    found.State.active.physics_world.gravity.y =gravityY;
+                    changed = true;
+                }
+
+                iterationsHandle.value = data.physicsWorld.iterations;
+                var iterations = Std.int(ui.slider(iterationsHandle,"No. of iterations",1,20,false,1));
+                if(iterationsHandle.changed){
+                    data.physicsWorld.iterations = iterations;
+                    found.State.active.physics_world.iterations =iterations;
+                    changed = true;
+                }
+
+                historyHandle.value = data.physicsWorld.history != null ? data.physicsWorld.history: 500;
+                var history = Std.int(ui.slider(historyHandle,"History",1,1000,false,1/100));
+                if(historyHandle.changed){
+                    data.physicsWorld.history = history;
+                    found.State.active.physics_world.history = new echo.util.History(history);
+                    changed = true;
+                }
+            }
+        }
+        else {
+            if(ui.button(text)){
+                addPhysWorld(text);
             }
         }
 
