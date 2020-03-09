@@ -175,6 +175,11 @@ class Inspector
                 data.physicsWorld = {width: Found.WIDTH,height: Found.HEIGHT,iterations: 5,gravity_y: 50};
                 if(found.State.active.physics_world == null)
                     found.State.active.addPhysicsWorld(data.physicsWorld);
+                for(object in found.State.active._entities){
+                    if(object.body != null){
+                        found.State.active.physics_world.add(object.body);
+                    }
+                }
             }
             else if(state=="-"){
                 data.physicsWorld = null;
@@ -399,10 +404,16 @@ class Inspector
                 data.rigidBody = Body.defaults;
                 if(currentObject.body == null)
                     currentObject.body = new echo.Body(data.rigidBody);
+                if(found.State.active.physics_world != null){
+                    found.State.active.physics_world.add(currentObject.body);
+                }
                 
             }
             else if(state=="-"){
                 data.rigidBody = null;
+                if(found.State.active.physics_world != null){
+                    found.State.active.physics_world.remove(currentObject.body);
+                }
                 currentObject.body = null;
             }
             currentObject.dataChanged = true;
