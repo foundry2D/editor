@@ -137,6 +137,8 @@ class Inspector
 
         var depthSortHandle = Id.handle();
         var zsortHandle = Id.handle();
+        var cullHandle = Id.handle();
+        var cullOffsetHandle = Id.handle();
         var widthHandle = Id.handle();
         var heightHandle = Id.handle();
         var gravityXHandle = Id.handle();
@@ -166,6 +168,28 @@ class Inspector
                 changed = true;
             }
         }
+
+        var cull = ui.check(cullHandle, "Cull");
+        if(cullHandle.changed && !cull){
+            data.cullOffset = null;
+            Reflect.setProperty(found.State.active,"cullOffset",0);
+            changed = true;
+        }
+        if(cull){
+            if(data.cullOffset == null){
+                data.cullOffset = 1;
+                Reflect.setProperty(found.State.active,"cullOffset",data.cullOffset);
+                changed = true;
+            }
+            cullOffsetHandle.value = data.cullOffset;
+            var offset = ui.slider(cullOffsetHandle, "Cull offset", 1, 500);
+            if(cullOffsetHandle.changed){
+                data.cullOffset = Std.int(offset);
+                Reflect.setProperty(found.State.active,"cullOffset",data.cullOffset);
+                changed = true;
+            }
+        }
+        
 
         ui.row([0.5,0.5]);
         
