@@ -37,7 +37,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	var visualEditor:found.tool.NodeEditor;
 
 	// var textEditor:CodeComponent;
-	public function new() {
+	public function new(?ui:zui.Zui) {
 		super();
 		percentWidth = 100;
 		percentHeight = 100;
@@ -47,7 +47,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		// textEditor.hidden = true;
 		addVisualCode.onClick = createVisualTrait;
 		saveVisualCode.onClick = saveVisualTrait;
-		visualEditor = new found.tool.NodeEditor(x, y, w, h);
+		visualEditor = new found.tool.NodeEditor(ui,x, y, w, h);
 		visualEditor.visible = true;
 		EditorHierarchy.register(this);
 	}

@@ -16,7 +16,16 @@ import zui.Ext;
 class Inspector
 {
     var ui: Zui;
-    public var visible:Bool;
+    public var visible(default,set):Bool = false;
+    function set_visible(v:Bool){
+        if(v){
+            ui.registerInput();
+        }
+        else {
+            ui.unregisterInput();
+        }
+        return visible = ui.enabled = v;
+    }
     public var width:Int;
     public var height:Int;
     public var x:Int;
@@ -43,9 +52,8 @@ class Inspector
         return found.State.active._entities[index];
     }
 
-    public function new(px:Int,py:Int,w:Int,h:Int) {
-        this.visible = false;
-        ui = new Zui({font: kha.Assets.fonts.font_default});
+    public function new(ui:Zui,px:Int,py:Int,w:Int,h:Int) {
+        this.ui = ui;
         var base = Id.handle();
         for(i in 0...itemsLength){
             objItemHandles.push(base.nest(i));

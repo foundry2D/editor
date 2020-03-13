@@ -16,6 +16,7 @@ import utilities.JsonObjectExplorer;
 import iron.data.SceneFormat;
 #elseif found
 import found.App;
+import found.Found;
 import found.State;
 import found.data.SceneFormat;
 import found.object.Object;
@@ -59,11 +60,11 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         if(index == -1)return null;
         return State.active._entities[index];
     }
-    var inspector:Inspector;
-    public function new() {
+    public var inspector:Inspector;
+    public function new(?ui:zui.Zui) {
         super();
         this.text = "Inspector";
-        inspector = new Inspector(x,y,w,h);
+        inspector = new Inspector(ui,x,y,w,h);
         inspector.searchImage = browseImage;
         EditorHierarchy.register(this);
     }
@@ -89,9 +90,12 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
     }
     public override function renderTo(g:kha.graphics2.Graphics) {
         super.renderTo(g);
-        
-        if(selectedPage.text != "Inspector")return;
-        else{
+
+        if(selectedPage.text != "Inspector" || Found.fullscreen ){
+            inspector.visible = false;
+            return;
+        }
+        else if(!inspector.visible) {
             inspector.visible = true;
         }
         inspector.setAll(x,y,w,h);

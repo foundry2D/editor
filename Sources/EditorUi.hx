@@ -1,5 +1,6 @@
 package;
 
+import zui.Zui;
 import kha.input.KeyCode;
 import haxe.ui.components.Button;
 import haxe.ui.core.Component;
@@ -23,6 +24,16 @@ import found.data.SceneFormat;
 #end
 
 class EditorUi extends Trait{
+    public var visible(default,set) = true;
+    function set_visible(v:Bool){
+        if(v){
+            ui.registerInput();
+        }
+        else {
+            ui.unregisterInput();
+        }
+        return inspector.inspector.visible  = visible  = v;
+    }
     public var keys:{ctrl:Bool,alt:Bool,shift:Bool} = {ctrl:false,alt:false,shift:false};
     public var editor:EditorView;
     public var inspector:EditorInspector;
@@ -37,10 +48,11 @@ class EditorUi extends Trait{
     public static var cwd:String = '.';
     // static var bl:BlendParser = null;
     var isBlend = false;
-
+    public var ui:Zui;
     public function new(){
         super();
         Toolkit.init();
+        ui = new Zui({font: kha.Assets.fonts.font_default});
         kha.FileSystem.init(function(){
             gameView = new EditorGameView();
             var done = function(){
@@ -89,12 +101,48 @@ class EditorUi extends Trait{
 
     }
 
+
+    function onMouseDownEditor(button: Int, x: Int, y: Int) {
+        ui.onMouseDown(button,x,y);
+    }
+    function onMouseUpEditor(button: Int, x: Int, y: Int) {
+        ui.onMouseUp(button,x,y);
+    }
+    function onMouseMoveEditor(x: Int, y: Int, movementX: Int, movementY: Int) {
+        ui.onMouseMove(x,y,movementX,movementY);
+    }
+    function onMouseWheelEditor(delta: Int) {
+        ui.onMouseWheel(delta);
+    }
+    function onKeyDownEditor(code: kha.input.KeyCode) {
+        ui.onKeyDown(code);
+    }
+    function onKeyUpEditor(code: kha.input.KeyCode) {
+        ui.onKeyUp(code);
+    }
+    function onKeyPressEditor(char: String) {
+        ui.onKeyPress(char);
+    }
+
+    #if (kha_android || kha_ios)
+	function onTouchDownEditor(index: Int, x: Int, y: Int) {
+		// Two fingers down - right mouse button
+		if (index == 1) { ui.onMouseDown(0, x, y); ui.onMouseDown(1, x, y); }
+	}
+
+	function onTouchUpEditor(index: Int, x: Int, y: Int) {
+		if (index == 1) ui.onMouseUp(1, x, y);
+	}
+
+	function onTouchMoveEditor(index: Int, x: Int, y: Int) {}
+	#end
+
     public function init(){
         if(projectmanager != null)
             Screen.instance.removeComponent(projectmanager);
         editor = new EditorView();
-        codeView = new EditorCodeView();
-        animationView = new EditorAnimationView();
+        codeView = new EditorCodeView(ui);
+        animationView = new EditorAnimationView(ui);
         // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
         // if(StringTools.endsWith(path,"blend")){
         //     isBlend = true;
@@ -122,7 +170,7 @@ class EditorUi extends Trait{
         //     trace(scenes.length);
         // }else{
             // raw = ArmPack.decode(blob.bytes);
-            inspector = new EditorInspector();
+            inspector = new EditorInspector(ui);
             addToParent(editor.ePanelRight,inspector);
             hierarchy = new EditorHierarchy(blob,inspector);
             addToParent(editor.ePanelLeft,hierarchy);

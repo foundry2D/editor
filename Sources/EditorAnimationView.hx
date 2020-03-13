@@ -34,12 +34,12 @@ class EditorAnimationView  implements EditorHierarchyObserver extends EditorTab 
     
     var animationEditor:found.tool.AnimationEditor;
     // var textEditor:CodeComponent;
-    public function new(){
+    public function new(?ui:zui.Zui){
         super();
         percentWidth = 100;
         percentHeight = 100;
         this.text = "Animation";
-        animationEditor = new found.tool.AnimationEditor(x,y,w,h);
+        animationEditor = new found.tool.AnimationEditor(ui,x,y,w,h);
         animationEditor.visible = true;
         EditorHierarchy.register(this);
     }
