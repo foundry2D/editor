@@ -73,14 +73,11 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         inspector.scene.resize(0);
         inspector.object.resize(0);
     }
-    public function notifyObjectSelectedInHierarchy(selectedObjectPath:String) : Void {
+    public function notifyObjectSelectedInHierarchy(selectedObject:TObj,selectedUID:Int) : Void {
         clear();
-        var name = State.active.raw.name;
-        StringTools.replace(selectedObjectPath,'$name/',"");
-        var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromSceneObjects( selectedObjectPath);
-        index = data.jsonObjectUid;
-        rawData = data.jsonObject;
-        inspector.setObject(data.jsonObject,index);
+        index = selectedUID;
+        rawData = selectedObject;
+        inspector.setObject(rawData,index);
         if(rawData.type == "tilemap_object"){
             found.Found.tileeditor.selectMap(index);                
         } 

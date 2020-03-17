@@ -112,6 +112,8 @@ class EditorUi extends Trait{
             animationView.render(ui);
         if(codeView != null)
             codeView.render(ui);
+        if(hierarchy != null)
+            hierarchy.render(ui);
         ui.end();
 
         // canvas.g2.begin(false);
@@ -399,7 +401,7 @@ class EditorUi extends Trait{
     }
     @:access(found.anim.Sprite)
     public function saveSceneData(){
-        if(StringTools.contains(hierarchy.path.text,'*')){
+        if(StringTools.contains(EditorHierarchy.sceneName,'*')){
             var i = 0;
             for(entity in State.active._entities){
                 if(entity.dataChanged){
@@ -408,7 +410,7 @@ class EditorUi extends Trait{
                 i++;
             }
             FileSystem.saveContent(scenePath,haxe.Json.stringify(State.active.raw));
-            hierarchy.path.text = StringTools.replace(hierarchy.path.text,'*','');
+            EditorHierarchy.sceneName = StringTools.replace(EditorHierarchy.sceneName,'*','');
         }
     }
     #elseif arm_csm

@@ -43,11 +43,8 @@ class EditorAnimationView  implements EditorHierarchyObserver extends EditorTab 
         animationEditor.visible = true;
         EditorHierarchy.register(this);
     }
-    public function notifyObjectSelectedInHierarchy(selectedObjectPath:String) : Void {
-        var name = State.active.raw.name;
-        StringTools.replace(selectedObjectPath,'$name/',"");
-        var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromSceneObjects(selectedObjectPath);
-        animationEditor.selectedUID = data.jsonObjectUid;
+    public function notifyObjectSelectedInHierarchy(selectedObject:TObj,selectedUID:Int) : Void {
+        animationEditor.selectedUID = selectedUID;
         
     }
     @:access(found.tool.AnimationEditor)

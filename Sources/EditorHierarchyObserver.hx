@@ -1,5 +1,7 @@
 package; 
 
+import found.data.SceneFormat.TObj;
+
 interface EditorHierarchyObserver {
-    function notifyObjectSelectedInHierarchy(selectedObjectPath : String) : Void;
+    function notifyObjectSelectedInHierarchy(selectedObject : TObj, selectedUID:Int) : Void;
 }

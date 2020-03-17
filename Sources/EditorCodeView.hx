@@ -52,10 +52,10 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		EditorHierarchy.register(this);
 	}
 
-	public function notifyObjectSelectedInHierarchy(selectedObjectPath:String):Void {
+	public function notifyObjectSelectedInHierarchy(selectedObject:TObj, selectedUID:Int):Void {
 		// @TODO: should we always load and reparse the data ?
 		// (i.e. we already parse the data to determine what to show the UI so maybe we should load if we find a visual script from the UI)
-		loadVisualTrait(selectedObjectPath);
+		loadVisualTrait(selectedObject);
 	}
 
 	function createVisualTrait() {
@@ -101,16 +101,15 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 
 		currentObject.dataChanged = true;
 		
-		if (!StringTools.contains(App.editorui.hierarchy.path.text, '*'))
-			App.editorui.hierarchy.path.text += '*';
+		EditorHierarchy.makeDirty();
 	}
 
-	function loadVisualTrait(path:String) {
-		var data:{jsonObject:TObj, jsonObjectUid:Int} = JsonObjectExplorer.getObjectFromSceneObjects(path);
+	function loadVisualTrait(obj:TObj) {
+		var data = obj;
 
-		if (data.jsonObject.traits != null) {
+		if (data.traits != null) {
 			var firstTrait:Null<TTrait> = null;
-			var traits:Array<TTrait> = data.jsonObject.traits;
+			var traits:Array<TTrait> = data.traits;
 			for (trait in traits) {
 				if (trait.type == "VisualScript") {
 					firstTrait = trait;

@@ -18,8 +18,30 @@ import found.State;
 import found.object.Object;
 import found.data.SceneFormat;
 #end
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
+// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
 class EditorHierarchy extends EditorTab {
+
+    public var x(get,never):Int;
+	function get_x() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.floor(this.screenX);
+	}
+	public var y(get,never):Int;
+	function get_y() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.floor(this.screenY);
+	}
+	public var w(get,never):Int;
+	function get_w() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.ceil(this.componentWidth);
+	}
+	public var h(get,never):Int;
+	function get_h() {
+        var comp = this.parentComponent !=null ? this.parentComponent: this;
+		return Math.ceil(this.componentHeight);
+    }
+
     static public var inspector:EditorInspector;
     var selectedObjectUID : Int = -1;
     static var observers:Array<EditorHierarchyObserver> = [];
@@ -32,26 +54,25 @@ class EditorHierarchy extends EditorTab {
         observers.remove(observer);
     }
 
-    @:bind(tree,UIEvent.CHANGE) // @TODO: add custom event for object selection
-    function onSelected(e:UIEvent) : Void {
-        if(tree.selectedNode != null) {
-            for(item in observers){
-                item.notifyObjectSelectedInHierarchy(tree.selectedNode.data.path);
-            }
+    
+    public function onSelected(uid:Int, obj:TObj) : Void {
+        for(item in observers){
+            item.notifyObjectSelectedInHierarchy(obj,uid);
         }
     }
     
-    @:bind(path,MouseEvent.CLICK)
-    function selectScene(e:MouseEvent){
+    public function selectScene(){
         inspector.notifySceneSelect();
     }
-    
+    public static var sceneName = "";
     public static function makeDirty(){
-        if(!StringTools.contains(found.App.editorui.hierarchy.path.text,'*'))
-            found.App.editorui.hierarchy.path.text+='*';
+        if(!StringTools.contains(sceneName,'*'))
+            sceneName+='*';
         if(inspector.index == -1)return;
         State.active._entities[inspector.index].dataChanged = true;
     }
+    var hierarchy:Hierarchy;
+    var scene:TSceneFormat;
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
         this.text = "Hierarchy";
@@ -62,68 +83,30 @@ class EditorHierarchy extends EditorTab {
             {name:"Add Emitter",expands:false,onClicked: addEmitter2Scn},
             {name:"Add Tilemap",expands:false,onClicked: addTilemap2Scn},
         ];
-        tree.rclickItems = [
-            {name:"Duplicate Object",expands:false,onClicked: duplicateObject},
-            {name:"Remove Object",expands:false,onClicked: removeObject},
-        ];
-        pathItems = [
-            {name:"Rename Scene",expands:false,onClicked:function(e:MouseEvent){
-                trace("Implement renaming");
-            }},
-            {name: "Edit Scene Settings",expands:false,onClicked:function(e:MouseEvent){
-                var cust = new CustomDialog({name:"Scene Settings",type:"warning"});
-                var settings = new SceneSettings();
-                cust.container.addComponent(settings);
-                cust.show();
-                cust.onDialogClosed = closeSceneEdit;
-            }}
-        ];
+        hierarchy = new Hierarchy(x,y,w,h);
+        hierarchy.parent = this;
         setFromScene(raw,true);
 
     }
-
+    public function render(ui:zui.Zui){
+        if(scene == null) return;
+        hierarchy.setAll(x,y,w,h);
+        hierarchy.render(ui,scene);
+    }
     public function setFromScene(raw:TSceneFormat,onBoot:Bool = false){
-        path.text = raw.name;
+        sceneName = raw.name;
         if(!onBoot){
-            tree.clear();
             inspector.clear();
         }
+        scene = raw;
             
-        #if arm_csm
-        tree.dataSource = getObjData(raw.objects,raw.name);
-        #else
-        tree.dataSource = getObjData(raw._entities,raw.name);
-        #end
+        // #if arm_csm
+        // tree.dataSource = getObjData(raw.objects,raw.name);
+        // #else
+        // tree.dataSource = getObjData(raw._entities,raw.name);
+        // #end
     }
 
-    function getObjData(objs:Array<TObj>,path:String):ListDataSource<NodeData>{
-        path+='/';
-        var ds = new ListDataSource<NodeData>();
-        for(obj in objs){
-            if(Reflect.hasField(obj,"children")){
-                ds.add({
-                    name: obj.name,
-                    path: path,
-                    type:"img/"+obj.type,
-                    childs: getObjData(obj.children,path+obj.name)
-                });
-            }
-            else {
-                ds.add({
-                    name: obj.name,
-                    path: path+obj.name,
-                    type:"img/"+obj.type
-                });
-            }
-        }
-        return ds;
-    }
-    
-
-    @:bind(tree,MouseEvent.RIGHT_CLICK)
-    function rightClick(e:MouseEvent){
-        super.onRightclickcall(e);
-    }
 
     function duplicateObject(e:MouseEvent){
         if(inspector.index >= 0){
@@ -140,8 +123,6 @@ class EditorHierarchy extends EditorTab {
     function addData2Scn(data:TObj){
         State.active.raw._entities.push(data);
         State.active.addEntity(data,true);
-        tree.dataSource.add(getObjData([data],State.active.raw.name).get(0));
-        tree.addNode(tree.dataSource.get(tree.dataSource.size-1));
     }
 
     @:access(found.object.Object,found.object.Executor)
@@ -155,9 +136,6 @@ class EditorHierarchy extends EditorTab {
 
         State.active.raw._entities.splice(uid,1);
         State.active._entities.splice(uid,1);
-        var data = tree.dataSource.get(uid);
-        tree.dataSource.remove(data);
-        tree.removeNode(data);
         
         // Reset scene
         Object.uidCounter--;
@@ -165,7 +143,7 @@ class EditorHierarchy extends EditorTab {
             Reflect.setProperty(State.active._entities[i],"uid",i);
             State.active._entities[i].dataChanged = true;
         }
-        this.path.text+='*';
+        makeDirty();
     }
 
     function addObj2Scn(e:MouseEvent){
@@ -262,56 +240,4 @@ class EditorHierarchy extends EditorTab {
         };
         addData2Scn(data);
     }
-   
-    var pathItems:Array<TItem> = null;// Initialized in new
-    function closeSceneEdit(e:DialogEvent){
-        var settings:SceneSettings = e.target.findComponent(SceneSettings,true);
-        var nraw:TSceneFormat = {name:settings.sceneName.text,_depth: settings.depthSort.value};
-        if(nraw._depth)nraw._Zsort = settings.zsort.value;
-        if(settings.physOpts.text != '+'){
-            nraw.physicsWorld = {
-                width: settings.physWidth.value,
-                height: settings.physHeight.value,
-                x: settings.physX.value,
-                y: settings.physY.value,
-                gravity_x: settings.gravity_x.value,
-                gravity_y: settings.gravity_y.value,
-                iterations: settings.iterations.value,
-                history: settings.history.value
-            };
-        }
-        nraw._entities = State.active.raw._entities;
-        nraw.traits = State.active.raw.traits;
-        trace(nraw.name);
-        trace(State.active.raw.name);
-        trace(path.text);
-        if(State.active.raw.name != nraw.name){
-            var add = "";
-            if(StringTools.contains(path.text,'*'))
-                add = '*';
-            path.text = nraw.name+add;
-        }
-        Reflect.setProperty(State.active,"raw",nraw);
-        if(!StringTools.contains(path.text,'*'))
-            path.text+='*';
-        
-    };
-    @:bind(path,MouseEvent.RIGHT_CLICK)
-    function sceneEdit(e:MouseEvent){
-        var menu = new Menu();
-        for(i in pathItems){
-            trace(i.name);
-            // if(i.filter != null && e.target.id != i.filter)continue;
-            var item = new MenuItem();
-            item.text  = i.name;
-            item.expandable = i.expands;
-            item.onClick = i.onClicked;
-            menu.addComponent(item);
-        }
-        menu.show();
-        menu.left = e.screenX;
-        menu.top = e.screenY;
-        Screen.instance.addComponent(menu);
-    }
-    
 }

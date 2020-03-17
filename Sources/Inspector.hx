@@ -61,6 +61,7 @@ class Inspector
         setAll(px,py,w,h);
         objectHandle.nest(0); // Pre create children
         ui.t.FILL_WINDOW_BG = true;
+        windowHandle.scrollEnabled = true;
     }
     public function redraw(){
         windowHandle.redraws = 2;
