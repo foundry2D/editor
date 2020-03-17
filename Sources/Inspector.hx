@@ -93,11 +93,8 @@ class Inspector
     }
     
     @:access(zui.Zui)
-    public function render(g:kha.graphics2.Graphics){
+    public function render(ui:zui.Zui){
         if(!visible)return;
-        g.end();
-
-        ui.begin(g);
 
         if(ui.window(windowHandle, this.x, this.y, this.width, this.height)){
             if( object.length > 0){
@@ -117,10 +114,6 @@ class Inspector
             } 
             
         }
-
-        ui.end();
-
-        g.begin(false);
     }
     @:keep
     function dontDelete(i:Int) {

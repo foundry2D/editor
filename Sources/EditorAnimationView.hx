@@ -55,15 +55,12 @@ class EditorAnimationView  implements EditorHierarchyObserver extends EditorTab 
         if(selectedPage == null || selectedPage.text != "Animation")return;
         animationEditor.doUpdate = !animationEditor.doUpdate;
     }
-    public override function renderTo(g:kha.graphics2.Graphics) {
-        super.renderTo(g);
-        
-        if(selectedPage.text != "Animation")return;
+
+    public function render(ui:zui.Zui) {
+        if(selectedPage == null || selectedPage.text != "Animation" )return;
         
         animationEditor.setAll(x,y,w,h);
-        animationEditor.render(g);
-        
-        
+        animationEditor.render(ui);
     }
     public function update(dt:Float){
         if(!animationEditor.visible)return;

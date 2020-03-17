@@ -27,10 +27,10 @@ class EditorUi extends Trait{
     public var visible(default,set) = true;
     function set_visible(v:Bool){
         if(v){
-            ui.registerInput();
+            registerInput();
         }
         else {
-            ui.unregisterInput();
+            unregisterInput();
         }
         return inspector.inspector.visible  = visible  = v;
     }
@@ -52,7 +52,7 @@ class EditorUi extends Trait{
     public function new(){
         super();
         Toolkit.init();
-        ui = new Zui({font: kha.Assets.fonts.font_default});
+        ui = new Zui({font: kha.Assets.fonts.font_default,autoNotifyInput: false});
         kha.FileSystem.init(function(){
             gameView = new EditorGameView();
             var done = function(){
@@ -60,6 +60,7 @@ class EditorUi extends Trait{
                 if(editor != null)
                     Screen.instance.removeComponent(editor);
                 Screen.instance.addComponent(projectmanager);
+                registerInput();
             }
             if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")){
                 projectmanager = new ManagerView();
@@ -101,6 +102,35 @@ class EditorUi extends Trait{
 
     }
 
+    public function render(canvas:kha.Canvas){
+        // canvas.g2.end();
+
+        ui.begin(canvas.g2);
+        if(inspector != null)
+            inspector.render(ui);
+        if(animationView != null)
+            animationView.render(ui);
+        if(codeView != null)
+            codeView.render(ui);
+        ui.end();
+
+        // canvas.g2.begin(false);
+    }
+
+    function registerInput(){
+        kha.input.Mouse.get().notify(onMouseDownEditor, onMouseUpEditor, onMouseMoveEditor, onMouseWheelEditor);
+        kha.input.Keyboard.get().notify(onKeyDownEditor, onKeyUpEditor, onKeyPressEditor);
+        #if (kha_android || kha_ios)
+        if (kha.input.Surface.get() != null) kha.input.Surface.get().notify(onTouchDownEditor, onTouchUpEditor, onTouchMoveEditor);
+        #end
+    }
+    function unregisterInput(){
+        kha.input.Mouse.get().remove(onMouseDownEditor, onMouseUpEditor, onMouseMoveEditor, onMouseWheelEditor);
+        kha.input.Keyboard.get().remove(onKeyDownEditor, onKeyUpEditor, onKeyPressEditor);
+        #if (kha_android || kha_ios)
+        if (kha.input.Surface.get() != null) kha.input.Surface.get().remove(onTouchDownEditor, onTouchUpEditor, onTouchMoveEditor);
+        #end
+    }
 
     function onMouseDownEditor(button: Int, x: Int, y: Int) {
         ui.onMouseDown(button,x,y);
@@ -141,7 +171,7 @@ class EditorUi extends Trait{
         if(projectmanager != null)
             Screen.instance.removeComponent(projectmanager);
         editor = new EditorView();
-        codeView = new EditorCodeView(ui);
+        codeView = new EditorCodeView();
         animationView = new EditorAnimationView(ui);
         // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
         // if(StringTools.endsWith(path,"blend")){

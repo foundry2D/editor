@@ -88,9 +88,8 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
             found.Found.tileeditor.selectMap(-1);
         }             
     }
-    public override function renderTo(g:kha.graphics2.Graphics) {
-        super.renderTo(g);
 
+    public function render(ui:zui.Zui){
         if(selectedPage.text != "Inspector" || Found.fullscreen ){
             inspector.visible = false;
             return;
@@ -99,10 +98,9 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
             inspector.visible = true;
         }
         inspector.setAll(x,y,w,h);
-        inspector.render(g);
-        
-        
+        inspector.render(ui);
     }
+
     @:access(Inspector,found.Scene)
     public function addTrait(trait:TTrait){
         rawData.traits.push(trait);

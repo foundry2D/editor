@@ -3,23 +3,25 @@ package;
 import found.App;
 import found.Scene;
 import found.data.SceneFormat;
+import found.tool.NodeEditor;
+import zui.Id;
 import haxe.ui.containers.VBox;
 import haxe.ui.core.Component;
 import haxe.ui.events.MouseEvent;
 import utilities.JsonObjectExplorer;
 
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-code.xml"))
+// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-code.xml"))
 class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	public var x(get, never):Int;
 
 	function get_x() {
-		return Math.floor(topbar.screenX);
+		return Math.floor(screenX);
 	}
 
 	public var y(get, never):Int;
 
 	function get_y() {
-		return Math.floor(topbar.screenY + topbar.height);
+		return Math.floor(screenY);
 	}
 
 	public var w(get, never):Int;
@@ -31,7 +33,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	public var h(get, never):Int;
 
 	function get_h() {
-		return Math.ceil(cast(this, Component).componentHeight - topbar.height);
+		return Math.ceil(cast(this, Component).componentHeight);
 	}
 
 	var visualEditor:found.tool.NodeEditor;
@@ -45,9 +47,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		// textEditor = new CodeComponent();
 		// container.addComponent(textEditor);
 		// textEditor.hidden = true;
-		addVisualCode.onClick = createVisualTrait;
-		saveVisualCode.onClick = saveVisualTrait;
-		visualEditor = new found.tool.NodeEditor(ui,x, y, w, h);
+		visualEditor = new found.tool.NodeEditor(x, y, w, h);
 		visualEditor.visible = true;
 		EditorHierarchy.register(this);
 	}
@@ -58,7 +58,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		loadVisualTrait(selectedObjectPath);
 	}
 
-	function createVisualTrait(e:MouseEvent) {
+	function createVisualTrait() {
 		var nData = {
 			name: "Name",
 			nodes: new zui.Nodes(),
@@ -72,7 +72,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		found.tool.NodeEditor.selectedNode = nData;
 	}
 
-	function saveVisualTrait(e:MouseEvent) {
+	function saveVisualTrait() {
 		var nodeData:LogicTreeData = found.tool.NodeEditor.selectedNode;
 		var trait:TTrait = {type: "VisualScript", class_name: "./dev/Project/Sources/visualTrait.json"};
 		var data = haxe.Json.stringify({name: nodeData.name, nodes: null, nodeCanvas: nodeData.nodeCanvas});
@@ -126,23 +126,21 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 			}
 		}
 	}
-
-	public override function renderTo(g:kha.graphics2.Graphics) {
-		super.renderTo(g);
-		if (selectedPage.text != "Code")
+	var optionsHandle:zui.Zui.Handle = Id.handle();
+	public var codeype:Int = 0; 
+	@:access(zui.Zui)
+	public function render(ui:zui.Zui){
+		if (selectedPage == null || selectedPage.text != "Code")
 			return;
-		if (App.editorui.inspector.index != -1) {
-			addVisualCode.hidden = false;
-		} else {
-			addVisualCode.hidden = true;
-		}
-		// if(codetype.selectedIndex == 0){// Visual
-		// textEditor.hidden = true;
-		visualEditor.setAll(x, y, w, h);
-		visualEditor.render(g);
-		// }
-		// else {//Textual
-		//     textEditor.hidden = false;
-		// }
+		// optionsHandle.selected = true;
+		
+			// if(codetype == 0){// Visual
+				visualEditor.setAll(x, y, w,h);
+				visualEditor.render(ui);
+			// }
+			// else {//Textual
+
+			// }
+		
 	}
 }
