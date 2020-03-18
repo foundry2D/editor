@@ -79,10 +79,10 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         rawData = selectedObject;
         inspector.setObject(rawData,index);
         if(rawData.type == "tilemap_object"){
-            found.Found.tileeditor.selectMap(index);                
+            found.Found.tileeditor.selectTilemap(index);                
         } 
         else{
-            found.Found.tileeditor.selectMap(-1);
+            found.Found.tileeditor.selectTilemap(-1);
         }             
     }
 
