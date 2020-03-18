@@ -602,7 +602,11 @@ class Inspector
 		ui._y = ui._h - ui.t.BUTTON_H - 10;
 		ui.row([1/2, 1/2]);
 		if (ui.button("Add")) {
-			saveNewVisualTrait(textInputHandle.text, fullFileName);
+            if (traitTypeExtensions[selectedTraitTypeIndex] == "vhx") {
+                saveNewVisualTrait(textInputHandle.text, fullFileName);
+            } else {
+                saveNewScriptTrait(textInputHandle.text, fullFileName);
+            }
 			zui.Popup.show = false;
 		}
 		if (ui.button("Cancel")) {
@@ -641,7 +645,7 @@ class Inspector
         if(trait.type == "VisualScript"){
             var t:Array<String> = trait.classname.split("/");
             name = t[t.length-1].split('.')[0];
-        } else {
+        } else if(trait.type == "Script"){
             var t:Array<String> = trait.classname.split(".");
             name = t[t.length-1];
         }
@@ -652,7 +656,8 @@ class Inspector
 		var trait:TTrait = {
 			type: "VisualScript",
 			classname: traitSavePath
-		}
+        }
+        
 		var visualTraitData:LogicTreeData = {
 			name: traitName,
 			nodes: null,
@@ -666,10 +671,38 @@ class Inspector
 
 		if(!FileSystem.exists(EditorUi.projectPath + "/Sources/Scripts")) FileSystem.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
 		
-		kha.FileSystem.saveContent(traitSavePath, visualTraitDataAsJson, function() {
+		FileSystem.saveContent(traitSavePath, visualTraitDataAsJson, function() {
 			saveVisualTraitOnCurrentObject(trait);
 		});
-	}
+    }
+    
+    function saveNewScriptTrait(traitName:String, traitSavePath:String){
+        if(!FileSystem.exists(traitSavePath)){
+            var trait:TTrait = {
+                type: "Script",
+                classname: traitSavePath
+            }
+
+            var scriptTraitData = 'package;\n\n'
+            +'class $traitName extends found.Trait {\n'
+            +'\tpublic function new () {\n'
+            +'\t\tsuper();\n\n'
+            +'\t\tnotifyOnInit(function() {\n'
+            +'\t\t\t// Insert code here\n'
+            +'\t\t});\n\n'
+            +'\t\tnotifyOnUpdate(function(dt:Float) {\n'
+            +'\t\t\t// Insert code here\n'
+            +'\t\t});\n'
+            +'\t}\n'
+            +'}';
+
+            if(!FileSystem.exists(EditorUi.projectPath + "/Sources/Scripts")) FileSystem.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
+
+            FileSystem.saveContent(traitSavePath, scriptTraitData, function() {
+                saveVisualTraitOnCurrentObject(trait);
+            });
+        }
+    }
 
 	@:access(found.Scene)
 	function saveVisualTraitOnCurrentObject(trait:TTrait) {
@@ -715,7 +748,7 @@ class Inspector
         if(trait.type == "VisualScript"){
             var t:Array<String> = trait.classname.split("/");
             name = t[t.length-1].split('.')[0];
-        } else {
+        } else if(trait.type == "Script"){
             var t:Array<String> = trait.classname.split(".");
             name = t[t.length-1];
         }
