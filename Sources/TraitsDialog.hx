@@ -50,14 +50,14 @@ class TraitsDialog extends Dialog {
             if(e.button == "Add Trait"){
                 var hasAlready = false;
                 for(trait in found.App.editorui.inspector.rawData.traits){
-                    if(trait.class_name == inst.filename.text){
+                    if(trait.classname == inst.filename.text){
                         hasAlready =true;
                         break;
                     }
                 }
                 if(!hasAlready){
                     var trait = inst.feed.selectedItem;
-                    found.App.editorui.inspector.addTrait({type:trait.type,class_name: trait.classname});
+                    found.App.editorui.inspector.addTrait({type:trait.type,classname: trait.classname});
                 }
                     
             }

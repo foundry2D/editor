@@ -1,5 +1,10 @@
 package;
 
+import kha.FileSystem;
+import found.App;
+import found.Scene;
+import ListTraits.TraitDef;
+import kha.Blob;
 import found.Found;
 import echo.World;
 import echo.Body;
@@ -10,6 +15,7 @@ import found.object.Object;
 import zui.Zui;
 import zui.Id;
 import zui.Ext;
+import ListTraits.Data;
 
 
 
@@ -113,8 +119,7 @@ class Inspector
                 children.get(0).selected = true; // Make the panel always open
                 children.get(0).text =  scene[0].name; //Set scene name in texInput field
             } 
-            
-        }
+		}
     }
     @:keep
     function dontDelete(i:Int) {
@@ -545,18 +550,158 @@ class Inspector
     function drawTrait(handle:Handle,i:Int){
         var trait = data.traits[i];
         if(trait != null){
-            ui.text(trait.class_name);
+            ui.text(trait.classname);
         }
     }
     function addTrait(name:String){
-        TraitsDialog.open(new UIEvent(UIEvent.CHANGE));
-    }
+        zui.Popup.showCustom(Found.popupZuiInstance, traitCreationPopupDraw, -1, -1, 600, 500);
+        // TODO : verify if TraitsDialog is still used anywhere
+		//TraitsDialog.open(new UIEvent(UIEvent.CHANGE));
+	}
+	
+	@:access(zui.Zui, zui.Popup)
+    function traitCreationPopupDraw(ui:Zui){
+		var textInputHandle = Id.handle();
+		var comboBoxHandle = Id.handle();
+		var traitTypes = ["Visual Trait", "Script Trait"];
+		var traitTypeExtensions = ["vhx", "hx"];
+		var traitsFolderPath = EditorUi.projectPath + "/Sources/Scripts/";
+		var arrayOfTraits:Array<TTrait> = [];
+		var fullFileName:String = "";
+
+        zui.Popup.boxTitle = "Add a trait";
+        
+        if (ui.panel(Id.handle({selected: true}), "Existing Traits", true)) {	
+			var traits1 = loadPrecompiledTraits();
+			var traits2 = loadUserCreatedTraits(traitsFolderPath);
+			arrayOfTraits = traits1.concat(traits2);
+
+			for(trait in arrayOfTraits) {
+				if (ui.button(trait.classname, Align.Left)) {
+					textInputHandle.text = getTraitNameFromTraitDef(trait);
+					if(trait.type == "Script") {
+						comboBoxHandle.position = 1;
+					} else {
+						comboBoxHandle.position = 0;
+					}					
+                }
+			}
+		}
+		
+		ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - ui.t.ELEMENT_H - 30;
+		ui.row([3/5, 2/5]);
+		ui.textInput(textInputHandle, "Name");
+		var selectedTraitTypeIndex:Int = ui.combo(comboBoxHandle, traitTypes, "Trait Type");
+		
+		ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - 20;
+		if(textInputHandle.text != "") {
+			fullFileName = traitsFolderPath + textInputHandle.text + "." + traitTypeExtensions[selectedTraitTypeIndex];
+			ui.text(fullFileName);
+		}
+		
+		ui._y = ui._h - ui.t.BUTTON_H - 10;
+		ui.row([1/2, 1/2]);
+		if (ui.button("Add")) {
+			saveNewVisualTrait(textInputHandle.text, fullFileName);
+			zui.Popup.show = false;
+		}
+		if (ui.button("Cancel")) {
+			zui.Popup.show = false;
+		}
+	}
+
+	function loadPrecompiledTraits() : Array<TTrait> {
+		var blob:Blob = kha.Assets.blobs.get("listTraits_json");
+		var data:Data = haxe.Json.parse(blob.toString());
+		return data.traits;
+	}
+
+	function loadUserCreatedTraits(traitsFolderPath:String) : Array<TTrait> {
+		var arrayOfTraits:Array<TTrait> = [];
+
+		var files = kha.FileSystem.readDirectory(traitsFolderPath);
+		for (file in files) {
+			var traitType:String = "";
+			var t:Array<String> = file.split(".");
+			var fileExtension = t[t.length-1];
+			if(fileExtension == "vhx"){
+				traitType = "VisualScript";
+			} else {
+				traitType = "Script";
+			}
+
+			arrayOfTraits.push({type: traitType, classname: traitsFolderPath + file});
+		}
+
+		return arrayOfTraits;
+	}
+
+	function getTraitNameFromTraitDef(trait:TTrait) {
+        var name = "";
+        if(trait.type == "VisualScript"){
+            var t:Array<String> = trait.classname.split("/");
+            name = t[t.length-1].split('.')[0];
+        } else {
+            var t:Array<String> = trait.classname.split(".");
+            name = t[t.length-1];
+        }
+        return name;
+	}
+
+	function saveNewVisualTrait(traitName:String, traitSavePath:String) {
+		var trait:TTrait = {
+			type: "VisualScript",
+			classname: traitSavePath
+		}
+		var visualTraitData:LogicTreeData = {
+			name: traitName,
+			nodes: null,
+			nodeCanvas: {
+				name: traitName + " Nodes",
+				nodes: [],
+				links: []
+			}
+		};
+		var visualTraitDataAsJson = haxe.Json.stringify(visualTraitData);
+
+		if(!FileSystem.exists(EditorUi.projectPath + "/Sources/Scripts")) FileSystem.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
+		
+		kha.FileSystem.saveContent(traitSavePath, visualTraitDataAsJson, function() {
+			saveVisualTraitOnCurrentObject(trait);
+		});
+	}
+
+	@:access(found.Scene)
+	function saveVisualTraitOnCurrentObject(trait:TTrait) {
+		Scene.createTraits([trait], App.editorui.inspector.currentObject);
+		var currentObject = App.editorui.inspector.currentObject;
+		if (currentObject.raw.traits != null) {
+			var alreadyHasTrait = false;
+			for (oldTrait in currentObject.raw.traits) {
+				if (oldTrait.classname == trait.classname) {
+					alreadyHasTrait = true;
+				}
+			}
+			if (!alreadyHasTrait) {
+				currentObject.raw.traits.push(trait);
+			}
+		} else {
+			currentObject.raw.traits = [trait];
+		}
+
+		currentObject.dataChanged = true;
+		EditorHierarchy.makeDirty();
+		
+		// if (!StringTools.contains(App.editorui.hierarchy.path.text, '*'))
+		// 	App.editorui.hierarchy.path.text += '*';
+	}
+	
     function removeTrait(i:Int){
         //@:TODO the other stuff to update objects in realtime
         currentObject.height = data.height;
         var out = data.traits.splice(i,1);
         if(out[0].type == "Script"){
-            var trait = currentObject.getTrait(Type.resolveClass(out[0].class_name));
+            var trait = currentObject.getTrait(Type.resolveClass(out[0].classname));
             if(trait != null)
                 currentObject.removeTrait(trait);
         }
@@ -568,12 +713,12 @@ class Inspector
         var trait = data.traits[i];
         var name = "";
         if(trait.type == "VisualScript"){
-            var t:Array<String> = trait.class_name.split("/");
+            var t:Array<String> = trait.classname.split("/");
             name = t[t.length-1].split('.')[0];
         } else {
-            var t:Array<String> = trait.class_name.split(".");
+            var t:Array<String> = trait.classname.split(".");
             name = t[t.length-1];
         }
         return name;
-    }
+	}
 }
