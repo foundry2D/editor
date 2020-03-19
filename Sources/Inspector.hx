@@ -72,6 +72,8 @@ class Inspector
     public function redraw(){
         windowHandle.redraws = 2;
         objectHandle.redraws = 2;
+        sceneHandle.redraws  = 2;
+        layersHandle.redraws = 2;
     }
     public function setAll(px:Int,py:Int,w:Int,h:Int){
         x = px;
@@ -135,6 +137,8 @@ class Inspector
 
     var depthSortText:String = "If active will draw based on depth order";
     var zSortText:String = "If active will zsort instead of Y sort";
+
+    var layersHandle = Id.handle();
 
     @:access(found.Scene,zui.Zui)
     function drawSceneItems(handle:Handle,i:Int){
@@ -279,11 +283,89 @@ class Inspector
                 addPhysWorld(text);
             }
         }
+        ui.separator();
+        ui.text("Layers:");
+        ui.indent();
+        layers = data.layers != null ? data.layers : layers;
+        Ext.panelList(ui,layersHandle,layers,addLayer,deleteLayer,getLayerName,setLayerName,drawLayerItems,false,true,"New Layer");
+
+        if(layersHandle.changed){
+            data.layers = layers;
+            changed = true;
+        }
+        ui.unindent();
 
         if(changed){
             EditorHierarchy.makeDirty();
         }
 
+    }
+    var layers:Array<TLayer> = [];
+    var layersName:Array<String> = [];
+    var layerItemHandles:Array<Array<zui.Zui.Handle>> = [];
+    function addLayer(name:String){
+        var out = name;
+        for(layer in layers){
+            if(layer.name == out){
+                out +=layers.length+1;
+            }
+        }
+        layersHandle.changed = true;
+        layers.push({name: out,zIndex: layers.length,speed:1.0});
+        layersName.push(name);
+        redraw();
+    }
+    
+    function deleteLayer(index:Int){
+        layersHandle.changed = true;
+        layers.splice(index, 1);
+        layersName.splice(index, 1);
+    }
+
+    function getLayerName(index:Int){
+        return layersName[index];
+    }
+
+    function setLayerName(index:Int,name:String){
+        if(name=="")return;
+        layersHandle.changed = true;
+        layers[index].name = name;
+        layersName[index] = name;
+    }
+
+    function drawLayerItems(handle:Handle, index:Int) {
+        if(index == -1)return;
+        var layer = layers[index];
+        if(layers.length > layerItemHandles.length){
+            var handles = [];
+            for(i in 0...3){
+                handles.push(new Handle());
+            }
+            layerItemHandles.push(handles);
+        }
+        
+        var nameHandle = layerItemHandles[index][0];
+        var zIndexHandle = layerItemHandles[index][1];
+        var paralaxHandle = layerItemHandles[index][2];
+
+        nameHandle.text = layer.name;
+        var name = ui.textInput(nameHandle,"Name:",Align.Right);
+        if(nameHandle.changed){
+            layer.name = name;
+            layersName[index] = name;
+            changed = true;
+        }
+
+        paralaxHandle.value = layer.speed*100;
+        var speed = ui.slider(paralaxHandle, "Parallax", 1, 100);
+        if(paralaxHandle.changed){
+            layer.speed = speed*0.01;
+            changed = true;
+        }
+
+        if(changed){
+            EditorHierarchy.makeDirty();
+        }
     }
 
     function setObjectName(i:Int,name:String) {
@@ -292,6 +374,7 @@ class Inspector
     }
     public var objItemHandles:Array<zui.Zui.Handle> = [];
     var changed = false;
+    @:access(zui.Zui)
     function drawObjectItems(handle:Handle,i:Int){
         if(i == -1)return;
         data = object[i];
@@ -346,7 +429,7 @@ class Inspector
             currentObject.dataChanged = true;
             changed = true;
         }
-        ui.row([0.1,0.99]);
+        ui.row([0.1,0.9]);
         ui.text("R");
         zRotHandle.value = data.rotation.z;
         var rz = Math.abs(Ext.floatInput(ui,zRotHandle,"",Align.Right));
@@ -376,14 +459,23 @@ class Inspector
             currentObject.dataChanged = true;
             changed = true;
         }
-
-        depthHandle.value = data.depth;
-        var depth = Ext.floatInput(ui,depthHandle,"Depth: ",Align.Right);
-        if(depthHandle.changed){
-            data.depth = depth;
-            currentObject.depth = data.depth;
-            currentObject.dataChanged = true;
-            changed = true;
+        ui.row([0.15,0.85]);
+        ui.text("Layer:");
+        if(found.State.active.raw.layers != null){
+            depthHandle.value = data.depth;
+            var depth = ui.combo(depthHandle,layersName);
+            if(depthHandle.changed){
+                data.depth = depth;
+                currentObject.depth = data.depth;
+                currentObject.dataChanged = true;
+                changed = true;
+            }
+        }
+        else{
+            if(ui.button("Create Layers"))
+            {
+                selectScene();   
+            }
         }
 
         ui.row([0.5,0.5]);

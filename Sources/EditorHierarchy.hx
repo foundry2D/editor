@@ -68,10 +68,12 @@ class EditorHierarchy extends EditorTab {
     public static function makeDirty(){
         if(!StringTools.contains(sceneName,'*'))
             sceneName+='*';
+        hierarchy.redraw();
         if(inspector.index == -1)return;
         State.active._entities[inspector.index].dataChanged = true;
+        
     }
-    var hierarchy:Hierarchy;
+    static var hierarchy:Hierarchy;
     var scene:TSceneFormat;
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();

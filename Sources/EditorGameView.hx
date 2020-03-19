@@ -2,6 +2,7 @@ package;
 
 
 import kha.Image;
+import kha.math.FastMatrix3;
 import haxe.ui.core.Component;
 #if arm_csm
 import iron.Trait;
@@ -99,16 +100,20 @@ class EditorGameView extends EditorTab {
 		if(selectedPage != null && selectedPage.text == "Game"){
 			var image = Found.scenebuffer;
 			image.g2.begin();
+			image.g2.pushTransformation(FastMatrix3.translation(-State.active.cam.position.x,-State.active.cam.position.y));
 			EditorTools.drawGrid(image.g2);
+			image.g2.popTransformation();
 			if (State.active != null){
 				State.active.render(image);
 			}
+			image.g2.pushTransformation(FastMatrix3.translation(-State.active.cam.position.x,-State.active.cam.position.y));
 			if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
 				var i = found.App.editorui.inspector.index;
 				var e = State.active._entities[i];
 				EditorTools.render(image.g2,e.position.x,e.position.y,w,h);
 
 			}
+			image.g2.popTransformation();
 			image.g2.end();
 			found.App.frameCounter.render(image);
 		}

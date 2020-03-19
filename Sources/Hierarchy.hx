@@ -22,7 +22,7 @@ class Hierarchy {
     }
 
     public function redraw(){
-        // windowHandle.redraws = 2;
+        windowHandle.redraws = 2;
         // objectHandle.redraws = 2;
     }
 
@@ -39,6 +39,7 @@ class Hierarchy {
     @:access(zui.Zui)
     public function render(ui:zui.Zui,raw:TSceneFormat){
         if(ui.window(windowHandle, this.x, this.y, this.width, this.height)){
+
             sceneNameHandle.text = raw.name;
             if(kha.Scheduler.time() - scndoubleClickTime > ui.TOOLTIP_DELAY()){
                 sceneNameHandle.position = 0;
@@ -56,8 +57,10 @@ class Hierarchy {
                     ui.inputReleased = false;
                 }
             }
-            var name = ui.textInput(sceneNameHandle,"Scene: ",Align.Right);
+            var label = StringTools.endsWith(EditorHierarchy.sceneName,"*") ? "Scene(changed): ": "Scene: ";
+            var name = ui.textInput(sceneNameHandle,label,Align.Right);
             if(sceneNameHandle.changed){
+                EditorHierarchy.sceneName = StringTools.replace(EditorHierarchy.sceneName,raw.name,name);
                 raw.name = name;
             }
             if(raw._entities.length > handles.length){
@@ -68,10 +71,6 @@ class Hierarchy {
             var i = 0;
             while (i < raw._entities.length) {
                 var itemHandle = handles[i];
-                if(ui.getReleased()){
-
-                    trace('UID: $i '+raw._entities[i].name);
-                }
                 i = itemDrawCb(ui,itemHandle,i,raw._entities);
             }
             if (ui.button("New Object")) {
