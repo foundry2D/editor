@@ -6,6 +6,7 @@ import haxe.macro.Expr;
 import kha.FileSystem;
 import haxe.Json;
 
+#if macro
 typedef TraitDef = {
 	public var type:String;
 	public var classname:String;
@@ -42,3 +43,4 @@ class ListTraits {
         return Context.getBuildFields();
     }
 }
+#end

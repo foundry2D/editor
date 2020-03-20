@@ -3,7 +3,6 @@ package;
 import kha.FileSystem;
 import found.App;
 import found.Scene;
-import ListTraits.TraitDef;
 import kha.Blob;
 import found.Found;
 import echo.World;
@@ -15,7 +14,6 @@ import found.object.Object;
 import zui.Zui;
 import zui.Id;
 import zui.Ext;
-import ListTraits.Data;
 
 
 
@@ -86,8 +84,10 @@ class Inspector
         if(object.length > 0 ){
             object.pop();
         }
-        object.push(objectData);
-        index = i;
+        if(i != -1){
+            object.push(objectData);
+            index = i;
+        }
         redraw();
     }
     public function selectScene(){
@@ -286,7 +286,7 @@ class Inspector
         ui.separator();
         ui.text("Layers:");
         ui.indent();
-        layers = data.layers != null ? data.layers : layers;
+
         Ext.panelList(ui,layersHandle,layers,addLayer,deleteLayer,getLayerName,setLayerName,drawLayerItems,false,true,"New Layer");
 
         if(layersHandle.changed){
@@ -300,8 +300,20 @@ class Inspector
         }
 
     }
-    var layers:Array<TLayer> = [];
-    var layersName:Array<String> = [];
+    var layers(get,null):Array<TLayer> = [];
+    function get_layers(){
+        var data = found.State.active.raw;
+        return data != null && data.layers != null ? data.layers : layers;
+    }
+    var layersName(get,null):Array<String> = [];
+    function get_layersName(){
+        if(layers.length > layersName.length){
+            for(layer in layers){
+                layersName.push(layer.name);
+            }
+        }
+        return layersName;
+    }
     var layerItemHandles:Array<Array<zui.Zui.Handle>> = [];
     function addLayer(name:String){
         var out = name;
@@ -681,7 +693,7 @@ class Inspector
 		}
 		
 		ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - ui.t.ELEMENT_H - 30;
-		ui.row([3/5, 2/5]);
+		ui.row([0.6, 0.4]);
 		ui.textInput(textInputHandle, "Name");
 		var selectedTraitTypeIndex:Int = ui.combo(comboBoxHandle, traitTypes, "Trait Type");
 		
@@ -692,7 +704,7 @@ class Inspector
 		}
 		
 		ui._y = ui._h - ui.t.BUTTON_H - 10;
-		ui.row([1/2, 1/2]);
+		ui.row([0.5, 0.5]);
 		if (ui.button("Add")) {
             if (traitTypeExtensions[selectedTraitTypeIndex] == "vhx") {
                 saveNewVisualTrait(textInputHandle.text, fullFileName);
@@ -708,14 +720,14 @@ class Inspector
 
 	function loadPrecompiledTraits() : Array<TTrait> {
 		var blob:Blob = kha.Assets.blobs.get("listTraits_json");
-		var data:Data = haxe.Json.parse(blob.toString());
+		var data:{traits:Array<TTrait>} = haxe.Json.parse(blob.toString());
 		return data.traits;
 	}
 
 	function loadUserCreatedTraits(traitsFolderPath:String) : Array<TTrait> {
 		var arrayOfTraits:Array<TTrait> = [];
 
-		var files = kha.FileSystem.readDirectory(traitsFolderPath);
+		var files:Array<String> = kha.FileSystem.readDirectory(traitsFolderPath);
 		for (file in files) {
 			var traitType:String = "";
 			var t:Array<String> = file.split(".");

@@ -58,20 +58,6 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		loadVisualTrait(selectedObject);
 	}
 
-	function createVisualTrait() {
-		var nData = {
-			name: "Name",
-			nodes: new zui.Nodes(),
-			nodeCanvas: {
-				name: "My Nodes",
-				nodes: [],
-				links: []
-			}
-		}
-		found.tool.NodeEditor.nodesArray.push(nData);
-		found.tool.NodeEditor.selectedNode = nData;
-	}
-
 	function saveVisualTrait() {
 		var nodeData:LogicTreeData = found.tool.NodeEditor.selectedNode;
 		var trait:TTrait = {type: "VisualScript", classname: "./dev/Project/Sources/Scripts/visualTrait.vhx"};
