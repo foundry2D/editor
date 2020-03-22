@@ -5,18 +5,15 @@ import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.core.Screen;
 import haxe.ui.extended.Handler;
+import zui.Zui;
+import zui.Id;
+import found.Found;
 
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/fb-dialog.xml"))
-class FileBrowserDialog extends Dialog {
+// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/fb-dialog.xml"))
+class FileBrowserDialog {
     static public var inst:FileBrowserDialog = null;
     public function new(){
-        super();
-        title = "File Browser";
-        modal = false;
-        buttons =  DialogButton.APPLY | DialogButton.CANCEL;
-		this.width = Screen.instance.width*0.95;
-        this.height = Screen.instance.height*0.95;
-        fb.nofilepath = false;
+
     }
 
     #if debug
@@ -24,9 +21,42 @@ class FileBrowserDialog extends Dialog {
     #else
     static var defaultPath = "/";
     #end
-    public static function open(e:UIEvent){
-        inst = new FileBrowserDialog();
-        Handler.updateData(inst,defaultPath);
-        inst.show();
+    public static function open(onDone:String->Void){
+        doneCallback = onDone;
+        zui.Popup.showCustom(Found.popupZuiInstance, fileBrowserPopupDraw, -1, -1, 600, 500);
+    }
+    static var doneCallback:String->Void = function(path:String){};
+    static var fbHandle:Handle = Id.handle();
+    static var textInputHandle = Id.handle();
+    @:access(zui.Zui, zui.Popup)
+    static function fileBrowserPopupDraw(ui:Zui){
+        zui.Popup.boxTitle = "File Browser";
+
+        var selectedFile = Cust.fileBrowser(ui,fbHandle);
+        if(fbHandle.changed){
+            textInputHandle.text = selectedFile;
+        }
+
+        var border = zui.Popup.borderW*2 +zui.Popup.borderOffset;
+
+        ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - border;
+
+        ui.textInput(textInputHandle, "Filename");
+
+        ui.row([0.5,0.5]);
+        ui._y = ui._h - ui.t.BUTTON_H - border;
+        ui.text("");
+        ui.row([0.5, 0.5]);
+		if (ui.button("Add")) {
+            doneCallback(textInputHandle.text);
+            zui.Popup.show = false;
+            textInputHandle.text = "";
+            doneCallback = function(path:String){};
+        }
+        if (ui.button("Cancel")) {
+            zui.Popup.show = false;
+            textInputHandle.text = "";
+            doneCallback = function(path:String){};
+        }
     }
 }

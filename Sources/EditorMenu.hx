@@ -41,12 +41,7 @@ class EditorMenu extends HBox {
         #end
     }
     function openScene(e:UIEvent){
-        FileBrowserDialog.open(e);
-        FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
-            var path = null;
-            if(e.button == DialogButton.APPLY)
-                path = FileBrowserDialog.inst.fb.filepath.text;
-            if(path == null)return;
+        var done = function(path:String){
             var sep = FileSystem.sep;
             var name = path.split(sep)[path.split(sep).length-1];
             if(StringTools.contains(name,".json") && FileSystem.exists(path)){
@@ -59,14 +54,10 @@ class EditorMenu extends HBox {
             }
 
         }
+        FileBrowserDialog.open(done);
     }
     function createScene(e:UIEvent){
-        FileBrowserDialog.open(e);
-        FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
-            var path = null;
-            if(e.button == DialogButton.APPLY)
-                path = FileBrowserDialog.inst.fb.filepath.text;
-            if(path == null)return;
+        var done = function(path:String){
             var sep = FileSystem.sep;
             var name = path.split(sep)[path.split(sep).length-1];
             #if found
@@ -84,6 +75,8 @@ class EditorMenu extends HBox {
                 Data.getSceneRaw(path,loadScene);
             });
         }
+        FileBrowserDialog.open(done);
+        
     }
     function loadScene(scene:TSceneFormat){
         found.App.reset();

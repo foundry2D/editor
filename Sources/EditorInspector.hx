@@ -111,11 +111,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
     }
        
     function browseImage(){
-        FileBrowserDialog.open(new UIEvent(UIEvent.CHANGE));
-        FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
-            var path = null;
-            if(e.button == DialogButton.APPLY)
-                path = FileBrowserDialog.inst.fb.filepath.text;
+        var done = function(path:String){
             var error = true;
             var sep = FileSystem.sep;
             if(path != null){
@@ -138,6 +134,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
             }
 
         }
+        FileBrowserDialog.open(done);
     }
     #if found
     public function updateField(uid:Int,id:String,data:Any){

@@ -39,10 +39,10 @@ class ProjectCreator extends Dialog {
 
     @:bind(browse,MouseEvent.CLICK)
     function onBrowse(e:MouseEvent) {
-        FileBrowserDialog.open(e);
-        FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
-            if(e.button == DialogButton.APPLY)
-                path.text = FileBrowserDialog.inst.fb.path.text;
+        var done = function(passedPath:String){
+                path.text = passedPath;
         }
+        FileBrowserDialog.open(done);
+        
     }
 }
