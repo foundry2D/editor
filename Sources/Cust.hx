@@ -51,7 +51,16 @@ class Cust {
         }
         else {
             var end = filepath.substr(filepath.lastIndexOf('.'));
-            trace(end);
+            switch(end){
+                case ".found" | ".txt":
+                    name = "file_grey";
+                case ".json" | ".hx" | ".vhx":
+                    name = "script";
+                case ".png" | ".jpg":
+                    name = "picture_grey";
+                case ".mp3" | ".wav":
+                    name = " audio-file_grey";
+            }
         }
         return kha.Assets.images.get(name);
     }
