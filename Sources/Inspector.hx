@@ -1,6 +1,6 @@
 package;
 
-import kha.FileSystem;
+import khafs.Fs;
 import found.App;
 import found.Scene;
 import kha.Blob;
@@ -727,7 +727,7 @@ class Inspector
 	function loadUserCreatedTraits(traitsFolderPath:String) : Array<TTrait> {
 		var arrayOfTraits:Array<TTrait> = [];
 
-		var files:Array<String> = kha.FileSystem.readDirectory(traitsFolderPath);
+		var files:Array<String> = khafs.Fs.readDirectory(traitsFolderPath);
 		for (file in files) {
 			var traitType:String = "";
 			var t:Array<String> = file.split(".");
@@ -773,15 +773,15 @@ class Inspector
 		};
 		var visualTraitDataAsJson = haxe.Json.stringify(visualTraitData);
 
-		if(!FileSystem.exists(EditorUi.projectPath + "/Sources/Scripts")) FileSystem.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
+		if(!Fs.exists(EditorUi.projectPath + "/Sources/Scripts")) Fs.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
 		
-		FileSystem.saveContent(traitSavePath, visualTraitDataAsJson, function() {
+		Fs.saveContent(traitSavePath, visualTraitDataAsJson, function() {
 			saveVisualTraitOnCurrentObject(trait);
 		});
     }
     
     function saveNewScriptTrait(traitName:String, traitSavePath:String){
-        if(!FileSystem.exists(traitSavePath)){
+        if(!Fs.exists(traitSavePath)){
             var trait:TTrait = {
                 type: "Script",
                 classname: traitSavePath
@@ -800,9 +800,9 @@ class Inspector
             +'\t}\n'
             +'}';
 
-            if(!FileSystem.exists(EditorUi.projectPath + "/Sources/Scripts")) FileSystem.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
+            if(!Fs.exists(EditorUi.projectPath + "/Sources/Scripts")) Fs.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
 
-            FileSystem.saveContent(traitSavePath, scriptTraitData, function() {
+            Fs.saveContent(traitSavePath, scriptTraitData, function() {
                 saveVisualTraitOnCurrentObject(trait);
             });
         }

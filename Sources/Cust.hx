@@ -2,7 +2,7 @@ package;
 
 import zui.Zui;
 import zui.Zui.Handle;
-import kha.FileSystem;
+import khafs.Fs;
 
 class Cust {
 
@@ -10,7 +10,7 @@ class Cust {
         var sep = "/";
 
 
-        var files:Array<String> = FileSystem.isDirectory(handle.text) ? FileSystem.readDirectory(handle.text,foldersOnly) : []; 
+        var files:Array<String> = Fs.isDirectory(handle.text) ? Fs.readDirectory(handle.text,foldersOnly) : []; 
         
 		// Up directory
 		var i1 = handle.text.indexOf("/");
@@ -46,7 +46,7 @@ class Cust {
     }
     static function getRessourceImage(filepath:String){
         var name = "blank";
-        if(FileSystem.isDirectory(filepath)){
+        if(Fs.isDirectory(filepath)){
             name = "folder";
         }
         else {

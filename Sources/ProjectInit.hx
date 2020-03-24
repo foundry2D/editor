@@ -1,6 +1,6 @@
 package;
 
-import kha.FileSystem;
+import khafs.Fs;
 import found.data.Project.Type;
 import found.data.SceneFormat;
 
@@ -21,7 +21,7 @@ class ProjectInit {
     }
     static var hasHaxeui:Bool = true;
     static function generateProject2d(){
-        // if(!FileSystem.exists(path+"/khafile.js")){
+        // if(!Fs.exists(path+"/khafile.js")){
         //     #if editor_dev
         //     var cwd = "/home/jsnadeau/foundsdk";
         //     #else
@@ -42,16 +42,16 @@ class ProjectInit {
         //     + 'await project.addProject(\'$cwd/editor\');\n'
         //     + 'project.addDefine(\'foundry_editor\');\n'
 		// 	+ 'resolve(project);\n');
-        //     FileSystem.saveBytes(path+"/khafile.js",out);
+        //     Fs.saveBytes(path+"/khafile.js",out);
 
         // }
 
-        if(!FileSystem.exists(path+"/Assets")) FileSystem.createDirectory(path+"/Assets");
-        if(!FileSystem.exists(path+"/Shaders")) FileSystem.createDirectory(path+"/Shaders");
-        if(!FileSystem.exists(path+"/Sources")) FileSystem.createDirectory(path+"/Sources",main2d);
-        if(!FileSystem.exists(path+"/Sources/Scripts")) FileSystem.createDirectory(path+"/Sources/Scripts");
-        if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")) 
-            FileSystem.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}',createDefaults);
+        if(!Fs.exists(path+"/Assets")) Fs.createDirectory(path+"/Assets");
+        if(!Fs.exists(path+"/Shaders")) Fs.createDirectory(path+"/Shaders");
+        if(!Fs.exists(path+"/Sources")) Fs.createDirectory(path+"/Sources",main2d);
+        if(!Fs.exists(path+"/Sources/Scripts")) Fs.createDirectory(path+"/Sources/Scripts");
+        if(!Fs.exists(EditorUi.cwd+"/pjml.found")) 
+            Fs.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}',createDefaults);
         else
             createDefaults();
         
@@ -59,25 +59,25 @@ class ProjectInit {
         
     }
     static function createDefaults(){
-        FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+        Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
             var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
 
             var scene:TSceneFormat = haxe.Json.parse(kha.Assets.blobs.default_json.toString());
             scene.name = "PlayState";
             var data = haxe.Json.stringify(scene);
-            kha.FileSystem.saveContent(path+"/Assets/PlayState.json",data);
+            khafs.Fs.saveContent(path+"/Assets/PlayState.json",data);
 
             out.list.push({name: project,path: path,scenes:[path+"/Assets/PlayState.json"],type: Type.twoD});
             data = haxe.Json.stringify(out);
             path = EditorUi.cwd+"/pjml.found";
-            kha.FileSystem.saveContent(path,data);
+            khafs.Fs.saveContent(path,data);
             if(ProjectInit.done != null)
                 ProjectInit.done();
 
         });
     }
     static function main2d(){
-        if(!FileSystem.exists(path+"/Sources/Main.hx")){
+        if(!Fs.exists(path+"/Sources/Main.hx")){
             var out = 'package;\n\n'
             +'import found.Found;\n\n'
             +'class Main {\n'
@@ -86,9 +86,9 @@ class ProjectInit {
             +'\t\tFound.setup({app:Project, title:"untitled", width:1920, height:1080});\n'
             +'\t}\n'
             +'}';
-            FileSystem.saveContent(path+"/Sources/Main.hx",out);
+            Fs.saveContent(path+"/Sources/Main.hx",out);
         }
-        if(!FileSystem.exists(path+"/Sources/Project.hx")){
+        if(!Fs.exists(path+"/Sources/Project.hx")){
             var out ='package;\n\n'
             +'import kha.Canvas;\n'
             +'import found.App;\n'
@@ -104,7 +104,7 @@ class ProjectInit {
             +'\t\tsuper.render(canvas);\n'    
             +'\t}\n'
             +'}';
-            FileSystem.saveContent(path+"/Sources/Project.hx",out);
+            Fs.saveContent(path+"/Sources/Project.hx",out);
         }
     }
     static function generateProject3d(){

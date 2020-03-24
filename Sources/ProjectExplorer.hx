@@ -18,8 +18,8 @@ class ProjectExplorer extends EditorTab {
     @:bind(panelLeft.importAssets,MouseEvent.CLICK)
     function openOnSystem(e:MouseEvent){
         #if kha_html5
-        kha.FileSystem.curDir = EditorUi.projectPath+kha.FileSystem.sep+"Assets";
-        kha.FileSystem.input.click();
+        khafs.Fs.curDir = EditorUi.projectPath+khafs.Fs.sep+"Assets";
+        khafs.Fs.input.click();
         #else
         #end
     }

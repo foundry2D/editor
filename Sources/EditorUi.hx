@@ -8,7 +8,7 @@ import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
 import haxe.ui.containers.TabView;
 import haxe.ui.Toolkit;
-import kha.FileSystem;
+import khafs.Fs;
 import haxe.ui.events.UIEvent;
 #if arm_csm
 import iron.Trait;
@@ -53,7 +53,7 @@ class EditorUi extends Trait{
         super();
         Toolkit.init();
         ui = new Zui({font: kha.Assets.fonts.font_default,autoNotifyInput: false});
-        kha.FileSystem.init(function(){
+        Fs.init(function(){
             gameView = new EditorGameView();
             var done = function(){
 
@@ -62,22 +62,22 @@ class EditorUi extends Trait{
                 Screen.instance.addComponent(projectmanager);
                 registerInput();
             }
-            if(!FileSystem.exists(EditorUi.cwd+"/pjml.found")){
+            if(!Fs.exists(EditorUi.cwd+"/pjml.found")){
                 projectmanager = new ManagerView();
                 done();
             }
             else {
                 #if kha_html5
-                for(key in kha.FileSystem.dbKeys.keys()){
+                for(key in Fs.dbKeys.keys()){
                     if(key == EditorUi.cwd+"/pjml.found")continue;
-                    kha.FileSystem.getContent(key,function(data:String){
+                    Fs.getContent(key,function(data:String){
                         #if debug
                         trace('Fetched data from $key');
                         #end
                     });
                 }
                 #end
-                kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
+                Fs.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
                     var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
                     projectmanager = new ManagerView(out.list);
                     done();
@@ -409,7 +409,7 @@ class EditorUi extends Trait{
                 }
                 i++;
             }
-            FileSystem.saveContent(scenePath,haxe.Json.stringify(State.active.raw));
+            Fs.saveContent(scenePath,haxe.Json.stringify(State.active.raw));
             EditorHierarchy.sceneName = StringTools.replace(EditorHierarchy.sceneName,'*','');
         }
     }

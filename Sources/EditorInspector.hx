@@ -10,7 +10,7 @@ import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.InspectorField;
-import kha.FileSystem;
+import khafs.Fs;
 import utilities.JsonObjectExplorer;
 #if arm_csm
 import iron.data.SceneFormat;
@@ -113,7 +113,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
     function browseImage(){
         var done = function(path:String){
             var error = true;
-            var sep = FileSystem.sep;
+            var sep = Fs.sep;
             if(path != null){
                 var name = path.split(sep)[path.split(sep).length-1];
                 var type = name.split('.')[1];

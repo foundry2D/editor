@@ -9,7 +9,7 @@ import haxe.ui.containers.menus.Menu.MenuEvent;
 import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;
 
-import kha.FileSystem;
+import khafs.Fs;
 import found.data.SceneFormat;
 import found.data.Data;
 
@@ -42,9 +42,9 @@ class EditorMenu extends HBox {
     }
     function openScene(e:UIEvent){
         var done = function(path:String){
-            var sep = FileSystem.sep;
+            var sep = Fs.sep;
             var name = path.split(sep)[path.split(sep).length-1];
-            if(StringTools.contains(name,".json") && FileSystem.exists(path)){
+            if(StringTools.contains(name,".json") && Fs.exists(path)){
                 EditorUi.scenePath = path;
                 Data.getSceneRaw(path,loadScene);
 
@@ -58,7 +58,7 @@ class EditorMenu extends HBox {
     }
     function createScene(e:UIEvent){
         var done = function(path:String){
-            var sep = FileSystem.sep;
+            var sep = Fs.sep;
             var name = path.split(sep)[path.split(sep).length-1];
             #if found
             var scene:TSceneFormat = {
@@ -70,7 +70,7 @@ class EditorMenu extends HBox {
             }
             #end
             EditorUi.scenePath = path;
-            FileSystem.saveContent(path,haxe.Json.stringify(scene),
+            Fs.saveContent(path,haxe.Json.stringify(scene),
             function(){
                 Data.getSceneRaw(path,loadScene);
             });

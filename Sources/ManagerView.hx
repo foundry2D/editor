@@ -32,7 +32,7 @@ class ManagerView extends Box {
     function creator(e:MouseEvent){
         var inst = new ProjectCreator(function(){
 
-            kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+            khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                 var out:{list:Array<TProject>} = haxe.Json.parse(blob);
                 projectslist.dataSource.add(out.list.pop());
             });
@@ -90,19 +90,19 @@ class ManagerView extends Box {
                 var index = dropdown.selectedIndex;
                 if(index == 0){
                     #if kha_webgl
-                    kha.FileSystem.dbKeys.clear();
+                    khafs.Fs.dbKeys.clear();
                     #end
                     for( i in 0...projectslist.dataSource.size){
                         var proj:TProject = projectslist.dataSource.get(i);
-                        kha.FileSystem.deleteDirectory(proj.path,true);
+                        khafs.Fs.deleteDirectory(proj.path,true);
                     }
                     projectslist.dataSource.clear();
-                    kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
+                    khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
                 }
                 else {
                     var project:TProject = projectslist.selectedItem;
                     projectslist.dataSource.remove(project);
-                    kha.FileSystem.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+                    khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                         var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
                         var toRemove = null;
                         for(proj in out.list){
@@ -114,8 +114,8 @@ class ManagerView extends Box {
                         }
                         out.list.remove(toRemove);
                         var data = haxe.Json.stringify(out);
-                        kha.FileSystem.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
-                            kha.FileSystem.deleteDirectory(project.path,true);
+                        khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
+                            khafs.Fs.deleteDirectory(project.path,true);
                         });
                     });
                 }
@@ -128,8 +128,8 @@ class ManagerView extends Box {
     @:bind(importProject,MouseEvent.CLICK)
     function openProject(e:MouseEvent) {
         #if kha_html5
-        kha.FileSystem.curDir = EditorUi.cwd;
-        kha.FileSystem.input.click();
+        khafs.Fs.curDir = EditorUi.cwd;
+        khafs.Fs.input.click();
         #else
         // FileBrowserDialog.open(e);
         // FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){

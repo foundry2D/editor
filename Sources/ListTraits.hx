@@ -1,12 +1,12 @@
 package;
-
+#if macro
 import haxe.io.Bytes;
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import kha.FileSystem;
+import sys.FileSystem;
 import haxe.Json;
 
-#if macro
+
 typedef TraitDef = {
 	public var type:String;
 	public var classname:String;
@@ -34,12 +34,12 @@ class ListTraits {
         
         list.traits.push({type: "Script",classname: c.module});
 
-        FileSystem.saveContent('../Assets/listTraits.json',Json.stringify(list));
+        sys.io.File.saveContent('../Assets/listTraits.json',Json.stringify(list));
         
         return Context.getBuildFields();
     }
     public macro static function init():Array<Field> {
-        FileSystem.saveContent('../Assets/listTraits.json','{}');
+        sys.io.File.saveContent('../Assets/listTraits.json','{}');
         return Context.getBuildFields();
     }
 }

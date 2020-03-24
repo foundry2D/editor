@@ -62,7 +62,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		var nodeData:LogicTreeData = found.tool.NodeEditor.selectedNode;
 		var trait:TTrait = {type: "VisualScript", classname: "./dev/Project/Sources/Scripts/visualTrait.vhx"};
 		var data = haxe.Json.stringify({name: nodeData.name, nodes: null, nodeCanvas: nodeData.nodeCanvas});
-		kha.FileSystem.saveContent(trait.classname, data, function() {
+		khafs.Fs.saveContent(trait.classname, data, function() {
 			saveVisualTraitOnCurrentObject(trait);
 		});
 	}
@@ -102,7 +102,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 				}
 			}
 			if (firstTrait != null) {
-				kha.FileSystem.getContent(firstTrait.classname, function(data:String) {
+				khafs.Fs.getContent(firstTrait.classname, function(data:String) {
 					var visualTraitData:LogicTreeData = haxe.Json.parse(data);
 					visualTraitData.nodes = new zui.Nodes();
 					found.tool.NodeEditor.nodesArray.push(visualTraitData);

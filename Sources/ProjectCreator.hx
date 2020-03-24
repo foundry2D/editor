@@ -5,7 +5,7 @@ import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.extended.NodeData;
 import haxe.ui.core.Screen;
-import kha.FileSystem;
+import khafs.Fs;
 
 @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/project-creator.xml"))
 class ProjectCreator extends Dialog {
@@ -25,12 +25,12 @@ class ProjectCreator extends Dialog {
     function createProject(e:DialogEvent){
         if(e.button == DialogButton.APPLY){
             var p = path.text;
-            if(FileSystem.isDirectory(p)){
+            if(Fs.isDirectory(p)){
                 var outp = p;
                 var type = twoD.selected ? Type.twoD: Type.threeD;
                 var projName = name.text != null ? name.text:"Project";
-                outp = p+FileSystem.sep+projName;
-                FileSystem.createDirectory(outp);
+                outp = p+Fs.sep+projName;
+                Fs.createDirectory(outp);
                 ProjectInit.done = onDone;
                 ProjectInit.run(outp,type,projName);
             }
