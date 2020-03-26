@@ -1,13 +1,8 @@
 package;
 
-import khafs.Fs;
-import found.App;
 import found.Scene;
-import kha.Blob;
 import found.Found;
-import echo.World;
 import echo.Body;
-import haxe.ui.events.UIEvent;
 import found.data.SceneFormat;
 import found.math.Util;
 import found.object.Object;
@@ -657,180 +652,8 @@ class Inspector
             ui.text(trait.classname);
         }
     }
-    function addTrait(name:String){
-        zui.Popup.showCustom(Found.popupZuiInstance, traitCreationPopupDraw, -1, -1, 600, 500);
-        // TODO : verify if TraitsDialog is still used anywhere
-		//TraitsDialog.open(new UIEvent(UIEvent.CHANGE));
-	}
-	
-	@:access(zui.Zui, zui.Popup)
-    function traitCreationPopupDraw(ui:Zui){
-		var textInputHandle = Id.handle();
-		var comboBoxHandle = Id.handle();
-		var traitTypes = ["Visual Trait", "Script Trait"];
-		var traitTypeExtensions = ["vhx", "hx"];
-		var traitsFolderPath = EditorUi.projectPath + "/Sources/Scripts/";
-		var arrayOfTraits:Array<TTrait> = [];
-		var fullFileName:String = "";
-
-        zui.Popup.boxTitle = "Add a trait";
-        
-        if (ui.panel(Id.handle({selected: true}), "Existing Traits", true)) {	
-			var traits1 = loadPrecompiledTraits();
-			var traits2 = loadUserCreatedTraits(traitsFolderPath);
-			arrayOfTraits = traits1.concat(traits2);
-
-			for(trait in arrayOfTraits) {
-				if (ui.button(trait.classname, Align.Left)) {
-					textInputHandle.text = getTraitNameFromTraitDef(trait);
-					if(trait.type == "Script") {
-						comboBoxHandle.position = 1;
-					} else {
-						comboBoxHandle.position = 0;
-					}					
-                }
-			}
-		}
-		
-		ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - ui.t.ELEMENT_H - 30;
-		ui.row([0.6, 0.4]);
-		ui.textInput(textInputHandle, "Name");
-		var selectedTraitTypeIndex:Int = ui.combo(comboBoxHandle, traitTypes, "Trait Type");
-		
-		ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - 20;
-		if(textInputHandle.text != "") {
-			fullFileName = traitsFolderPath + textInputHandle.text + "." + traitTypeExtensions[selectedTraitTypeIndex];
-			ui.text(fullFileName);
-		}
-		
-		ui._y = ui._h - ui.t.BUTTON_H - 10;
-		ui.row([0.5, 0.5]);
-		if (ui.button("Add")) {
-            if (traitTypeExtensions[selectedTraitTypeIndex] == "vhx") {
-                saveNewVisualTrait(textInputHandle.text, fullFileName);
-            } else {
-                saveNewScriptTrait(textInputHandle.text, fullFileName);
-            }
-			zui.Popup.show = false;
-		}
-		if (ui.button("Cancel")) {
-			zui.Popup.show = false;
-		}
-	}
-
-	function loadPrecompiledTraits() : Array<TTrait> {
-		var blob:Blob = kha.Assets.blobs.get("listTraits_json");
-		var data:{traits:Array<TTrait>} = haxe.Json.parse(blob.toString());
-		return data.traits;
-	}
-
-	function loadUserCreatedTraits(traitsFolderPath:String) : Array<TTrait> {
-		var arrayOfTraits:Array<TTrait> = [];
-
-		var files:Array<String> = khafs.Fs.readDirectory(traitsFolderPath);
-		for (file in files) {
-			var traitType:String = "";
-			var t:Array<String> = file.split(".");
-			var fileExtension = t[t.length-1];
-			if(fileExtension == "vhx"){
-				traitType = "VisualScript";
-			} else {
-				traitType = "Script";
-			}
-
-			arrayOfTraits.push({type: traitType, classname: traitsFolderPath + file});
-		}
-
-		return arrayOfTraits;
-	}
-
-	function getTraitNameFromTraitDef(trait:TTrait) {
-        var name = "";
-        if(trait.type == "VisualScript"){
-            var t:Array<String> = trait.classname.split("/");
-            name = t[t.length-1].split('.')[0];
-        } else if(trait.type == "Script"){
-            var t:Array<String> = trait.classname.split(".");
-            name = t[t.length-1];
-        }
-        return name;
-	}
-
-	function saveNewVisualTrait(traitName:String, traitSavePath:String) {
-		var trait:TTrait = {
-			type: "VisualScript",
-			classname: traitSavePath
-        }
-        
-		var visualTraitData:LogicTreeData = {
-			name: traitName,
-			nodes: null,
-			nodeCanvas: {
-				name: traitName + " Nodes",
-				nodes: [],
-				links: []
-			}
-		};
-		var visualTraitDataAsJson = haxe.Json.stringify(visualTraitData);
-
-		if(!Fs.exists(EditorUi.projectPath + "/Sources/Scripts")) Fs.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
-		
-		Fs.saveContent(traitSavePath, visualTraitDataAsJson, function() {
-			saveVisualTraitOnCurrentObject(trait);
-		});
-    }
-    
-    function saveNewScriptTrait(traitName:String, traitSavePath:String){
-        if(!Fs.exists(traitSavePath)){
-            var trait:TTrait = {
-                type: "Script",
-                classname: traitSavePath
-            }
-
-            var scriptTraitData = 'package;\n\n'
-            +'class $traitName extends found.Trait {\n'
-            +'\tpublic function new () {\n'
-            +'\t\tsuper();\n\n'
-            +'\t\tnotifyOnInit(function() {\n'
-            +'\t\t\t// Insert code here\n'
-            +'\t\t});\n\n'
-            +'\t\tnotifyOnUpdate(function(dt:Float) {\n'
-            +'\t\t\t// Insert code here\n'
-            +'\t\t});\n'
-            +'\t}\n'
-            +'}';
-
-            if(!Fs.exists(EditorUi.projectPath + "/Sources/Scripts")) Fs.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
-
-            Fs.saveContent(traitSavePath, scriptTraitData, function() {
-                saveVisualTraitOnCurrentObject(trait);
-            });
-        }
-    }
-
-	@:access(found.Scene)
-	function saveVisualTraitOnCurrentObject(trait:TTrait) {
-		Scene.createTraits([trait], App.editorui.inspector.currentObject);
-		var currentObject = App.editorui.inspector.currentObject;
-		if (currentObject.raw.traits != null) {
-			var alreadyHasTrait = false;
-			for (oldTrait in currentObject.raw.traits) {
-				if (oldTrait.classname == trait.classname) {
-					alreadyHasTrait = true;
-				}
-			}
-			if (!alreadyHasTrait) {
-				currentObject.raw.traits.push(trait);
-			}
-		} else {
-			currentObject.raw.traits = [trait];
-		}
-
-		currentObject.dataChanged = true;
-		EditorHierarchy.makeDirty();
-		
-		// if (!StringTools.contains(App.editorui.hierarchy.path.text, '*'))
-		// 	App.editorui.hierarchy.path.text += '*';
+    function addTrait(name:String) {
+		TraitsDialog.open();
 	}
 	
     function removeTrait(i:Int){
@@ -853,8 +676,13 @@ class Inspector
             var t:Array<String> = trait.classname.split("/");
             name = t[t.length-1].split('.')[0];
         } else if(trait.type == "Script"){
-            var t:Array<String> = trait.classname.split(".");
-            name = t[t.length-1];
+            if(StringTools.endsWith(trait.classname, ".hx")) {
+                var t:Array<String> = trait.classname.split("/");
+                name = t[t.length-1].split('.')[0];
+            } else {
+                var t:Array<String> = trait.classname.split(".");
+                name = t[t.length-1];
+            }
         }
         return name;
 	}
