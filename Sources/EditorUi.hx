@@ -23,6 +23,8 @@ import found.object.Object.MoveData;
 import found.data.SceneFormat;
 #end
 
+import utilities.Config;
+
 class EditorUi extends Trait{
     public var visible(default,set) = true;
     function set_visible(v:Bool){
@@ -43,8 +45,14 @@ class EditorUi extends Trait{
     public var gameView:EditorGameView;
     var codeView:EditorCodeView;
     var animationView:EditorAnimationView;
+    var projectExplorer:ProjectExplorer;
+    var menu:EditorMenuBar;
     public static var scenePath:String = "";
-    public static  var projectPath:String = ".";
+    public static  var projectPath(default,set):String = ".";
+    static function set_projectPath(path:String){
+        Reflect.setField(ProjectExplorer,"currentPath",path);
+        return projectPath = path;
+    }
     public static var cwd:String = '.';
     // static var bl:BlendParser = null;
     var isBlend = false;
@@ -54,36 +62,40 @@ class EditorUi extends Trait{
         Toolkit.init();
         ui = new Zui({font: kha.Assets.fonts.font_default,autoNotifyInput: false});
         Fs.init(function(){
-            gameView = new EditorGameView();
-            var done = function(){
+            Config.load(function() {
+                Config.init();
+                gameView = new EditorGameView();
+                var done = function(){
 
-                if(editor != null)
-                    Screen.instance.removeComponent(editor);
-                Screen.instance.addComponent(projectmanager);
-                registerInput();
-            }
-            if(!Fs.exists(EditorUi.cwd+"/pjml.found")){
-                projectmanager = new ManagerView();
-                done();
-            }
-            else {
-                #if kha_html5
-                for(key in Fs.dbKeys.keys()){
-                    if(key == EditorUi.cwd+"/pjml.found")continue;
-                    Fs.getContent(key,function(data:String){
-                        #if debug
-                        trace('Fetched data from $key');
-                        #end
-                    });
+                    if(editor != null)
+                        Screen.instance.removeComponent(editor);
+                    Screen.instance.addComponent(projectmanager);
+                    registerInput();
                 }
-                #end
-                Fs.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
-                    var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
-                    projectmanager = new ManagerView(out.list);
-                    done();
-                });
-            }
                 
+                if(!Fs.exists(EditorUi.cwd+"/pjml.found")){
+                    projectmanager = new ManagerView();
+                    done();
+                }
+                else {
+                    #if kha_html5
+                    for(key in Fs.dbKeys.keys()){
+                        if(key == EditorUi.cwd+"/pjml.found")continue;
+                        Fs.getContent(key,function(data:String){
+                            #if debug
+                            trace('Fetched data from $key');
+                            #end
+                        });
+                    }
+                    #end
+                    Fs.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
+                        var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
+                        projectmanager = new ManagerView(out.list);
+                        done();
+                    });
+
+                }
+            });    
             
             // else {
             //     #if arm_csm
@@ -103,9 +115,10 @@ class EditorUi extends Trait{
     }
 
     public function render(canvas:kha.Canvas){
-        // canvas.g2.end();
 
         ui.begin(canvas.g2);
+        if(menu != null)
+            menu.render(ui);
         if(inspector != null)
             inspector.render(ui);
         if(animationView != null)
@@ -114,9 +127,10 @@ class EditorUi extends Trait{
             codeView.render(ui);
         if(hierarchy != null)
             hierarchy.render(ui);
+        if(projectExplorer != null)
+            projectExplorer.render(ui);
         ui.end();
 
-        // canvas.g2.begin(false);
     }
 
     function registerInput(){
@@ -175,22 +189,17 @@ class EditorUi extends Trait{
         editor = new EditorView();
         codeView = new EditorCodeView();
         animationView = new EditorAnimationView(ui);
-        // var path = FileSystem.fixPath(projectPath)+"/build_bowling/compiled/Assets/Scene.arm";//"/bowling.blend";
-        // if(StringTools.endsWith(path,"blend")){
-        //     isBlend = true;
-        // }//'$path
 
-        // iron.data.Data.getBlob(path,createHierarchy);
         #if arm_csm
         createHierarchy(iron.Scene.active.raw);
         #elseif found
         createHierarchy(found.State.active.raw);
         #end
         
-        var tab = new ProjectExplorer(projectPath);
-        var menu  = new EditorMenu();
+        projectExplorer = new ProjectExplorer();
+        menu  = new EditorMenuBar();
         editor.header.addComponent(menu);
-        addToParent(editor.ePanelBottom,tab);
+        addToParent(editor.ePanelBottom,projectExplorer);
         var tools = new EditorTools(editor);
         Screen.instance.addComponent(editor);
     }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vbox id="main" width="100%" height="100%" >
     <style source="../Libraries/foundsdk/haxeui-kha-extended/haxe/ui/extended/_module/styles/dark/main.css" />
-    <hbox id="header">
+    <hbox id="header" height="3%" width="100%">
     </hbox>
-    <hbox id="content" height="100%" width="100%" >
+    <hbox id="content" height="97%" width="100%" >
         <tabview id="e-panel-left" height="100%" width="20%" style="background-color: red" >
         </tabview>
         <vbox id="e-panel-center" height="100%" width="60%"  >

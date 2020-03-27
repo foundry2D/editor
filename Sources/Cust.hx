@@ -5,12 +5,14 @@ import zui.Zui.Handle;
 import khafs.Fs;
 
 class Cust {
-
+    static var lastFiles:Array<String> = [];
+    static var lastFolders:Array<String> = [];
+    @:access(zui.Zui)
     public static function fileBrowser(ui: Zui, handle: Handle, foldersOnly = false): String {
+        var ratios = [0.04,0.96];
         var sep = "/";
 
-
-        var files:Array<String> = Fs.isDirectory(handle.text) ? Fs.readDirectory(handle.text,foldersOnly) : []; 
+        var files:Array<String> = Fs.isDirectory(handle.text) ? Fs.readDirectory(handle.text,foldersOnly) : (foldersOnly ? lastFolders: lastFiles);
         
 		// Up directory
 		var i1 = handle.text.indexOf("/");
@@ -20,10 +22,15 @@ class Cust {
 			(i2 > -1 && handle.text.length - 1 > i2);
         handle.changed = false;
         if(nested){
-            ui.row([0.03,0.97]);
-            ui.image(getRessourceImage(""));
+            var image = getRessourceImage("");
+            ratios[0]  = ui._w*ratios[0] < image.width ? ui._w/image.width*0.01: ratios[0];
+            ratios[1] = 1.0 - ratios[0];
+            ui.row(ratios);
+            ui.image(image);
             if (ui.button("..", Align.Left)) {
                 handle.changed = ui.changed = true;
+                if(!Fs.isDirectory(handle.text))
+                    handle.text = handle.text.substring(0, handle.text.lastIndexOf(sep));
                 handle.text = handle.text.substring(0, handle.text.lastIndexOf(sep));
                 // Drive root
                 if (handle.text.length == 2 && handle.text.charAt(1) == ":") handle.text += sep;
@@ -33,14 +40,26 @@ class Cust {
 		// Directory contents
 		for (f in files) {
             if (f == "" || f.charAt(0) == ".") continue; // Skip hidden
-            ui.row([0.03,0.97]);
-            ui.image(getRessourceImage(f));
+            var image = getRessourceImage(handle.text+'$sep$f');
+            ratios[0]  = ui._w*ratios[0] < image.width ? ui._w/image.width*0.01: ratios[0];
+            ratios[1] = 1.0 - ratios[0];
+            ui.row(ratios);
+            ui.image(image);
 			if (ui.button(f, Align.Left)) {
-				handle.changed = ui.changed = true;
+                handle.changed = ui.changed = true;
+                if(!Fs.isDirectory(handle.text)) handle.text = handle.text.substring(0, handle.text.lastIndexOf(sep));
 				if (handle.text.charAt(handle.text.length - 1) != sep) handle.text += sep;
 				handle.text += f;
 			}
-		}
+        }
+        
+        if(foldersOnly){
+            lastFolders = files;
+        }
+        else{
+            lastFiles = files;
+        }
+        
 
 		return handle.text;
     }
