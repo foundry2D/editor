@@ -19,6 +19,7 @@ import iron.system.ArmPack;
 import found.Trait;
 import found.State;
 import found.Found;
+import found.math.Util;
 import found.object.Object.MoveData;
 import found.data.SceneFormat;
 #end
@@ -130,6 +131,9 @@ class EditorUi extends Trait{
         if(projectExplorer != null)
             projectExplorer.render(ui);
         ui.end();
+        if(EditorMenu.show){
+            EditorMenu.render(canvas.g2);
+        }
 
     }
 
@@ -319,12 +323,12 @@ class EditorUi extends Trait{
         if(gridMove || keys.ctrl){//Clamp to grid
             doUpdate  = Math.abs(curPos.x-px) > Found.GRID*0.99 || Math.abs(px-curPos.x) > Found.GRID*0.99;
             px = Math.floor(px);
-            px += (Found.GRID-(px % Found.GRID));
+            px = Util.snap(px,Found.GRID);
         }
         if(gridMove || keys.ctrl ){//Clamp to grid
             doUpdate  = doUpdate ? doUpdate : Math.abs(curPos.y-py) > Found.GRID*0.99 || Math.abs(py-curPos.y) > Found.GRID*0.99;
             py = Math.floor(py);
-            py += (Found.GRID-(py % Found.GRID));
+            py = Util.snap(py,Found.GRID);
         }
 
         if(doUpdate){

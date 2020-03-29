@@ -76,17 +76,18 @@ class EditorMenuBar extends HBox  {
 			ui.t.ELEMENT_OFFSET = ELEMENT_OFFSET;
 			ui.t.BUTTON_COL = BUTTON_COL;
 		}
-        ui.t.WINDOW_BG_COL = WINDOW_BG_COL;
-        if(EditorMenu.show){
-            EditorMenu.render(ui);
-        } 
+        ui.t.WINDOW_BG_COL = WINDOW_BG_COL; 
 	}
 
 	@:access(zui.Zui)
 	function menuButton(ui:Zui,name: String, category: Int) {
 		
 		ui._w = Std.int(ui.ops.font.width(ui.fontSize, name) + 25);
-		if (ui.button(name) || (EditorMenu.show && EditorMenu.menuCommands == null && ui.isHovered)) {
+		var pressed = ui.button(name);
+		if(pressed && EditorMenu.show){
+			EditorMenu.show = false;
+		}
+		else if (pressed || (EditorMenu.show && EditorMenu.menuCommands == null && ui.isHovered)) {
 			EditorMenu.show = true;
 			EditorMenu.menuCategory = category;
 			EditorMenu.menuX = Std.int(ui._x - ui._w);
