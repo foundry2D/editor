@@ -64,7 +64,7 @@ class EditorMenu {
         g.begin(false);
         ui.beginRegion(g, menuX, menuY, menuW);
 
-        var menuItemsCount = [5, 3, 2,12, 19, 5];
+        var menuItemsCount = [5, 2, 2,12, 19, 5];
         var sepw = menuW / ui.SCALE();
         ui.g.color = ui.t.SEPARATOR_COL;
         ui.g.fillRect( menuX, menuY, menuW, 28 * menuItemsCount[menuCategory] * ui.SCALE());
@@ -98,9 +98,12 @@ class EditorMenu {
             }
         }
         else if (menuCategory == MenuEdit) {
+            if (ui.button("      " + tr("Scene Settings"), Left)){
+                trace("Implement me");
+            }
             if (ui.button("      " + tr("Preferences..."), Left, Config.keymap.edit_prefs)){
-                trace("Implemente Me !");
                 show = false;
+                ConfigSettingsDialog.open();
             }
         }
         else if (menuCategory == MenuViewport) {

@@ -21,8 +21,9 @@ class FileBrowserDialog {
     #else
     static var defaultPath = "/";
     #end
-    public static function open(onDone:String->Void){
+    public static function open(onDone:String->Void,?currentPath:String = ""){
         doneCallback = onDone;
+        fbHandle.text = currentPath != "" ? currentPath : EditorUi.cwd; 
         zui.Popup.showCustom(Found.popupZuiInstance, fileBrowserPopupDraw, -1, -1, 600, 500);
     }
     static var doneCallback:String->Void = function(path:String){};

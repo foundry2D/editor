@@ -1,5 +1,6 @@
 package;
 
+import found.App;
 import kha.System;
 import zui.Zui;
 import zui.Id;
@@ -42,9 +43,12 @@ class EditorMenuBar extends HBox  {
 	public var menuHandle = new Handle({layout: Horizontal});
     public var menubarw = defaultMenubarW;
     
-
+	var playImage:kha.Image;
+	var pauseImage:kha.Image;
 	public function new() {
-        super();
+		super();
+		playImage = kha.Assets.images.play;
+		pauseImage = kha.Assets.images.pause;
 	}
 
 	@:access(zui.Zui)
@@ -73,6 +77,21 @@ class EditorMenuBar extends HBox  {
 			}
 
 			ui._w = _w;
+			ui._x = this.w * 0.5;
+			ui._y =  this.h * 0.5 - playImage.height * 0.25;
+			var currentImage = App.editorui.isPlayMode ? pauseImage : playImage;
+			var state = ui.image(currentImage);
+			if(state == zui.Zui.State.Released){
+				if(App.editorui.isPlayMode){
+					App.editorui.isPlayMode = false;
+				}
+				else{
+					App.editorui.isPlayMode = true;
+				}
+			}
+			else if(state == zui.Zui.State.Hovered){
+				trace("Hovered");
+			}
 			ui.t.ELEMENT_OFFSET = ELEMENT_OFFSET;
 			ui.t.BUTTON_COL = BUTTON_COL;
 		}

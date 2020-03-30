@@ -41,6 +41,7 @@ class EditorUi extends Trait{
     public var editor:EditorView;
     public var inspector:EditorInspector;
     public var hierarchy:EditorHierarchy;
+    public var isPlayMode:Bool;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     public var gameView:EditorGameView;
@@ -65,6 +66,7 @@ class EditorUi extends Trait{
         Fs.init(function(){
             Config.load(function() {
                 Config.init();
+                isPlayMode = Config.raw.defaultPlayMode;
                 gameView = new EditorGameView();
                 var done = function(){
 

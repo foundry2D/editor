@@ -34,6 +34,7 @@ class Cust {
                 handle.text = handle.text.substring(0, handle.text.lastIndexOf(sep));
                 // Drive root
                 if (handle.text.length == 2 && handle.text.charAt(1) == ":") handle.text += sep;
+                if(handle.text == "")handle.text = "./";
             }
         }
 
