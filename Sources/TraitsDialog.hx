@@ -69,7 +69,7 @@ class TraitsDialog {
 				var trait:TTrait = findExistingTrait(textInputHandle.text, arrayOfTraits);
 
 				if (trait != null) {
-					saveVisualTraitOnCurrentObject(trait);
+					saveTraitOnCurrentObject(trait);
 				} else {
 					if (traitTypeExtensions[selectedTraitTypeIndex] == "vhx") {
 						saveNewVisualTrait(textInputHandle.text, fullFileName);
@@ -165,7 +165,7 @@ class TraitsDialog {
 			Fs.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
 
 		Fs.saveContent(traitSavePath, visualTraitDataAsJson, function() {
-			saveVisualTraitOnCurrentObject(trait);
+			saveTraitOnCurrentObject(trait);
 		});
 	}
 
@@ -194,13 +194,13 @@ class TraitsDialog {
 				Fs.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
 
 			Fs.saveContent(traitSavePath, scriptTraitData, function() {
-				saveVisualTraitOnCurrentObject(trait);
+				saveTraitOnCurrentObject(trait);
 			});
 		}
 	}
 
 	@:access(found.Scene)
-	static function saveVisualTraitOnCurrentObject(trait:TTrait) {
+	static function saveTraitOnCurrentObject(trait:TTrait) {
 		Scene.createTraits([trait], App.editorui.inspector.currentObject);
 		var currentObject = App.editorui.inspector.currentObject;
 		if (currentObject.raw.traits != null) {

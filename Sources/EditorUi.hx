@@ -45,7 +45,7 @@ class EditorUi extends Trait{
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     public var gameView:EditorGameView;
-    var codeView:EditorCodeView;
+    public var codeView:EditorCodeView;
     var animationView:EditorAnimationView;
     var projectExplorer:ProjectExplorer;
     var menu:EditorMenuBar;

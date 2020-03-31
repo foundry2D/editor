@@ -1,5 +1,6 @@
 package;
 
+import found.App;
 import found.Scene;
 import found.Found;
 import echo.Body;
@@ -98,6 +99,7 @@ class Inspector
         if(i != -1){
             object.push(objectData);
             index = i;
+            traitListHandle.nest(0).position = 0;
         }
         redraw();
     }
@@ -542,7 +544,7 @@ class Inspector
             var lastSelectedTraitIndex:Int = traitListHandle.nest(0).position;
             selectedTraitIndex = Ext.list(ui, traitListHandle, traits, traitListOpts);
             if (selectedTraitIndex != lastSelectedTraitIndex) {
-                EditorCodeView.setDisplayedTrait(traits[selectedTraitIndex]);
+                App.editorui.codeView.setDisplayedTrait(traits[selectedTraitIndex]);
             }
             data.traits = traits;
             ui.unindent();

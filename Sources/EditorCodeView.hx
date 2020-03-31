@@ -1,14 +1,13 @@
 package;
 
+import zui.Id;
 import zui.Ext;
 import found.App;
 import found.Scene;
 import found.data.SceneFormat;
 import found.tool.NodeEditor;
-import zui.Id;
 import haxe.ui.core.Component;
 
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-code.xml"))
 class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	public var x(get, never):Int;
 
@@ -40,16 +39,18 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 
 	static var currentlyDisplayedTrait:TTrait = null;
 
-	static var textAreaHandle = Id.handle();
+	static var codeScriptWindowHandle = Id.handle();
+
+	static var codeScriptTextAreaHandle = Id.handle();
 
 	var currentScriptTraitText = "";
 
 	public function new(?ui:zui.Zui) {
 		super();
-		percentWidth = 100;
-		percentHeight = 100;
+		this.percentWidth = 100;
+		this.percentHeight = 100;
 		this.text = "Code";
-		
+
 		visualEditor = new found.tool.NodeEditor(x, y, w, h);
 		visualEditor.visible = true;
 
@@ -63,9 +64,9 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		setDisplayedTrait(traits[0]);
 	}
 
-	public static function setDisplayedTrait(trait:TTrait):Void {
+	public function setDisplayedTrait(trait:TTrait):Void {
 		currentlyDisplayedTrait = trait;
-		textAreaHandle.redraws = 2;
+		codeScriptWindowHandle.redraws = codeScriptTextAreaHandle.redraws = 2;
 	}
 
 	function saveVisualTrait() {
@@ -96,7 +97,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		}
 
 		currentObject.dataChanged = true;
-		
+
 		EditorHierarchy.makeDirty();
 	}
 
@@ -121,36 +122,40 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 			}
 		}
 	}
-	
+
 	@:access(zui.Zui)
-	public function render(ui:zui.Zui){
+	public function render(ui:zui.Zui) {
 		if (selectedPage == null || selectedPage.text != "Code")
 			return;
-		
-		if (currentlyDisplayedTrait != null && currentlyDisplayedTrait != lastDisplayedTrait) {
-			if (currentlyDisplayedTrait.type == "VisualScript") {
-				khafs.Fs.getContent(currentlyDisplayedTrait.classname, function(data:String) {
-					var visualTraitData:LogicTreeData = haxe.Json.parse(data);
-					visualTraitData.nodes = new zui.Nodes();
-					found.tool.NodeEditor.nodesArray.push(visualTraitData);
-					found.tool.NodeEditor.selectedNode = visualTraitData;
-				});
+
+		if (currentlyDisplayedTrait != lastDisplayedTrait) {
+			if (currentlyDisplayedTrait != null) {
+				if (currentlyDisplayedTrait.type == "VisualScript") {
+					khafs.Fs.getContent(currentlyDisplayedTrait.classname, function(data:String) {
+						var visualTraitData:LogicTreeData = haxe.Json.parse(data);
+						visualTraitData.nodes = new zui.Nodes();
+						found.tool.NodeEditor.selectedNode = visualTraitData;
+					});
+				} else {
+					khafs.Fs.getContent(currentlyDisplayedTrait.classname, function(data:String) {
+						currentScriptTraitText = data;
+					});
+				}
 			} else {
-				khafs.Fs.getContent(currentlyDisplayedTrait.classname, function(data:String) {
-					currentScriptTraitText = data;
-				});
+				found.tool.NodeEditor.selectedNode = null;
 			}
 			lastDisplayedTrait = currentlyDisplayedTrait;
 		}
-
+		
 		if (currentlyDisplayedTrait == null || currentlyDisplayedTrait.type == "VisualScript") {
 			visualEditor.setAll(x, y, w, h);
 			visualEditor.render(ui);
 		} else {
-			if (ui.window(Id.handle(), NodeEditor.x, NodeEditor.y, NodeEditor.width, NodeEditor.height)) {
-				textAreaHandle.text = currentScriptTraitText;
-				Ext.textArea(ui, textAreaHandle, zui.Zui.Align.Left, true);
+			if (ui.window(codeScriptWindowHandle, x, y, w, h)) {
+				codeScriptTextAreaHandle.text = currentScriptTraitText;
+				var isEditable:Bool = StringTools.endsWith(currentlyDisplayedTrait.classname, ".hx");
+				Ext.textArea(ui, codeScriptTextAreaHandle, zui.Zui.Align.Left, isEditable);
 			}
-		}		
+		}
 	}
 }
