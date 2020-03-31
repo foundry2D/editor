@@ -176,10 +176,20 @@ class TraitsDialog {
 				classname: traitSavePath
 			}
 
-			var scriptTraitData = 'package;\n\n' + 'class $traitName extends found.Trait {\n' + '\tpublic function new () {\n' + '\t\tsuper();\n\n'
-				+ '\t\tnotifyOnInit(function() {\n' + '\t\t\t// Insert code here\n' + '\t\t});\n\n' + '\t\tnotifyOnUpdate(function(dt:Float) {\n'
-				+ '\t\t\t// Insert code here\n' + '\t\t});\n' + '\t}\n' + '}';
-
+			var scriptTraitData = 
+				'package;\n\n' 
+				+ 'class $traitName extends found.Trait {\n' 
+				+ '\tpublic function new () {\n' 
+				+ '\t\tsuper();\n\n'
+				+ '\t\tnotifyOnInit(function() {\n' 
+				+ '\t\t\t// Insert code here\n' 
+				+ '\t\t});\n\n' 
+				+ '\t\tnotifyOnUpdate(function(dt:Float) {\n'
+				+ '\t\t\t// Insert code here\n' 
+				+ '\t\t});\n' 
+				+ '\t}\n' 
+				+ '}';
+			
 			if (!Fs.exists(EditorUi.projectPath + "/Sources/Scripts"))
 				Fs.createDirectory(EditorUi.projectPath + "/Sources/Scripts");
 

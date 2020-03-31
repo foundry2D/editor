@@ -1,14 +1,12 @@
 package;
 
+import zui.Ext;
 import found.App;
 import found.Scene;
 import found.data.SceneFormat;
 import found.tool.NodeEditor;
 import zui.Id;
-import haxe.ui.containers.VBox;
 import haxe.ui.core.Component;
-import haxe.ui.events.MouseEvent;
-import utilities.JsonObjectExplorer;
 
 // @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-code.xml"))
 class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
@@ -38,24 +36,36 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 
 	var visualEditor:found.tool.NodeEditor;
 
-	// var textEditor:CodeComponent;
+	var lastDisplayedTrait:TTrait = null;
+
+	static var currentlyDisplayedTrait:TTrait = null;
+
+	static var textAreaHandle = Id.handle();
+
+	var currentScriptTraitText = "";
+
 	public function new(?ui:zui.Zui) {
 		super();
 		percentWidth = 100;
 		percentHeight = 100;
 		this.text = "Code";
-		// textEditor = new CodeComponent();
-		// container.addComponent(textEditor);
-		// textEditor.hidden = true;
+		
 		visualEditor = new found.tool.NodeEditor(x, y, w, h);
 		visualEditor.visible = true;
+
 		EditorHierarchy.register(this);
 	}
 
 	public function notifyObjectSelectedInHierarchy(selectedObject:TObj, selectedUID:Int):Void {
 		// @TODO: should we always load and reparse the data ?
 		// (i.e. we already parse the data to determine what to show the UI so maybe we should load if we find a visual script from the UI)
-		loadVisualTrait(selectedObject);
+		var traits:Array<TTrait> = selectedObject.traits != null ? selectedObject.traits : [];
+		setDisplayedTrait(traits[0]);
+	}
+
+	public static function setDisplayedTrait(trait:TTrait):Void {
+		currentlyDisplayedTrait = trait;
+		textAreaHandle.redraws = 2;
 	}
 
 	function saveVisualTrait() {
@@ -111,21 +121,36 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 			}
 		}
 	}
-	var optionsHandle:zui.Zui.Handle = Id.handle();
-	public var codeype:Int = 0; 
+	
 	@:access(zui.Zui)
 	public function render(ui:zui.Zui){
 		if (selectedPage == null || selectedPage.text != "Code")
 			return;
-		// optionsHandle.selected = true;
 		
-			// if(codetype == 0){// Visual
-				visualEditor.setAll(x, y, w,h);
-				visualEditor.render(ui);
-			// }
-			// else {//Textual
+		if (currentlyDisplayedTrait != null && currentlyDisplayedTrait != lastDisplayedTrait) {
+			if (currentlyDisplayedTrait.type == "VisualScript") {
+				khafs.Fs.getContent(currentlyDisplayedTrait.classname, function(data:String) {
+					var visualTraitData:LogicTreeData = haxe.Json.parse(data);
+					visualTraitData.nodes = new zui.Nodes();
+					found.tool.NodeEditor.nodesArray.push(visualTraitData);
+					found.tool.NodeEditor.selectedNode = visualTraitData;
+				});
+			} else {
+				khafs.Fs.getContent(currentlyDisplayedTrait.classname, function(data:String) {
+					currentScriptTraitText = data;
+				});
+			}
+			lastDisplayedTrait = currentlyDisplayedTrait;
+		}
 
-			// }
-		
+		if (currentlyDisplayedTrait == null || currentlyDisplayedTrait.type == "VisualScript") {
+			visualEditor.setAll(x, y, w, h);
+			visualEditor.render(ui);
+		} else {
+			if (ui.window(Id.handle(), NodeEditor.x, NodeEditor.y, NodeEditor.width, NodeEditor.height)) {
+				textAreaHandle.text = currentScriptTraitText;
+				Ext.textArea(ui, textAreaHandle, zui.Zui.Align.Left, true);
+			}
+		}		
 	}
 }

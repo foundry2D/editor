@@ -38,6 +38,9 @@ class Inspector
     
     var objectHandle:Handle = Id.handle();
     var sceneHandle:Handle = Id.handle();
+    var traitListHandle:Handle = Id.handle();
+    var traitListOpts:ListOpts;
+    var selectedTraitIndex:Int = 0;
 
     public var searchImage:Void->Void = null;
 
@@ -61,6 +64,19 @@ class Inspector
         objectHandle.nest(0); // Pre create children
         ui.t.FILL_WINDOW_BG = true;
         windowHandle.scrollEnabled = true;
+
+        traitListOpts = {
+            addCb: addTrait,
+            removeCb: removeTrait,
+            getNameCb: getTraitName,
+            setNameCb: null,
+            getLabelCb: null,
+            itemDrawCb: drawTrait,
+            showRadio: true,
+            editable: false,
+            showAdd: true,
+            addLabel: "New Trait"
+        }
     }
     public function redraw(){
         windowHandle.redraws = 2;
@@ -523,7 +539,11 @@ class Inspector
         if(ui.panel(Id.handle(),"Traits: ")){
             ui.indent();
             var traits:Array<TTrait> = data.traits != null ? data.traits : [];
-            Ext.panelList(ui,Id.handle(),traits,addTrait,removeTrait,getTraitName,null,drawTrait,false,true,"New Trait");
+            var lastSelectedTraitIndex:Int = traitListHandle.nest(0).position;
+            selectedTraitIndex = Ext.list(ui, traitListHandle, traits, traitListOpts);
+            if (selectedTraitIndex != lastSelectedTraitIndex) {
+                EditorCodeView.setDisplayedTrait(traits[selectedTraitIndex]);
+            }
             data.traits = traits;
             ui.unindent();
         }
