@@ -216,8 +216,9 @@ class TraitsDialog {
 		} else {
 			currentObject.raw.traits = [trait];
 		}
-
 		currentObject.dataChanged = true;
+
+		App.editorui.inspector.inspector.redraw();
 		EditorHierarchy.makeDirty();
 	}
 }
