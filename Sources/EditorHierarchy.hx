@@ -2,7 +2,6 @@ package;
 
 import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
-import haxe.ui.extended.NodeData;
 import haxe.ui.data.ListDataSource;
 import haxe.ui.events.UIEvent;
 import haxe.ui.containers.dialogs.Dialog;

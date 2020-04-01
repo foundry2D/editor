@@ -3,7 +3,6 @@ package;
 import found.data.Project.Type;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialog;
-import haxe.ui.extended.NodeData;
 import haxe.ui.core.Screen;
 import khafs.Fs;
 

@@ -78,6 +78,7 @@ class Config {
 		configLoaded = false;
 		init();
 		Translator.loadTranslations(raw.locale);
+		found.App.editorui.isPlayMode = raw.defaultPlayMode;
 	}
 
 

@@ -1,10 +1,5 @@
 package;
 
-import haxe.ui.events.MouseEvent;
-import haxe.ui.events.UIEvent;
-import haxe.ui.containers.dialogs.Dialog;
-import haxe.ui.core.Screen;
-import haxe.ui.extended.Handler;
 import zui.Zui;
 import zui.Id;
 import found.Found;

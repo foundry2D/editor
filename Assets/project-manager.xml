@@ -18,6 +18,7 @@
             <button id="newproject" text="New Project" width="100%" />
             <button id="importProject" text="Import" width="100%" />
             <button id="delete" text="Delete Project" width="100%" />
+            <button id="deleteConfig" text="Delete App Config" width="100%" />
         </vbox>
     </hbox>
 </vbox>

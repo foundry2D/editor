@@ -7,8 +7,6 @@ project.addSources('Sources');
 project.addLibrary('Libraries/foundsdk/hscript');
 project.addLibrary('Libraries/foundsdk/haxeui-core');
 project.addLibrary('Libraries/foundsdk/haxeui-kha');
-project.addLibrary('Libraries/foundsdk/haxeui-kha-extended');
-project.addLibrary('Libraries/foundsdk/coineditor');
 project.addDefine("debug");
 project.addDefine("editor");
 project.addDefine("tile_editor");

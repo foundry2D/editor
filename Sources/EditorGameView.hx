@@ -110,7 +110,8 @@ class EditorGameView extends EditorTab {
 			if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
 				var i = found.App.editorui.inspector.index;
 				var e = State.active._entities[i];
-				EditorTools.render(image.g2,e.position.x,e.position.y,w,h);
+				if(e != State.active.cam)
+					EditorTools.render(image.g2,e.position.x,e.position.y,w,h);
 
 			}
 			image.g2.popTransformation();

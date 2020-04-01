@@ -95,6 +95,7 @@ class Arrow extends Component{
         this.registerEvent(MouseEvent.MOUSE_DOWN,activate);
     }
     function activate(e:MouseEvent){
+        if(found.App.editorui.inspector.index < 0 || found.App.editorui.gameView.selectedPage.text != "Game" || found.App.editorui.inspector.index == found.State.active.cam.uid)return;
         EditorUi.activeMouse = true;
         EditorUi.arrow = type;
         switch(type){
@@ -154,7 +155,7 @@ class Arrow extends Component{
     @:access(EditorTools)
     //Debug render and set ui collision
     public override function renderTo(g:Graphics){
-        if(found.App.editorui.inspector.index < 0 || found.App.editorui.gameView.selectedPage.text != "Game" )return;
+        if(found.App.editorui.inspector.index < 0 || found.App.editorui.gameView.selectedPage.text != "Game" || found.App.editorui.inspector.index == found.State.active.cam.uid)return;
         var pos = Conversion.WorldToScreen(cast(EditorTools.position));
         var x = pos.x;
         var y = pos.y;

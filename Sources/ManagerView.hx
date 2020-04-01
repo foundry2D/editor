@@ -1,5 +1,6 @@
 package;
 
+import utilities.Config;
 import kha.Image;
 import kha.Assets;
 
@@ -139,6 +140,11 @@ class ManagerView extends Box {
         #end
         // kha.Assets.loadImageFromPath
         // Image.fromEncodedBytes(haxe.io.Bytes.ofString(""),"",function(img:kha.Image){},function(img:String){},true);
+    }
+    @:bind(deleteConfig,MouseEvent.CLICK)
+    function delConfig(e:MouseEvent){
+        khafs.Fs.deleteFile("./config.found");
+        Config.restore();
     }
     
 }

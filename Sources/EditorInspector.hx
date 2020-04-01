@@ -1,21 +1,10 @@
 
 
 import found.Scene;
-import haxe.ui.core.Component;
-import haxe.ui.extended.NodeData;
-import haxe.ui.extended.InspectorNode;
-import haxe.ui.data.ListDataSource;
-import haxe.ui.events.UIEvent;
-import haxe.ui.events.MouseEvent;
-import haxe.ui.containers.menus.MenuItem;
-import haxe.ui.containers.dialogs.Dialog;
-import haxe.ui.extended.InspectorField;
 import khafs.Fs;
-import utilities.JsonObjectExplorer;
 #if arm_csm
 import iron.data.SceneFormat;
 #elseif found
-import found.App;
 import found.Found;
 import found.State;
 import found.data.SceneFormat;
@@ -23,7 +12,7 @@ import found.object.Object;
 import found.math.Util;
 #end
 
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
+// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
 class EditorInspector implements EditorHierarchyObserver extends EditorTab {
 
     public var x(get,never):Int;
@@ -128,9 +117,9 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
                     default:
                         trace('Error: file has filetype $type which is not a valid filetype for images ');
                 }
-            }
-            if(error){
-                trace('Error: file with name $name is not a valid image name or the path "$path" was invalid ');
+                if(error){
+                    trace('Error: file with name $name is not a valid image name or the path "$path" was invalid ');
+                }
             }
 
         }
