@@ -51,7 +51,7 @@ class EditorMenuBar extends HBox  {
 		pauseImage = kha.Assets.images.pause;
 	}
 
-	@:access(zui.Zui,found.Scene)
+	@:access(zui.Zui,found.Scene,found.object.Object,found.Trait)
 	public function render(ui:Zui) {
 
 		var WINDOW_BG_COL = ui.t.WINDOW_BG_COL;
@@ -84,16 +84,24 @@ class EditorMenuBar extends HBox  {
 			var state = ui.image(currentImage);
 			if(state == zui.Zui.State.Released){
 				if(App.editorui.isPlayMode){
+					for(object in found.State.active.activeEntities){
+						for (t in object.traits){
+							if (t._remove != null) {
+								for (f in t._remove) f();
+							}
+						}
+					}
 					App.editorui.isPlayMode = false;
 				}
 				else{
-					found.Scene.ready = false;
 					for(object in found.State.active.activeEntities){
-						object.deactivate();
-						object.activate();
+						for (t in object.traits){
+							if (t._init != null) {
+								for (f in t._init) App.notifyOnInit(f);
+							}
+						}
 					}
 					App.editorui.isPlayMode = true;
-					found.Scene.ready = true;
 				}
 			}
 			else if(state == zui.Zui.State.Hovered){
