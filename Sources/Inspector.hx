@@ -33,7 +33,7 @@ class Inspector
     var windowHandle:zui.Zui.Handle = Id.handle();
     var object:Array<TObj> = [];
     var scene:Array<TSceneFormat> = [];
-    var itemsLength:Int = 10;
+    var itemsLength:Int = 11;
     var data:TObj = null;
 
     
@@ -185,10 +185,10 @@ class Inspector
             if(ui.getHover())
                 ui.tooltip(zSortText);
             zsortHandle.selected = data._Zsort != null ? data._Zsort : true;
-            ui.check(zsortHandle," Z sort");
-            if(zsortHandle.changed){
-                data._Zsort = zsortHandle.selected;
-                Reflect.setProperty(found.Scene,"zsort",data._Zsort);
+            var checked = ui.check(zsortHandle," Z sort");
+            if(zsortHandle.changed || data._Zsort != checked){
+                data._Zsort = checked;
+                Reflect.setProperty(found.Scene,"zsort",checked);
                 changed = true;
             }
         }
@@ -302,13 +302,9 @@ class Inspector
 
         Ext.panelList(ui,layersHandle,layers,addLayer,deleteLayer,getLayerName,setLayerName,drawLayerItems,false,true,"New Layer");
 
-        if(layersHandle.changed){
-            data.layers = layers;
-            changed = true;
-        }
         ui.unindent();
 
-        if(changed){
+        if(changed || layersHandle.changed){
             EditorHierarchy.makeDirty();
         }
 
@@ -316,19 +312,19 @@ class Inspector
     var layers(get,null):Array<TLayer> = [];
     function get_layers(){
         var data = found.State.active.raw;
-        return data != null && data.layers != null ? data.layers : layers;
+        if(data != null && data.layers == null) data.layers = layers;
+        return data != null ? data.layers : layers;
     }
     var layersName(get,null):Array<String> = [];
     function get_layersName(){
-        if(layers.length > layersName.length){
-            for(layer in layers){
-                layersName.push(layer.name);
-            }
+        while(layers.length > layersName.length){
+            layersName.push(layers[layersName.length].name);
         }
         return layersName;
     }
     var layerItemHandles:Array<Array<zui.Zui.Handle>> = [];
     function addLayer(name:String){
+        if(name=="")return;
         var out = name;
         for(layer in layers){
             if(layer.name == out){
@@ -337,7 +333,6 @@ class Inspector
         }
         layersHandle.changed = true;
         layers.push({name: out,zIndex: layers.length,speed:1.0});
-        layersName.push(name);
         redraw();
     }
     
@@ -345,6 +340,11 @@ class Inspector
         layersHandle.changed = true;
         layers.splice(index, 1);
         layersName.splice(index, 1);
+        for(entity in found.State.active._entities){
+            if(entity.layer == index){
+                entity.layer = entity.raw.layer = 0;
+            }
+        }
     }
 
     function getLayerName(index:Int){
@@ -361,7 +361,7 @@ class Inspector
     function drawLayerItems(handle:Handle, index:Int) {
         if(index == -1)return;
         var layer = layers[index];
-        if(layers.length > layerItemHandles.length){
+        while(layers.length > layerItemHandles.length){
             var handles = [];
             for(i in 0...3){
                 handles.push(new Handle());
@@ -412,10 +412,11 @@ class Inspector
         var zRotHandle = objItemHandles[3];
         var xScaleHandle = objItemHandles[4];
         var yScaleHandle = objItemHandles[5];
-        var depthHandle = objItemHandles[6];
-        var wHandle = objItemHandles[7];
-        var hHandle = objItemHandles[8];
-        var imagePathHandle = objItemHandles[9];
+        var layerHandle = objItemHandles[6];
+        var depthHandle = objItemHandles[7];
+        var wHandle = objItemHandles[8];
+        var hHandle = objItemHandles[9];
+        var imagePathHandle = objItemHandles[10];
 
         var kinematicHandle = Id.handle();
         var massHandle = Id.handle();
@@ -485,15 +486,31 @@ class Inspector
             changed = true;
         }
         ui.row([0.15,0.85]);
-        ui.text("Layer:");
+        ui.text("Layer: ");
         if(found.State.active.raw.layers != null){
-            depthHandle.value = data.depth;
-            var depth = ui.combo(depthHandle,layersName);
-            if(depthHandle.changed){
-                data.depth = depth;
-                currentObject.depth = data.depth;
+            layerHandle.position = data.layer;
+            var layer = ui.combo(layerHandle,layersName);
+            if(layerHandle.changed){
+                data.layer = layer;
+                currentObject.layer = data.layer;
                 currentObject.dataChanged = true;
                 changed = true;
+                layerHandle.changed = false;
+            }
+            var isZsort:Null<Bool> = found.State.active.raw._Zsort;
+            if(isZsort != null && isZsort){
+                ui.indent();
+                ui.row([0.35,0.65]);
+                ui.text("Order in layer:");
+                depthHandle.value = data.depth;
+                var depth = Ext.floatInput(ui,depthHandle);
+                if(depthHandle.changed){
+                    data.depth = depth;
+                    currentObject.depth = data.depth;
+                    currentObject.dataChanged = true;
+                    changed = true;
+                }
+                ui.unindent();
             }
         }
         else{
