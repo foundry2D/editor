@@ -147,7 +147,6 @@ class Hierarchy {
     @:access(found.object.Object,found.object.Executor)
     function rmvData2Scn(uid:Int){
 
-        found.State.active._entities[uid].active  = false;
         for(exe in found.object.Executor.executors){
 			var modified:Array<Any> = Reflect.field(found.object.Object,exe.field);
 			modified.splice(uid,1);
@@ -163,8 +162,7 @@ class Hierarchy {
             found.State.active._entities[i].dataChanged = true;
         }
         if(EditorHierarchy.inspector.index == uid){
-            EditorHierarchy.inspector.index = -1;
-            EditorHierarchy.inspector.inspector.setObject(null,-1);
+            EditorHierarchy.inspector.notifyObjectSelectedInHierarchy(null,-1);
         }
 
         EditorHierarchy.makeDirty();

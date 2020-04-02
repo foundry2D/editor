@@ -30,6 +30,7 @@ import utilities.Config;
 class EditorUi extends Trait{
     public var visible(default,set) = true;
     function set_visible(v:Bool){
+        if(inspector == null)return true;
         if(v){
             registerInput();
         }
@@ -239,7 +240,7 @@ class EditorUi extends Trait{
         }
     }
     public function onKeyPressed(keyCode:KeyCode){
-        if(keyCode == KeyCode.F11){
+        if(keyCode == KeyCode.F9){
 			Found.fullscreen = !Found.fullscreen;
 		}
 		if(keyCode == KeyCode.F1){
