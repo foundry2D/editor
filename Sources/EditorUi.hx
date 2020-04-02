@@ -1,5 +1,6 @@
 package;
 
+import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
 import haxe.ui.components.Button;
@@ -424,7 +425,7 @@ class EditorUi extends Trait{
                 }
                 i++;
             }
-            Fs.saveContent(scenePath,haxe.Json.stringify(State.active.raw));
+            Fs.saveContent(scenePath,DataLoader.stringify(State.active.raw));
             EditorHierarchy.sceneName = StringTools.replace(EditorHierarchy.sceneName,'*','');
         }
     }

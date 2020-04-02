@@ -152,7 +152,7 @@ class EditorMenu {
                 Url.explorer("https://github.com/armory3d/armorpaint/issues");
             }
             if (ui.button("      " + tr("Report Bug"), Left)) {
-                var url = "https://github.com/armory3d/armorpaint/issues/new?labels=bug&template=bug_report.md&body=*ArmorPaint%20" + Main.version + "-" + Main.sha + ",%20" + System.systemId + "*";
+                var url = "https://github.com/armory3d/armorpaint/issues/new?labels=bug&template=bug_report.md&body=*ArmorPaint%20" + Data.version + "-" + Main.sha + ",%20" + System.systemId + "*";
                 Url.explorer(url);
             }
         }

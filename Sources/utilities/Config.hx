@@ -54,7 +54,7 @@ class Config {
 			raw.window_scale = 2.0;
 			#end
 
-			raw.version = Main.version;
+			raw.version = Data.version+"";
 			raw.sha = Main.sha;
 			raw.bookmarks = [];
 			raw.plugins = [];

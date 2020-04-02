@@ -1,7 +1,9 @@
 package;
 
+import found.data.Data;
 import khafs.Fs;
 import found.data.Project.Type;
+import found.data.DataLoader;
 import found.data.SceneFormat;
 
 class ProjectInit {
@@ -61,13 +63,14 @@ class ProjectInit {
     static function createDefaults(){
         Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
             var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+            Reflect.setField(DataLoader,"version",Data.version);
 
-            var scene:TSceneFormat = haxe.Json.parse(kha.Assets.blobs.default_json.toString());
+            var scene:Dynamic = DataLoader.parse(kha.Assets.blobs.default_json.toString());
             scene.name = "PlayState";
-            var data = haxe.Json.stringify(scene);
+            var data = DataLoader.stringify(scene);
             khafs.Fs.saveContent(path+"/Assets/PlayState.json",data);
 
-            out.list.push({name: project,path: path,scenes:[path+"/Assets/PlayState.json"],type: Type.twoD});
+            out.list.push({name: project,dataVersion: Data.version,path: path,scenes:[path+"/Assets/PlayState.json"],type: Type.twoD});
             data = haxe.Json.stringify(out);
             path = EditorUi.cwd+"/pjml.found";
             khafs.Fs.saveContent(path,data);
