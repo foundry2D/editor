@@ -161,11 +161,12 @@ class Hierarchy {
             Reflect.setProperty(found.State.active._entities[i],"uid",i);
             found.State.active._entities[i].dataChanged = true;
         }
+        
+        EditorHierarchy.makeDirty();
+
         if(EditorHierarchy.inspector.index == uid){
             EditorHierarchy.inspector.notifyObjectSelectedInHierarchy(null,-1);
         }
-
-        EditorHierarchy.makeDirty();
     }
 
     var doubleClickTime:Float = 0.0;

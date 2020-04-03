@@ -566,117 +566,128 @@ class Inspector
             data.traits = traits;
             ui.unindent();
         }
-        ui.row([0.5,0.5]);
-        var text = data.rigidBody != null ? "-": "+";
-        var addRigidbody = function(state:String){
-            if(state == "+"){
-                data.rigidBody = Body.defaults;
-                if(currentObject.body == null)
-                    currentObject.body = new echo.Body(data.rigidBody);
-                if(found.State.active.physics_world != null){
-                    found.State.active.physics_world.add(currentObject.body);
+        
+        if(found.State.active.raw.physicsWorld != null){
+            ui.row([0.5,0.5]);
+            var text = data.rigidBody != null ? "-": "+";
+            var addRigidbody = function(state:String){
+                if(state == "+"){
+                    data.rigidBody = Body.defaults;
+                    if(currentObject.body == null)
+                        currentObject.body = new echo.Body(data.rigidBody);
+                    if(found.State.active.physics_world != null){
+                        found.State.active.physics_world.add(currentObject.body);
+                    }
+                    
                 }
-                
+                else if(state=="-"){
+                    data.rigidBody = null;
+                    if(found.State.active.physics_world != null){
+                        found.State.active.physics_world.remove(currentObject.body);
+                    }
+                    currentObject.body = null;
+                }
+                currentObject.dataChanged = true;
+                changed = true;
+            };
+            if(ui.panel(Id.handle(),"Rigidbody: ")){
+                if(ui.button(text)){
+                    addRigidbody(text);
+                }
+                if(data.rigidBody != null){
+
+                    kinematicHandle.selected = data.rigidBody.kinematic;
+                    ui.check(kinematicHandle,"is Kinematic");
+                    if(kinematicHandle.changed){
+                        data.rigidBody.kinematic = kinematicHandle.selected;
+                        currentObject.body.kinematic = data.rigidBody.kinematic;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+
+                    massHandle.value = data.rigidBody.mass;
+                    var mass = Ext.floatInput(ui,massHandle,"Mass:",Align.Right);
+                    if(massHandle.changed){
+                        data.rigidBody.mass = mass;
+                        currentObject.body.mass = data.rigidBody.mass;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+
+                    elasticityHandle.value = data.rigidBody.elasticity;
+                    var elasticity = Ext.floatInput(ui,elasticityHandle,"Elasticity:",Align.Right);
+                    if(elasticityHandle.changed){
+                        data.rigidBody.elasticity = elasticity;
+                        currentObject.body.elasticity = data.rigidBody.elasticity;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+                    maxXvelHandle.value = data.rigidBody.max_velocity_x;
+                    var maxVelX = Ext.floatInput(ui,maxXvelHandle,"Max X Velocity:",Align.Right);
+                    if(maxXvelHandle.changed){
+                        data.rigidBody.max_velocity_x =  maxVelX;
+                        currentObject.body.max_velocity.x = data.rigidBody.max_velocity_x;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+                    maxYvelHandle.value = data.rigidBody.max_velocity_x;
+                    var maxVelY = Ext.floatInput(ui,Id.handle(),"Max Y Velocity:",Align.Right);
+                    if(maxYvelHandle.changed){
+                        data.rigidBody.max_velocity_y =  maxVelY;
+                        currentObject.body.max_velocity.y = data.rigidBody.max_velocity_y;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+                    maxRotVelHandle.value = data.rigidBody.max_rotational_velocity;
+                    var maxRot = Ext.floatInput(ui,Id.handle(),"Max Rotation Velocity:",Align.Right);
+                    if(maxRotVelHandle.changed){
+                        data.rigidBody.max_rotational_velocity = maxRot;
+                        currentObject.body.max_rotational_velocity = data.rigidBody.max_rotational_velocity;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+                    
+                    dragXHandle.value = data.rigidBody.drag_x;
+                    var dragX = Ext.floatInput(ui,Id.handle(),"Drag X:",Align.Right);
+                    if(dragXHandle.changed){
+                        data.rigidBody.drag_x = dragX;
+                        currentObject.body.drag.x = data.rigidBody.drag_x;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+
+                    dragYHandle.value = data.rigidBody.drag_y;
+                    var dragY = Ext.floatInput(ui,Id.handle(),"Drag Y:",Align.Right);
+                    if(dragYHandle.changed){
+                        data.rigidBody.drag_y = dragY;
+                        currentObject.body.drag.y = data.rigidBody.drag_y;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+
+                    gravityScaleHandle.value = data.rigidBody.gravity_scale;
+                    var gravityScale = Ext.floatInput(ui,gravityScaleHandle,"Gravity Scale:",Align.Right);
+                    if(gravityScaleHandle.changed){
+                        data.rigidBody.gravity_scale = gravityScale;
+                        currentObject.body.gravity_scale = data.rigidBody.gravity_scale;
+                        currentObject.dataChanged = true;
+                        changed = true;
+                    }
+                    
+                }
             }
-            else if(state=="-"){
-                data.rigidBody = null;
-                if(found.State.active.physics_world != null){
-                    found.State.active.physics_world.remove(currentObject.body);
+            else {
+                if(ui.button(text)){
+                    addRigidbody(text);
                 }
-                currentObject.body = null;
-            }
-            currentObject.dataChanged = true;
-            changed = true;
-        };
-        if(ui.panel(Id.handle(),"Rigidbody: ")){
-            if(ui.button(text)){
-                addRigidbody(text);
-            }
-            if(data.rigidBody != null){
-
-                kinematicHandle.selected = data.rigidBody.kinematic;
-                ui.check(kinematicHandle,"is Kinematic");
-                if(kinematicHandle.changed){
-                    data.rigidBody.kinematic = kinematicHandle.selected;
-                    currentObject.body.kinematic = data.rigidBody.kinematic;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-
-                massHandle.value = data.rigidBody.mass;
-                var mass = Ext.floatInput(ui,massHandle,"Mass:",Align.Right);
-                if(massHandle.changed){
-                    data.rigidBody.mass = mass;
-                    currentObject.body.mass = data.rigidBody.mass;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-
-                elasticityHandle.value = data.rigidBody.elasticity;
-                var elasticity = Ext.floatInput(ui,elasticityHandle,"Elasticity:",Align.Right);
-                if(elasticityHandle.changed){
-                    data.rigidBody.elasticity = elasticity;
-                    currentObject.body.elasticity = data.rigidBody.elasticity;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-                maxXvelHandle.value = data.rigidBody.max_velocity_x;
-                var maxVelX = Ext.floatInput(ui,maxXvelHandle,"Max X Velocity:",Align.Right);
-                if(maxXvelHandle.changed){
-                    data.rigidBody.max_velocity_x =  maxVelX;
-                    currentObject.body.max_velocity.x = data.rigidBody.max_velocity_x;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-                maxYvelHandle.value = data.rigidBody.max_velocity_x;
-                var maxVelY = Ext.floatInput(ui,Id.handle(),"Max Y Velocity:",Align.Right);
-                if(maxYvelHandle.changed){
-                    data.rigidBody.max_velocity_y =  maxVelY;
-                    currentObject.body.max_velocity.y = data.rigidBody.max_velocity_y;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-                maxRotVelHandle.value = data.rigidBody.max_rotational_velocity;
-                var maxRot = Ext.floatInput(ui,Id.handle(),"Max Rotation Velocity:",Align.Right);
-                if(maxRotVelHandle.changed){
-                    data.rigidBody.max_rotational_velocity = maxRot;
-                    currentObject.body.max_rotational_velocity = data.rigidBody.max_rotational_velocity;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-                
-                dragXHandle.value = data.rigidBody.drag_x;
-                var dragX = Ext.floatInput(ui,Id.handle(),"Drag X:",Align.Right);
-                if(dragXHandle.changed){
-                    data.rigidBody.drag_x = dragX;
-                    currentObject.body.drag.x = data.rigidBody.drag_x;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-
-                dragYHandle.value = data.rigidBody.drag_y;
-                var dragY = Ext.floatInput(ui,Id.handle(),"Drag Y:",Align.Right);
-                if(dragYHandle.changed){
-                    data.rigidBody.drag_y = dragY;
-                    currentObject.body.drag.y = data.rigidBody.drag_y;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-
-                gravityScaleHandle.value = data.rigidBody.gravity_scale;
-                var gravityScale = Ext.floatInput(ui,gravityScaleHandle,"Gravity Scale:",Align.Right);
-                if(gravityScaleHandle.changed){
-                    data.rigidBody.gravity_scale = gravityScale;
-                    currentObject.body.gravity_scale = data.rigidBody.gravity_scale;
-                    currentObject.dataChanged = true;
-                    changed = true;
-                }
-                
             }
         }
-        else {
-            if(ui.button(text)){
-                addRigidbody(text);
+        else{
+            ui.row([0.25,0.75]);
+            ui.text("Rigidbody: ");
+            if(ui.button("Create Physics World"))
+            {
+                selectScene();   
             }
         }
 
