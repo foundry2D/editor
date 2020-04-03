@@ -361,29 +361,17 @@ class EditorUi extends Trait{
     @:access(EditorInspector)
     function updateScale(sx:Float,sy:Float){
         if(keys.ctrl){
-            State.active._entities[inspector.index].resize(
-                function(data:kha.math.Vector2){
-                    data.x = sx;
-                    data.y = sy;
-                    return data;
-            });
+            State.active._entities[inspector.index].scale.x = sx;
+            State.active._entities[inspector.index].scale.y = sy;
             Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);
         }
         else{
             switch(arrow){
                 case 0:
-                    State.active._entities[inspector.index].resize(
-                        function(data:kha.math.Vector2){
-                            data.x = sx;
-                            return data;
-                    });
+                    State.active._entities[inspector.index].scale.x = sx;
                     Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);
                 case 1:
-                    State.active._entities[inspector.index].resize(
-                        function(data:kha.math.Vector2){
-                            data.y = sy;
-                            return data;
-                    });
+                    State.active._entities[inspector.index].scale.y = sy;
                     Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"y",sy);
             }
         }
@@ -392,29 +380,18 @@ class EditorUi extends Trait{
     function updatePos(px:Float,py:Float){ 
         switch(arrow){
             case 0:
-                State.active._entities[inspector.index].translate(
-                    function(data:MoveData){
-                        data._positions.x = px;
-                        return data;
-                });
+                State.active._entities[inspector.index].position.x = px;
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
             case 1:
-                State.active._entities[inspector.index].translate(
-                    function(data:MoveData){
-                        data._positions.y = py;
-                        return data;
-                });
+                State.active._entities[inspector.index].position.y = py;
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
             case 2:
-                State.active._entities[inspector.index].translate(
-                    function(data:MoveData){
-                        data._positions.x = px;
-                        data._positions.y = py;
-                        return data;
-                });
+                State.active._entities[inspector.index].position.x = px;
+                State.active._entities[inspector.index].position.y = py;
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
         }
+        inspector.inspector.redraw();
     }
     @:access(found.anim.Sprite)
     public function saveSceneData(){

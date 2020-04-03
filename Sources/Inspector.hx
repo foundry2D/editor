@@ -402,7 +402,7 @@ class Inspector
     @:access(zui.Zui)
     function drawObjectItems(handle:Handle,i:Int){
         if(i == -1)return;
-        data = object[i];
+        data = currentObject.raw;
         changed = false;
         ui.text(data.type);
 
