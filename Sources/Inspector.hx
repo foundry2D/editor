@@ -399,7 +399,7 @@ class Inspector
     }
     public var objItemHandles:Array<zui.Zui.Handle> = [];
     var changed = false;
-    @:access(zui.Zui)
+    @:access(zui.Zui,found.anim.Sprite)
     function drawObjectItems(handle:Handle,i:Int){
         if(i == -1)return;
         data = currentObject.raw;
@@ -672,6 +672,10 @@ class Inspector
                         currentObject.body.gravity_scale = data.rigidBody.gravity_scale;
                         currentObject.dataChanged = true;
                         changed = true;
+                    }
+
+                    if(ui.button("Edit Collision")){
+                        CollisionEditorDialog.open(cast(currentObject));
                     }
                     
                 }

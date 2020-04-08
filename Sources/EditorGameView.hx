@@ -97,6 +97,7 @@ class EditorGameView extends EditorTab {
 		#elseif found
 
 		g.end();
+		if (Found.scenebuffer == null) Found.scenebuffer = kha.Image.createRenderTarget(Found.backbuffer.width, Found.backbuffer.height);
 		if(selectedPage != null && selectedPage.text == "Game"){
 			var image = Found.scenebuffer;
 			image.g2.begin();
