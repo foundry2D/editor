@@ -180,10 +180,12 @@ class CollisionEditorDialog {
 							// selectY = y + initY;
 							trace("Vert X: "+ (vert.x + tempX)+"VertY: " + (vert.y + tempY ));
 							trace('X: $x Y: $y');
-							if(x >= vert.x + tempX &&  x <= vert.x + tempX + w && y >= vert.y + tempY && y <= vert.y + tempY + w){
+							if(x >= vert.x + tempX &&  x <= vert.x + tempX + w * 2 && y >= vert.y + tempY && y <= vert.y + tempY + w *2 ){
 								ui.g.color = selectedCol;
-								vert.x = Math.max(0,Math.min(x,image.width));
-								vert.y = Math.max(0,Math.min(y,image.height));
+								var tx = Math.min(x,sprite.width);
+								var ty = Math.min(y,sprite.height);
+								vert.x = Math.max(0,tx);
+								vert.y = Math.max(0,ty);
 							} 
 						}
 						ui.g.fillRect( vert.x + addX,vert.y + addY ,w,w);
@@ -197,6 +199,7 @@ class CollisionEditorDialog {
 		ui.row([0.5, 0.5]);
 		if (ui.button("Done")) {
 			//Set raw data to collision data based on what we just changed
+			// sprite.data.raw.points = shape.
             found.App.editorui.ui.enabled = true;
 			zui.Popup.show = false;
 		}

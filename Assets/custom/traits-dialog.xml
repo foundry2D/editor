@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<vbox id="container" width="100%" height="95%" >
-    <listview id="feed" width="100%" />
-    <textfield id="filename" text="" width="100%"  />
-</vbox>
