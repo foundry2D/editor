@@ -1,5 +1,7 @@
 package;
 
+import found.node.Logic;
+import found.data.Data;
 import found.App;
 import found.Scene;
 import found.Found;
@@ -42,6 +44,7 @@ class Inspector
     var traitListHandle:Handle = Id.handle();
     var traitListOpts:ListOpts;
     var selectedTraitIndex:Int = 0;
+    var objectTraitsChanged:Bool = false;
 
     public var searchImage:Void->Void = null;
 
@@ -560,7 +563,7 @@ class Inspector
             var traits:Array<TTrait> = data.traits != null ? data.traits : [];
             var lastSelectedTraitIndex:Int = traitListHandle.nest(0).position;
             selectedTraitIndex = Ext.list(ui, traitListHandle, traits, traitListOpts);
-            if (selectedTraitIndex != lastSelectedTraitIndex) {
+            if (selectedTraitIndex != lastSelectedTraitIndex || objectTraitsChanged) {
                 App.editorui.codeView.setDisplayedTrait(traits[selectedTraitIndex]);
             }
             data.traits = traits;
@@ -707,22 +710,39 @@ class Inspector
         }
     }
     function addTrait(name:String) {
-		TraitsDialog.open();
+        TraitsDialog.open();
+        objectTraitsChanged = true;
 	}
-	
+    
+    @:access(found.object.Object)
     function removeTrait(i:Int){
-        //@:TODO the other stuff to update objects in realtime
-        currentObject.height = data.height;
-        var out = data.traits.splice(i,1);
-        if(out[0].type == "Script"){
-            var trait = currentObject.getTrait(Type.resolveClass(out[0].classname));
+        var removedTrait = data.traits.splice(i,1);
+        if(removedTrait[0].type == "VisualScript") {        
+            currentObject.removeTrait(currentObject.traits[i]);    
+            // Data.getBlob(removedTrait[0].classname, function(blob:kha.Blob) {
+            //     var node:LogicTreeData = haxe.Json.parse(blob.toString());
+            //     var visualTrait = Logic.parse(node);
+            //     visualTrait.name = removedTrait[0].classname;
+            //     trace(Type.getClass(visualTrait));
+            //     var existentTrait = currentObject.getTrait(Type.getClass(visualTrait), visualTrait.name);
+            //     if (existentTrait != null) {
+            //         currentObject.removeTrait(existentTrait);
+            //     }
+            // }, true);
+        } else if(removedTrait[0].type == "Script") {
+            var trait = currentObject.getTrait(Type.resolveClass(removedTrait[0].classname));
             if(trait != null)
                 currentObject.removeTrait(trait);
         }
+
+        if(i == selectedTraitIndex){
+            objectTraitsChanged = true;
+        }
+
         currentObject.dataChanged = true;
         changed = true;
-        EditorHierarchy.makeDirty();
     }
+
     function getTraitName(i:Int){
         var trait = data.traits[i];
         var name = "";
