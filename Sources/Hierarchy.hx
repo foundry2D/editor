@@ -144,7 +144,7 @@ class Hierarchy {
         EditorHierarchy.makeDirty();
     }
 
-    @:access(found.object.Object,found.object.Executor)
+    @:access(found.object.Object,found.object.Executor,found.Scene)
     function rmvData2Scn(uid:Int){
 
         for(exe in found.object.Executor.executors){
@@ -153,9 +153,9 @@ class Hierarchy {
 		}
 
         found.State.active.raw._entities.splice(uid,1);
-        found.State.active._entities.splice(uid,1);
-        
-        // Reset scene
+        var entity = found.State.active._entities.splice(uid,1);
+        entity[0].active = false;
+
         Object.uidCounter--;
         for(i in 0...found.State.active._entities.length){
             Reflect.setProperty(found.State.active._entities[i],"uid",i);
