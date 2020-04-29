@@ -38,6 +38,7 @@ class CollisionEditorDialog {
 		var border = 2 * zui.Popup.borderW + zui.Popup.borderOffset;
 		var initX = ui._x;
 		
+		//@:TODO make it possible to add multiple shape collisions
 		var shapes = sprite.body.shapes;
 		var shape:Null<echo.Shape> = null;
 		if(shapes.length > 0){
@@ -171,6 +172,7 @@ class CollisionEditorDialog {
 						var w = 10;
 						var addX = ui._x + (vert.x > 0 ? -w : 0.0);
 						var addY = initY + (vert.y > 0 ? -w : 0.0);
+						//@:TODO add double click to create a new point for the shape
 						if(state == State.Down){
 							var x = Math.abs(ui._windowX - ui.inputX) - px ;
 							var y = Math.abs(ui._windowY - ui.inputY) - py ;
@@ -198,8 +200,24 @@ class CollisionEditorDialog {
 		ui._y = ui._h - ui.t.BUTTON_H - border;
 		ui.row([0.5, 0.5]);
 		if (ui.button("Done")) {
-			//Set raw data to collision data based on what we just changed
-			// sprite.data.raw.points = shape.
+			//@:TODO Update the save state in EditorUI to make it dirty
+			var i=0;
+			while(i < shapes.length){
+				var tshape = shapes[i];
+				sprite.body.add_shape(tshape,i);
+				var ops = toOptions(tshape);
+				if(sprite.raw.rigidBody.shapes == null){
+					sprite.raw.rigidBody.shapes = [];
+				}
+
+				if(i < sprite.raw.rigidBody.shapes.length){
+					sprite.raw.rigidBody.shapes[i] = ops;
+				}
+				else{
+					sprite.raw.rigidBody.shapes.push(ops);
+				}
+				i++;
+			}
             found.App.editorui.ui.enabled = true;
 			zui.Popup.show = false;
 		}
@@ -207,6 +225,27 @@ class CollisionEditorDialog {
             found.App.editorui.ui.enabled = true;
 			zui.Popup.show = false;
 		}
+	}
+	@:access(echo.Shape)
+	static function toOptions(shape:echo.Shape){
+		var def = echo.Shape.get_defaults();
+		def.type = shape.type;
+		def.offset_x = shape.x;
+		def.offset_y = shape.y;
+		def.rotation = shape.rotation;
+		def.solid = shape.solid;
+		if(Std.is(shape,Rect)){
+			var t = cast(shape,Rect);
+			def.width = t.width;
+			def.height = t.height;
+		}
+		else if(Std.is(shape,Circle)){
+			def.radius = cast(shape,Circle).radius;
+		}
+		else if(Std.is(shape,Polygon)){
+			def.vertices = cast(shape,Polygon).vertices;
+		}
+		return def;
 	}
 	
 }
