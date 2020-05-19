@@ -61,7 +61,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		setDisplayedTrait(traits[0]);
 	}
 
-	public function setDisplayedTrait(trait:TTrait):Void {
+	public function setDisplayedTrait(trait:TTrait):Void {		
 		currentlyDisplayedTrait = trait;
 		traitNameWindowHandle.redraws = codeScriptWindowHandle.redraws = codeScriptTextAreaHandle.redraws = 2;
 		visualEditor.redraw();
