@@ -230,7 +230,7 @@ class Inspector {
 					width: Found.WIDTH,
 					height: Found.HEIGHT,
 					iterations: 5,
-					gravity_y: 50
+					gravity_y: 3000
 				};
 				if (found.State.active.physics_world == null)
 					found.State.active.addPhysicsWorld(data.physicsWorld);
