@@ -1,4 +1,6 @@
 
+import kha.Image;
+import found.anim.Tile;
 import kha.Blob;
 import kha.graphics2.GraphicsExtension;
 import khafs.Fs;
@@ -10,6 +12,7 @@ import found.Found;
 import found.App;
 import found.Scene;
 import found.anim.Sprite;
+import found.anim.Tilemap;
 import found.data.SceneFormat;
 
 import echo.data.Types.ShapeType;
@@ -23,23 +26,48 @@ class CollisionEditorDialog {
 	static var collisionTypes = ["Rect", "Circle","Polygon"];
 	static var image:kha.Image;
 	static var sprite:Sprite;
+	static var tile:Tile;
+	static var shouldTileInit:Bool =false;
 
 	@:access(found.anim.Sprite)
-	public static function open(p_sprite:Sprite) {
+	public static function open(?p_sprite:Sprite,?p_tile:Tile) {
 		sprite = p_sprite;
-		image = p_sprite.data.image;
+		tile = p_tile;
+		if(sprite != null){
+			image = p_sprite.data.image;
+		}
+		else if(tile != null){
+			shouldTileInit = true;
+		}
+		else {
+			trace("Error: CollisionEditor can not be opened without a Tile or a Sprite");
+			found.App.editorui.ui.enabled = true;
+			zui.Popup.show = false;
+		}
 		found.App.editorui.ui.enabled = false;
 		zui.Popup.showCustom(Found.popupZuiInstance, collisionEditorPopupDraw, -1, -1, 600, 500);
 	}
-
-	@:access(zui.Zui, zui.Popup,found.anim.Sprite)
+	@:access(found.anim.Tile)
+	static function initTileImage(ui:Zui){
+		ui.g.end();
+		shouldTileInit = false;
+		image = Image.createRenderTarget(Std.int(tile._w),Std.int(tile._h));
+		image.g2.begin();
+		tile.render(image,new kha.math.Vector2());
+		image.g2.end();
+		ui.g.begin(false);
+	}
+	@:access(zui.Zui, zui.Popup,found.anim.Sprite,found.anim.Tile)
 	static function collisionEditorPopupDraw(ui:Zui) {
+		if(shouldTileInit)
+			initTileImage(ui);
 		zui.Popup.boxTitle = "Edit collision";
 		var border = 2 * zui.Popup.borderW + zui.Popup.borderOffset;
 		var initX = ui._x;
+		var data:Dynamic =  sprite != null ? sprite:tile;
 		
 		//@:TODO make it possible to add multiple shape collisions
-		var shapes = sprite.body.shapes;
+		var shapes:Array<echo.Shape> = data.body.shapes;
 		var shape:Null<echo.Shape> = null;
 		if(shapes.length > 0){
 			shape = shapes[0];
@@ -81,20 +109,30 @@ class CollisionEditorDialog {
 		var initY = ui._y;
 		
 		var ratio = 1.0;
+		
+		
 		if(image.width > ui._windowW){
 			ratio = ui._windowW/image.width;
 		}
+
 		if(image.height > ui._windowH ){
 			ratio = ui._windowH/image.height;
 		}
-		// ui._x = ui._windowW * 0.5 - image.width * ratio * 0.5;
+		
+		
 		var r = ui.curRatio == -1 ? 1.0 : ui.ratios[ui.curRatio];
 		var px = ui._x+ui.buttonOffsetY+ui.SCROLL_W() * r*0.5;
 		var py = ui._y;
-		var state = ui.image(image,0xffffffff,null,0,0,image.width,image.height);
+		var fixW = 0;
+		if(!ui.currentWindow.scrollEnabled && image.width == image.height){
+			fixW =  Std.int(ui.SCROLL_W() * r);
+		}
 
-		// ui.g.color = kha.Color.Red;
-		// ui.drawRect(ui.g,true,drawX,drawY,10,10);
+		var tempX = ui._x;
+		ui._x -= ui.buttonOffsetY+ui.SCROLL_W() * r / 2;
+		var state = ui.image(image,0xffffffff,null,0,0,image.width+fixW,image.height+fixW);
+		ui._x = tempX;
+
 		ui._y += ui.ELEMENT_OFFSET() * 2;
 
 		if(shape != null){
@@ -105,28 +143,28 @@ class CollisionEditorDialog {
 
 					var xHandle = Id.handle();
 					xHandle.value = rect.x;
-					var x = ui.slider(xHandle,"X",0,sprite.width);
+					var x = ui.slider(xHandle,"X",0,data.width);
 					if(xHandle.changed){
 						rect.x = x;
 					}
 
 					var yHandle = Id.handle();
 					yHandle.value = rect.y;
-					var y = ui.slider(yHandle,"Y",0,sprite.height);
+					var y = ui.slider(yHandle,"Y",0,data.height);
 					if(yHandle.changed){
 						rect.y = y;
 					}
 
 					var widthHandle = Id.handle();
 					widthHandle.value = rect.width;
-					var w = ui.slider(widthHandle,"Width",0.1,sprite.width);
+					var w = ui.slider(widthHandle,"Width",0.1,data.width);
 					if(widthHandle.changed){
 						rect.width = w;
 					}
 
 					var heightHandle = Id.handle();
 					heightHandle.value = rect.height;
-					var h = ui.slider(heightHandle,"Height",0.1,sprite.height);
+					var h = ui.slider(heightHandle,"Height",0.1,data.height);
 					if(heightHandle.changed){
 						rect.height = h;
 					}
@@ -138,21 +176,21 @@ class CollisionEditorDialog {
 
 					var xHandle = Id.handle();
 					xHandle.value = circle.x;
-					var x = ui.slider(xHandle,"X",0,sprite.width);
+					var x = ui.slider(xHandle,"X",0,data.width);
 					if(xHandle.changed){
 						circle.x = x;
 					}
 
 					var yHandle = Id.handle();
 					yHandle.value = circle.y;
-					var y = ui.slider(yHandle,"Y",0,sprite.height);
+					var y = ui.slider(yHandle,"Y",0,data.height);
 					if(yHandle.changed){
 						circle.y = y;
 					}
 
 					var radiusHandle = Id.handle();
 					radiusHandle.value = circle.radius;
-					var maxRadius = 0.5 * (sprite.width < sprite.height ? sprite.width : sprite.height);
+					var maxRadius = 0.5 * (data.width < data.height ? data.width : data.height);
 					var radius = ui.slider(radiusHandle,"Radius",1,maxRadius);
 					if(radiusHandle.changed){
 						circle.radius = radius;
@@ -178,14 +216,11 @@ class CollisionEditorDialog {
 							var y = Math.abs(ui._windowY - ui.inputY) - py ;
 							var tempX = addX- ui._x;
 							var tempY = addY -initY;
-							// selectX = x + ui._x;
-							// selectY = y + initY;
-							trace("Vert X: "+ (vert.x + tempX)+"VertY: " + (vert.y + tempY ));
-							trace('X: $x Y: $y');
-							if(x >= vert.x + tempX &&  x <= vert.x + tempX + w * 2 && y >= vert.y + tempY && y <= vert.y + tempY + w *2 ){
+
+							if(x >= vert.x + tempX - w *2 &&  x <= vert.x + tempX + w * 2 && y >= vert.y + tempY - w *2 && y <= vert.y + tempY + w *2 ){
 								ui.g.color = selectedCol;
-								var tx = Math.min(x,sprite.width);
-								var ty = Math.min(y,sprite.height);
+								var tx = Math.min(x,data.width);
+								var ty = Math.min(y,data.height);
 								vert.x = Math.max(0,tx);
 								vert.y = Math.max(0,ty);
 							} 
@@ -204,22 +239,25 @@ class CollisionEditorDialog {
 			var i=0;
 			while(i < shapes.length){
 				var tshape = shapes[i];
-				sprite.body.add_shape(tshape,i);
+				data.body.add_shape(tshape,i);
 				var ops = toOptions(tshape);
-				if(sprite.raw.rigidBody.shapes == null){
-					sprite.raw.rigidBody.shapes = [];
+				if(data.raw.rigidBody.shapes == null){
+					data.raw.rigidBody.shapes = [];
 				}
 
-				if(i < sprite.raw.rigidBody.shapes.length){
-					sprite.raw.rigidBody.shapes[i] = ops;
+				if(i < data.raw.rigidBody.shapes.length){
+					data.raw.rigidBody.shapes[i] = ops;
 				}
 				else{
-					sprite.raw.rigidBody.shapes.push(ops);
+					data.raw.rigidBody.shapes.push(ops);
 				}
 				i++;
 			}
+			
             found.App.editorui.ui.enabled = true;
 			zui.Popup.show = false;
+			sprite != null ? sprite.dataChanged = true:tile.map.dataChanged =true;
+			EditorHierarchy.makeDirty();
 		}
 		if (ui.button("Cancel")) {
             found.App.editorui.ui.enabled = true;

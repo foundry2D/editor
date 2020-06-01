@@ -1,5 +1,6 @@
 package;
 
+import found.anim.Tilemap;
 import found.App;
 import found.Scene;
 import found.Found;
@@ -238,10 +239,14 @@ class Inspector {
 					if (object.body != null) {
 						found.State.active.physics_world.add(object.body);
 					}
+					if(Std.is(object,Tilemap)){
+						cast(object,Tilemap).makeBodies(found.State.active);
+					}
 				}
 			} else if (state == "-") {
 				data.physicsWorld = null;
 				found.State.active.physicsUpdate = function(f:Float) {};
+				found.State.active.physics_world.dispose();
 				found.State.active.physics_world = null;
 			}
 			changed = true;
@@ -603,6 +608,9 @@ class Inspector {
 					data.rigidBody = Body.defaults;
 					if (currentObject.body == null)
 						currentObject.body = new echo.Body(data.rigidBody);
+					if(currentObject.body.shapes == null && currentObject.body.shapes.length == 0){
+						currentObject.body.shapes.push(echo.Shape.rect(0,0,currentObject.width,currentObject.height));
+					}
 					if (found.State.active.physics_world != null) {
 						found.State.active.physics_world.add(currentObject.body);
 					}
