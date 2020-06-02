@@ -44,6 +44,7 @@ class EditorMenu {
     }
     
     static var drawGridHandle:Handle = Id.handle({selected:true});
+    static var physicsDebugHandle:Handle = Id.handle({selected:false});
     static var camControlLeftHandle:Handle = Id.handle();
     static var camControlRightHandle:Handle = Id.handle();
     static var camControlUpHandle:Handle = Id.handle();
@@ -64,7 +65,7 @@ class EditorMenu {
         g.begin(false);
         ui.beginRegion(g, menuX, menuY, menuW);
 
-        var menuItemsCount = [5, 2, 2,12, 19, 5];
+        var menuItemsCount = [5, 2, 3,12, 19, 5];
         var sepw = menuW / ui.SCALE();
         ui.g.color = ui.t.SEPARATOR_COL;
         ui.g.fillRect( menuX, menuY, menuW, 28 * menuItemsCount[menuCategory] * ui.SCALE());
@@ -107,15 +108,25 @@ class EditorMenu {
             }
         }
         else if (menuCategory == MenuViewport) {
-            if(ui.check(drawGridHandle,tr("Draw Grid"))){
-                if(drawGridHandle.changed){
-                    show = false;
-                }
-                drawGridHandle.value = found.Found.GRID; 
-                var size = Ext.floatInput(ui,drawGridHandle,tr("Grid size"));
-                if(drawGridHandle.changed){
-                    found.Found.GRID = Std.int(Util.snap(size,8));
-                } 
+            var active = ui.check(drawGridHandle,tr("Draw Grid"));
+            found.Found.drawGrid = active;
+            if(drawGridHandle.changed){
+                show = false;
+            }
+            ui.enabled = active;
+            drawGridHandle.value = found.Found.GRID; 
+            var size = Ext.floatInput(ui,drawGridHandle,tr("Grid size"));
+            if(drawGridHandle.changed){
+                found.Found.GRID = Std.int(Util.snap(size,8));
+            }
+            ui.enabled = true;
+
+            if(ui.check(physicsDebugHandle,tr("Physics debug"))){
+                
+            }
+            if(physicsDebugHandle.changed){
+                show = false;
+                found.Found.collisionsDraw = physicsDebugHandle.selected;
             }
         }
         else if (menuCategory == MenuCamera) {

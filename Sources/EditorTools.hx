@@ -38,6 +38,7 @@ class EditorTools {
         rect.render2Scene(g,x,y);
     }
     static public function drawGrid(g:Graphics){
+        if(!Found.drawGrid)return;
         var size:Int = found.Found.GRID;
         var str = 3.0;
         var x = found.State.active.cam.position.x;
