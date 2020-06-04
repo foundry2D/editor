@@ -67,14 +67,18 @@ class CollisionEditorDialog {
 		var data:Dynamic =  sprite != null ? sprite:tile;
 		
 		//@:TODO make it possible to add multiple shape collisions
-		var shapes:Array<echo.Shape> = data.body.shapes;
-		var shape:Null<echo.Shape> = null;
-		if(shapes.length > 0){
+		var shapes:Array<echo.data.Options.ShapeOptions> = data.raw.rigidBody.shapes != null ? data.raw.rigidBody.shapes : [] ;
+		var shape:Null<echo.data.Options.ShapeOptions> = null;
+		if(shapes != null && shapes.length > 0){
 			shape = shapes[0];
 			comboBoxHandle.position = shape.type;
 		}
 		else {
-			shape = echo.Shape.rect(0,0,image.width,image.height);
+			shape = echo.Shape.defaults;
+			shape.offset_x = shape.offset_y = 0;
+			shape.width = image.width; 
+			shape.height = image.height;
+			shape.type = ShapeType.RECT;
 			shapes.push(shape);
 		}
 
@@ -82,11 +86,19 @@ class CollisionEditorDialog {
 
 		if(comboBoxHandle.changed){
 			if(selectedCollisionTypeIndex == ShapeType.RECT){
-				shape = echo.Shape.rect(0,0,image.width,image.height);
+				shape = echo.Shape.defaults;
+				shape.offset_x = shape.offset_y = 0;
+				shape.width = image.width; 
+				shape.height = image.height;
+				shape.type = ShapeType.RECT;
 			}
 			if(selectedCollisionTypeIndex == ShapeType.CIRCLE) {
 				var radius = 0.5 * (image.width > image.height ? image.width : image.height);
-				shape = echo.Shape.circle(image.width*0.5,image.height*0.5,radius);
+				shape = echo.Shape.defaults;
+				shape.offset_x = image.width*0.5;
+				shape.offset_y = image.height*0.5;
+				shape.radius = radius;
+				shape.type = ShapeType.CIRCLE;
 			}
 			if(selectedCollisionTypeIndex == ShapeType.POLYGON) {
 
@@ -95,7 +107,11 @@ class CollisionEditorDialog {
 				verts[2].x = image.width;
 				verts[2].y = image.height;
 				verts[3].y = image.height;
-				shape = Polygon.get_from_vertices(0,0,0,verts);
+				shape = echo.Shape.defaults;
+				shape.offset_x = shape.offset_y = 0;
+				shape.rotation = 0;
+				shape.vertices = verts;
+				shape.type = ShapeType.POLYGON;
 			}
 			
 			if(shapes.length > 0){
@@ -123,14 +139,11 @@ class CollisionEditorDialog {
 		var r = ui.curRatio == -1 ? 1.0 : ui.ratios[ui.curRatio];
 		var px = ui._x+ui.buttonOffsetY+ui.SCROLL_W() * r*0.5;
 		var py = ui._y;
-		var fixW = 0;
-		if(!ui.currentWindow.scrollEnabled && image.width == image.height){
-			fixW =  Std.int(ui.SCROLL_W() * r);
-		}
 
 		var tempX = ui._x;
 		ui._x -= ui.buttonOffsetY+ui.SCROLL_W() * r / 2;
-		var state = ui.image(image,0xffffffff,null,0,0,image.width+fixW,image.height+fixW);
+		var tempH = tile != null ? image.height:null;//dont change image height in ui.image
+		var state = ui.image(image,0xffffffff,tempH,0,0,image.width,image.height);
 		ui._x = tempX;
 
 		ui._y += ui.ELEMENT_OFFSET() * 2;
@@ -139,73 +152,70 @@ class CollisionEditorDialog {
 			var color = kha.Color.fromBytes(255,0,0,128);
 			switch(shape.type){
 				case ShapeType.RECT:
-					var rect:Rect = cast(shape);
 
 					var xHandle = Id.handle();
-					xHandle.value = rect.x;
-					var x = ui.slider(xHandle,"X",0,data.width);
+					xHandle.value = shape.offset_x;
+					var x = ui.slider(xHandle,"X",0,data._w);
 					if(xHandle.changed){
-						rect.x = x;
+						shape.offset_x = x;
 					}
 
 					var yHandle = Id.handle();
-					yHandle.value = rect.y;
-					var y = ui.slider(yHandle,"Y",0,data.height);
+					yHandle.value = shape.offset_y;
+					var y = ui.slider(yHandle,"Y",0,data._h);
 					if(yHandle.changed){
-						rect.y = y;
+						shape.offset_y = y;
 					}
 
 					var widthHandle = Id.handle();
-					widthHandle.value = rect.width;
-					var w = ui.slider(widthHandle,"Width",0.1,data.width);
+					widthHandle.value = shape.width;
+					var w = ui.slider(widthHandle,"Width",0.1,data._w);
 					if(widthHandle.changed){
-						rect.width = w;
+						shape.width = w;
 					}
 
 					var heightHandle = Id.handle();
-					heightHandle.value = rect.height;
-					var h = ui.slider(heightHandle,"Height",0.1,data.height);
+					heightHandle.value = shape.height;
+					var h = ui.slider(heightHandle,"Height",0.1,data._h);
 					if(heightHandle.changed){
-						rect.height = h;
+						shape.height = h;
 					}
 					ui.g.color = color;
-					ui.g.fillRect(ui._x+rect.x,initY+rect.y,rect.width,rect.height);
+					ui.g.fillRect(ui._x+shape.offset_x,initY+shape.offset_y,shape.width,shape.height);
 					ui.g.color = kha.Color.White;
 				case ShapeType.CIRCLE:
-					var circle:Circle = cast(shape);
 
 					var xHandle = Id.handle();
-					xHandle.value = circle.x;
-					var x = ui.slider(xHandle,"X",0,data.width);
+					xHandle.value = shape.offset_x;
+					var x = ui.slider(xHandle,"X",0,data._w);
 					if(xHandle.changed){
-						circle.x = x;
+						shape.offset_x = x;
 					}
 
 					var yHandle = Id.handle();
-					yHandle.value = circle.y;
-					var y = ui.slider(yHandle,"Y",0,data.height);
+					yHandle.value = shape.offset_y;
+					var y = ui.slider(yHandle,"Y",0,data._h);
 					if(yHandle.changed){
-						circle.y = y;
+						shape.offset_y = y;
 					}
 
 					var radiusHandle = Id.handle();
-					radiusHandle.value = circle.radius;
-					var maxRadius = 0.5 * (data.width < data.height ? data.width : data.height);
+					radiusHandle.value = shape.radius;
+					var maxRadius = 0.5 * (data._w < data._h ? data._w : data._h);
 					var radius = ui.slider(radiusHandle,"Radius",1,maxRadius);
 					if(radiusHandle.changed){
-						circle.radius = radius;
+						shape.radius = radius;
 					}
 					ui.g.color = color;
-					GraphicsExtension.fillCircle(ui.g,ui._x+circle.x,initY+circle.y,circle.radius);
+					GraphicsExtension.fillCircle(ui.g,ui._x+shape.offset_x,initY+shape.offset_y,shape.radius);
 					ui.g.color = kha.Color.White;
 				case ShapeType.POLYGON:
-					var poly:Polygon = cast(shape);
-					ui.text('Number of vertices: '+poly.vertices.length);
+					ui.text('Number of vertices: '+shape.vertices.length);
 					ui.g.color = color;
-					GraphicsExtension.fillPolygon(ui.g,ui._x+poly.x,initY+poly.y,cast(poly.vertices));
+					GraphicsExtension.fillPolygon(ui.g,ui._x+shape.offset_x,initY+shape.offset_y,cast(shape.vertices));
 					var col = kha.Color.fromBytes(0,0,255,128);
 					var selectedCol = kha.Color.fromBytes(0,0,255,255);
-					for(vert in poly.vertices){
+					for(vert in shape.vertices){
 						ui.g.color = col;
 						var w = 10;
 						var addX = ui._x + (vert.x > 0 ? -w : 0.0);
@@ -219,8 +229,8 @@ class CollisionEditorDialog {
 
 							if(x >= vert.x + tempX - w *2 &&  x <= vert.x + tempX + w * 2 && y >= vert.y + tempY - w *2 && y <= vert.y + tempY + w *2 ){
 								ui.g.color = selectedCol;
-								var tx = Math.min(x,data.width);
-								var ty = Math.min(y,data.height);
+								var tx = Math.min(x,data._w);
+								var ty = Math.min(y,data._h);
 								vert.x = Math.max(0,tx);
 								vert.y = Math.max(0,ty);
 							} 
@@ -236,21 +246,11 @@ class CollisionEditorDialog {
 		ui.row([0.5, 0.5]);
 		if (ui.button("Done")) {
 			//@:TODO Update the save state in EditorUI to make it dirty
+			data.raw.rigidBody.shapes = shapes;
+			data.body.clear_shapes();
 			var i=0;
 			while(i < shapes.length){
-				var tshape = shapes[i];
-				data.body.add_shape(tshape,i);
-				var ops = toOptions(tshape);
-				if(data.raw.rigidBody.shapes == null){
-					data.raw.rigidBody.shapes = [];
-				}
-
-				if(i < data.raw.rigidBody.shapes.length){
-					data.raw.rigidBody.shapes[i] = ops;
-				}
-				else{
-					data.raw.rigidBody.shapes.push(ops);
-				}
+				data.body.create_shape(shapes[i]);
 				i++;
 			}
 			

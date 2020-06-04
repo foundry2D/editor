@@ -29,6 +29,7 @@ class Hierarchy {
 
     public function redraw(){
         windowHandle.redraws = 2;
+        sceneNameHandle.redraws = 2;
         // objectHandle.redraws = 2;
     }
 
@@ -126,7 +127,7 @@ class Hierarchy {
 
         ui._y = ui._h - ui.t.BUTTON_H - 10;
         ui.row([0.5, 0.5]);
-		if (ui.button("Add")) {
+		if (ui.button("Add") && objectTypeHandle.text != "") {
             addData2Scn(found.data.Creator.createType(textInputHandle.text,objectTypeHandle.text));
             zui.Popup.show = false;
             objectTypeHandle.text = textInputHandle.text = "";
@@ -162,11 +163,11 @@ class Hierarchy {
             found.State.active._entities[i].dataChanged = true;
         }
         
-        EditorHierarchy.makeDirty();
-
         if(EditorHierarchy.inspector.index == uid){
             EditorHierarchy.inspector.notifyObjectSelectedInHierarchy(null,-1);
         }
+        
+        EditorHierarchy.makeDirty();
     }
 
     var doubleClickTime:Float = 0.0;

@@ -83,6 +83,11 @@ class EditorUi extends Trait{
                     done();
                 }
                 else {
+                    Fs.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
+                        var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
+                        projectmanager = new ManagerView(out.list);
+                        done();
+                    });
                     #if kha_html5
                     for(key in Fs.dbKeys.keys()){
                         if(key == EditorUi.cwd+"/pjml.found")continue;
@@ -93,12 +98,6 @@ class EditorUi extends Trait{
                         });
                     }
                     #end
-                    Fs.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
-                        var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
-                        projectmanager = new ManagerView(out.list);
-                        done();
-                    });
-
                 }
             });    
             
@@ -403,8 +402,8 @@ class EditorUi extends Trait{
                 }
                 i++;
             }
+            EditorHierarchy.makeClean();
             Fs.saveContent(scenePath,DataLoader.stringify(State.active.raw));
-            EditorHierarchy.sceneName = StringTools.replace(EditorHierarchy.sceneName,'*','');
         }
     }
     #elseif arm_csm

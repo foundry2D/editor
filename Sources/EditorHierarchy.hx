@@ -72,6 +72,10 @@ class EditorHierarchy extends EditorTab {
         State.active._entities[inspector.index].dataChanged = true;
         
     }
+    public static function makeClean(){
+        sceneName = StringTools.replace(sceneName,'*','');
+        hierarchy.redraw();
+    }
     static var hierarchy:Hierarchy;
     var scene:TSceneFormat;
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
