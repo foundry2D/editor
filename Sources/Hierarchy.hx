@@ -148,14 +148,19 @@ class Hierarchy {
     @:access(found.object.Object,found.object.Executor,found.Scene)
     function rmvData2Scn(uid:Int){
 
+        found.State.active.raw._entities.splice(uid,1);
+        var entity = found.State.active._entities.splice(uid,1);
+        entity[0].active = false;
+
+        if (found.State.active.physics_world != null) {
+            entity[0].body = null;//We remove the bodies from the world in the set_body
+            found.State.active.physics_world.reset_quadtrees();
+        }
+
         for(exe in found.object.Executor.executors){
 			var modified:Array<Any> = Reflect.field(found.object.Object,exe.field);
 			modified.splice(uid,1);
 		}
-
-        found.State.active.raw._entities.splice(uid,1);
-        var entity = found.State.active._entities.splice(uid,1);
-        entity[0].active = false;
 
         Object.uidCounter--;
         for(i in 0...found.State.active._entities.length){
@@ -166,7 +171,7 @@ class Hierarchy {
         if(EditorHierarchy.inspector.index == uid){
             EditorHierarchy.inspector.notifyObjectSelectedInHierarchy(null,-1);
         }
-        
+
         EditorHierarchy.makeDirty();
     }
 

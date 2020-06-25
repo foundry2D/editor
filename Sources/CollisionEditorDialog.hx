@@ -75,11 +75,13 @@ class CollisionEditorDialog {
 		}
 		else {
 			shape = echo.Shape.defaults;
-			shape.offset_x = shape.offset_y = 0;
+			shape.offset_x = image.width * 0.5;
+			shape.offset_y = image.height * 0.5;
 			shape.width = image.width; 
 			shape.height = image.height;
 			shape.type = ShapeType.RECT;
 			shapes.push(shape);
+			data.raw.rigidBody.shapes = shapes;
 		}
 
 		var selectedCollisionTypeIndex:Int = ui.combo(comboBoxHandle, collisionTypes, "Collision Type");
@@ -87,7 +89,8 @@ class CollisionEditorDialog {
 		if(comboBoxHandle.changed){
 			if(selectedCollisionTypeIndex == ShapeType.RECT){
 				shape = echo.Shape.defaults;
-				shape.offset_x = shape.offset_y = 0;
+				shape.offset_x = image.width * 0.5;
+				shape.offset_y = image.height * 0.5;
 				shape.width = image.width; 
 				shape.height = image.height;
 				shape.type = ShapeType.RECT;
@@ -155,14 +158,14 @@ class CollisionEditorDialog {
 
 					var xHandle = Id.handle();
 					xHandle.value = shape.offset_x;
-					var x = ui.slider(xHandle,"X",0,data._w);
+					var x = ui.slider(xHandle,"X",data._w *0.5,data._w + data._w *0.5);
 					if(xHandle.changed){
 						shape.offset_x = x;
 					}
 
 					var yHandle = Id.handle();
 					yHandle.value = shape.offset_y;
-					var y = ui.slider(yHandle,"Y",0,data._h);
+					var y = ui.slider(yHandle,"Y",data._h *0.5,data._h + data._h *0.5);
 					if(yHandle.changed){
 						shape.offset_y = y;
 					}
@@ -181,7 +184,7 @@ class CollisionEditorDialog {
 						shape.height = h;
 					}
 					ui.g.color = color;
-					ui.g.fillRect(ui._x+shape.offset_x,initY+shape.offset_y,shape.width,shape.height);
+					ui.g.fillRect(ui._x+shape.offset_x-data._w*0.5,initY+shape.offset_y-data._h*0.5,shape.width,shape.height);
 					ui.g.color = kha.Color.White;
 				case ShapeType.CIRCLE:
 
@@ -245,7 +248,6 @@ class CollisionEditorDialog {
 		ui._y = ui._h - ui.t.BUTTON_H - border;
 		ui.row([0.5, 0.5]);
 		if (ui.button("Done")) {
-			//@:TODO Update the save state in EditorUI to make it dirty
 			data.raw.rigidBody.shapes = shapes;
 			data.body.clear_shapes();
 			var i=0;
