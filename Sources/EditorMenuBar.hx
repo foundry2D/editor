@@ -57,20 +57,26 @@ class EditorMenuBar extends HBox  {
 		var WINDOW_BG_COL = ui.t.WINDOW_BG_COL;
 		ui.t.WINDOW_BG_COL = ui.t.SEPARATOR_COL;
 		if (ui.window(menuHandle, this.x, this.y, this.w, this.h)) {
-			var _w = ui._w;
+			// var _w = ui._w;
 			ui._x += 1; // Prevent "File" button highlight on startup
 
-			var ELEMENT_OFFSET = ui.t.ELEMENT_OFFSET;
-			ui.t.ELEMENT_OFFSET = 0;
-			var BUTTON_COL = ui.t.BUTTON_COL;
-			ui.t.BUTTON_COL = ui.t.SEPARATOR_COL;
+			// var ELEMENT_OFFSET = ui.t.ELEMENT_OFFSET;
+			// ui.t.ELEMENT_OFFSET = 0;
+			// var BUTTON_COL = ui.t.BUTTON_COL;
+			// ui.t.BUTTON_COL = ui.t.SEPARATOR_COL;
 
-			menuButton(ui,tr("File"), MenuFile);
-			menuButton(ui,tr("Edit"), MenuEdit);
-			menuButton(ui,tr("Viewport"), MenuViewport);
-			menuButton(ui,tr("Mode"), MenuMode);
-			menuButton(ui,tr("Camera"), MenuCamera);
-			menuButton(ui,tr("Help"), MenuHelp);
+			Ext.beginMenu(ui);
+
+			var menuCategories = 6;
+			for (i in 0...menuCategories) {
+				var categories = [tr("File"), tr("Edit"), tr("Viewport"), tr("Mode"), tr("Camera"), tr("Help")];
+				if (Ext.menuButton(ui, categories[i]) || (EditorMenu.show && EditorMenu.menuCommands == null && ui.isHovered)) {
+					EditorMenu.show = true;
+					EditorMenu.menuCategory = i;
+					EditorMenu.menuX = Std.int(ui._x - ui._w);
+					EditorMenu.menuY = Std.int(Ext.MENUBAR_H(ui));
+				}
+			}
 
 			if (menubarw < ui._x + 10) {
 				menubarw = Std.int(ui._x + 10);

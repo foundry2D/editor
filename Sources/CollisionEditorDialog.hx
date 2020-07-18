@@ -66,8 +66,15 @@ class CollisionEditorDialog {
 		var initX = ui._x;
 		var data:Dynamic =  sprite != null ? sprite:tile;
 		
+		var shapes:Array<echo.data.Options.ShapeOptions> = [];
+		if(sprite != null && data.raw.rigidBody.shapes != null){
+			shapes = data.raw.rigidBody.shapes;
+		}
+		else if(tile != null && tile.raw.rigidBodies.exists(tile.tileId)){
+			shapes = tile.raw.rigidBodies.get(tile.tileId).shapes;
+		}
 		//@:TODO make it possible to add multiple shape collisions
-		var shapes:Array<echo.data.Options.ShapeOptions> = data.raw.rigidBody.shapes != null ? data.raw.rigidBody.shapes : [] ;
+		
 		var shape:Null<echo.data.Options.ShapeOptions> = null;
 		if(shapes != null && shapes.length > 0){
 			shape = shapes[0];
@@ -81,7 +88,6 @@ class CollisionEditorDialog {
 			shape.height = image.height;
 			shape.type = ShapeType.RECT;
 			shapes.push(shape);
-			data.raw.rigidBody.shapes = shapes;
 		}
 
 		var selectedCollisionTypeIndex:Int = ui.combo(comboBoxHandle, collisionTypes, "Collision Type");
@@ -246,25 +252,51 @@ class CollisionEditorDialog {
 
 		ui._x = initX;
 		ui._y = ui._h - ui.t.BUTTON_H - border;
-		ui.row([0.5, 0.5]);
+		ui.row([0.33, 0.33,0.33]);
 		if (ui.button("Done")) {
-			data.raw.rigidBody.shapes = shapes;
+
+			if(sprite != null){
+				data.raw.rigidBody.shapes = shapes;
+			}
+			else {
+				tile.raw.rigidBodies.get(tile.tileId).shapes = shapes;
+			}
 			data.body.clear_shapes();
 			var i=0;
 			while(i < shapes.length){
 				data.body.create_shape(shapes[i]);
 				i++;
 			}
+
+			if(tile != null){
+				tile.map.removeBodies(found.State.active,tile.tileId);
+				tile.map.makeBodies(found.State.active,tile.tileId);
+			}
 			
-            found.App.editorui.ui.enabled = true;
-			zui.Popup.show = false;
 			sprite != null ? sprite.dataChanged = true:tile.map.dataChanged =true;
 			EditorHierarchy.makeDirty();
+			exit();
+		}
+		if(ui.button("Remove")){
+			if(sprite != null){
+				data.raw.rigidBody.shapes = [];
+			}
+			else {
+				tile.raw.rigidBodies.get(tile.tileId).shapes = [];
+				tile.map.removeBodies(found.State.active,tile.tileId);
+			}
+			data.body.clear_shapes();
+			sprite != null ? sprite.dataChanged = true:tile.map.dataChanged =true;
+			EditorHierarchy.makeDirty();
+			exit();
 		}
 		if (ui.button("Cancel")) {
-            found.App.editorui.ui.enabled = true;
-			zui.Popup.show = false;
+			exit();
 		}
+	}
+	static function exit(){
+		found.App.editorui.ui.enabled = true;
+		zui.Popup.show = false;
 	}
 	@:access(echo.Shape)
 	static function toOptions(shape:echo.Shape){

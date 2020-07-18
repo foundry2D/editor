@@ -86,19 +86,24 @@ class Hierarchy {
         }
     }
 
-    var objectTypes:Array<String> = ["object","sprite_object","tilemap_object"];
+    var objectTypes:Array<String> = ["None","object","sprite_object","tilemap_object"];
     var typeDescr:Array<String> = ["object:\nAn object that has positional and collision information.\nTo detect collisions or have a trigger zone make sure to create a rigidbody on the object.",
     "sprite_object:\nAn Object that has a visual representation in the scene.\nCan be animated or have a parallax effect be applied to it.",
     "tilemap_object:\nAn object which can have multiple tiles/images that can be drawn on screen based on this objects position.\nIn the futur tiles will be animatable and Auto-tilling will be supported."];
     var textInputHandle = Id.handle();
     var objectTypeHandle = Id.handle();
 
+    var doesObjectWithNameExists = false;
     @:access(zui.Zui, zui.Popup)
     function objectCreationPopupDraw(ui:Zui){
 
+        zui.Popup.boxTitle = "Add an Object";
+        var border = 2 * zui.Popup.borderW + zui.Popup.borderOffset;
+        var exists = false;
         if (ui.panel(Id.handle({selected: true}), "Object Types:", true)) {
             var index = 0;
             for(type in objectTypes){
+                if(type == "None")continue;
                 var drawHint = false;
                 if(ui.getHover()){
                     drawHint = true;
@@ -108,6 +113,7 @@ class Hierarchy {
                     if(textInputHandle.text == ""){
                         var name = type.split('_')[0];
                         textInputHandle.text = name.charAt(0).toUpperCase()+name.substring(1,name.length);
+                        doesObjectWithNameExists = found.State.active.getObject(textInputHandle.text) != null;
                     }
                 }
                 if(drawHint){
@@ -117,21 +123,33 @@ class Hierarchy {
             }
         }
 
-        zui.Popup.boxTitle = "Add an Object";
 
-        ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - 20;
+        ui._y = ui._h - ui.t.BUTTON_H * 2 - border;
 
         ui.row([0.5,0.5]);
-        ui.textInput(textInputHandle, "Name");
-        ui.textInput(objectTypeHandle, "Type",Align.Left,false);
+        var before = ui.t.LABEL_COL;
+        if(doesObjectWithNameExists){
+            ui.t.LABEL_COL = ui.t.TEXT_COL = kha.Color.Red;
+        }
+        
+        var name = ui.textInput(textInputHandle, "Name");
+        if(textInputHandle.changed){
+            doesObjectWithNameExists = found.State.active.getObject(textInputHandle.text) != null;
+        }
+        ui.t.LABEL_COL = ui.t.TEXT_COL = before;
 
-        ui._y = ui._h - ui.t.BUTTON_H - 10;
+        ui.combo(objectTypeHandle,objectTypes,"Type",true,Align.Left);
+        
+        ui._y = ui._h - ui.t.BUTTON_H - border;
         ui.row([0.5, 0.5]);
-		if (ui.button("Add") && objectTypeHandle.text != "") {
+        
+        ui.enabled = !doesObjectWithNameExists && textInputHandle.text != "" && objectTypeHandle.position != 0/*None*/;
+		if (ui.button("Add")) {
             addData2Scn(found.data.Creator.createType(textInputHandle.text,objectTypeHandle.text));
             zui.Popup.show = false;
             objectTypeHandle.text = textInputHandle.text = "";
         }
+        ui.enabled = true;
         if (ui.button("Cancel")) {
             zui.Popup.show = false;
             objectTypeHandle.text = textInputHandle.text = "";
