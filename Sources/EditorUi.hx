@@ -20,6 +20,7 @@ import iron.system.ArmPack;
 import found.Trait;
 import found.State;
 import found.Found;
+import found.Input;
 import found.math.Util;
 import found.object.Object.MoveData;
 import found.data.SceneFormat;
@@ -39,7 +40,6 @@ class EditorUi extends Trait{
         }
         return inspector.inspector.visible  = visible  = v;
     }
-    public var keys:{ctrl:Bool,alt:Bool,shift:Bool} = {ctrl:false,alt:false,shift:false};
     public var editor:EditorView;
     public var inspector:EditorInspector;
     public var hierarchy:EditorHierarchy;
@@ -61,6 +61,8 @@ class EditorUi extends Trait{
     // static var bl:BlendParser = null;
     var isBlend = false;
     public var ui:Zui;
+    var keyboard:found.Input.Keyboard;
+    var mouse:found.Input.Mouse;
     public function new(){
         super();
         Toolkit.init();
@@ -209,6 +211,8 @@ class EditorUi extends Trait{
         addToParent(editor.ePanelBottom,projectExplorer);
         var tools = new EditorTools(editor);
         Screen.instance.addComponent(editor);
+        keyboard = Input.getKeyboard();
+        mouse = Input.getMouse();
     }
     function createHierarchy(blob:TSceneFormat){
         // if(isBlend){
@@ -234,65 +238,43 @@ class EditorUi extends Trait{
         child.init(parent);
     }
     public function update(dt:Float): Void {
+        if(mouse == null || keyboard == null)return;
         if(animationView != null) {
             animationView.update(dt);
         }
-    }
-    public function onKeyPressed(keyCode:KeyCode){
-        if(keyCode == KeyCode.F9){
-			Found.fullscreen = !Found.fullscreen;
-		}
-		if(keyCode == KeyCode.F1){
-			EditorUi.arrowMode = 0;
-		}
-		if(keyCode == KeyCode.F2){
-			EditorUi.arrowMode = 1;
-        }
-        if(keyCode == KeyCode.Space && animationView != null){
-            animationView.notifyPlayPause();
-        }
-		if(keyCode == KeyCode.S && keys.ctrl)
-			saveSceneData();
-		if(keyCode == KeyCode.Control)
-			keys.ctrl = true;
-		if(keyCode == KeyCode.Alt)
-			keys.alt = true;
-		if(keyCode == KeyCode.Shift)
-			keys.shift = true;
-    }
-    public function onKeyReleased(keyCode:KeyCode):Void {
-        if(keyCode == KeyCode.Control)
-			keys.ctrl = false;
-		if(keyCode == KeyCode.Alt)
-			keys.alt = false;
-		if(keyCode == KeyCode.Shift)
-			keys.shift = false;
-    }
-    public function onMousePressed(button:Int, x:Int, y:Int):Void {
-        if(button==2){
-            activeMiddleMouse = true;
-        }
-    }
-    public function onMouseReleased(button:Int, x:Int, y:Int):Void {
-        if(activeMouse && button == 0/* Left */){
-			activeMouse = false;
-		}
-        if(button==2){
-            activeMiddleMouse = false;
-        }
-    }
-    public function onMouseMove(x:Int, y:Int, mx:Int, my:Int):Void {
-        if(activeMiddleMouse){
+        checkKeyPressed();
+        if(mouse.down("middle") && mouse.moved){
             if(State.active!= null){
-                State.active.cam.position.x+=mx;
-                State.active.cam.position.y+=my;
+                State.active.cam.position.x+=mouse.distX;
+                State.active.cam.position.y+=mouse.distY;
             }
         }
+        if(mouse.down("left") && mouse.moved){
+            updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
+        }
+        else{
+            arrow = -1;
+        }
+        
+    }
+    public function checkKeyPressed(){
+        if(keyboard.started("f9")){
+			Found.fullscreen = !Found.fullscreen;
+		}
+		if(keyboard.started("f1")){
+			EditorUi.arrowMode = 0;
+		}
+		if(keyboard.started("f2")){
+			EditorUi.arrowMode = 1;
+        }
+        if(keyboard.started("space") && animationView != null){
+            animationView.notifyPlayPause();
+        }
+		if(keyboard.started("s") && keyboard.down("control"))
+			saveSceneData();
     }
 
     #if found
-    public static var activeMiddleMouse:Bool = false;
-    public static var activeMouse:Bool = false;
     public static var gridMove:Bool = false;
     public static var arrow:Int = -1;
     public static var arrowMode:Int = 0;// 0 = Move; 1 = Scale
@@ -300,9 +282,9 @@ class EditorUi extends Trait{
     public static var minusY:Float = 0;// Basically the arrow size maybe @RENAME ?
     static var event:UIEvent = new UIEvent(UIEvent.CHANGE);
     @:access(EditorInspector)
-    public function updateMouse(x:Int,y:Int,cx:Int,cy:Int){
-        // x += Std.int(State.active.cam.position.x);
-        // y += Std.int(State.active.cam.position.y);
+    public function updateMouse(x:Float,y:Float,cx:Float,cy:Float){
+        if(inspector.index==-1)return;
+
         var doUpdate = true;
         var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
@@ -323,12 +305,12 @@ class EditorUi extends Trait{
         var sy = direction*(Math.abs(curPos.y-py)/Found.HEIGHT);
         
         //Clamp position to grid
-        if(gridMove || keys.ctrl){//Clamp to grid
+        if(gridMove || keyboard.down("control")){//Clamp to grid
             doUpdate  = Math.abs(curPos.x-px) > Found.GRID*0.99 || Math.abs(px-curPos.x) > Found.GRID*0.99;
             px = Math.floor(px);
             px = Util.snap(px,Found.GRID);
         }
-        if(gridMove || keys.ctrl ){//Clamp to grid
+        if(gridMove || keyboard.down("control") ){//Clamp to grid
             doUpdate  = doUpdate ? doUpdate : Math.abs(curPos.y-py) > Found.GRID*0.99 || Math.abs(py-curPos.y) > Found.GRID*0.99;
             py = Math.floor(py);
             py = Util.snap(py,Found.GRID);
@@ -339,11 +321,12 @@ class EditorUi extends Trait{
                 updatePos(px,py);
             }
             else if(arrowMode == 1){
-                if(keys.ctrl && arrow == 0){
-                    updateScale(scale.x+sx,scale.y+sx);
+                var isDown = keyboard.down("control");
+                if(isDown && arrow == 0){
+                    updateScale(scale.x+sx,scale.y+sx,isDown);
                 }
-                else if(keys.ctrl && arrow == 1){
-                    updateScale(scale.x+sy,scale.y+sy);
+                else if(isDown && arrow == 1){
+                    updateScale(scale.x+sy,scale.y+sy,isDown);
                 }
                 else{
                     updateScale(scale.x+sx,scale.y+sy);
@@ -353,13 +336,12 @@ class EditorUi extends Trait{
         }
         
         if(px+((minusX+(minusX/5)*2)/gameView.w)*Found.WIDTH > Found.WIDTH +State.active.cam.position.x || px < State.active.cam.position.x || py > Found.HEIGHT+State.active.cam.position.y ||py+((minusY+(minusY/5)*2)/gameView.h)*Found.HEIGHT < State.active.cam.position.y){
-            activeMouse = false;
             return;
         }
     }
     @:access(EditorInspector)
-    function updateScale(sx:Float,sy:Float){
-        if(keys.ctrl){
+    function updateScale(sx:Float,sy:Float,ctrl:Bool = false){
+        if(ctrl){
             State.active._entities[inspector.index].scale.x = sx;
             State.active._entities[inspector.index].scale.y = sy;
             Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);

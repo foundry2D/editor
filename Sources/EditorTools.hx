@@ -97,7 +97,6 @@ class Arrow extends Component{
     }
     function activate(e:MouseEvent){
         if(found.App.editorui.inspector.index < 0 || found.App.editorui.gameView.selectedPage.text != "Game" || found.App.editorui.inspector.index == found.State.active.cam.uid)return;
-        EditorUi.activeMouse = true;
         EditorUi.arrow = type;
         switch(type){
             case 0:
