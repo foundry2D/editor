@@ -1,13 +1,10 @@
 package;
 
 import found.App;
-import kha.System;
 import zui.Zui;
 import zui.Ext;
-import zui.Id;
 
 import haxe.ui.containers.HBox;
-import haxe.ui.core.Component;
 
 import EditorMenu;
 
