@@ -12,30 +12,23 @@ import zui.Zui;
 import zui.Id;
 import zui.Ext;
 
-class Inspector {
+class Inspector extends Tab {
 	var ui:Zui;
 
 	public var visible(default, set):Bool = false;
 
 	function set_visible(v:Bool) {
-		if (v) {
+		if (v && ui != null) {
 			ui.registerInput();
-		} else {
+		} else if(ui != null){
 			ui.unregisterInput();
 		}
-		return visible = ui.enabled = v;
+		return ui != null ? ui.enabled = visible = v: visible = v;
 	}
 
-	public var width:Int;
-	public var height:Int;
-	public var x:Int;
-	public var y:Int;
-
-	var windowHandle:zui.Zui.Handle = Id.handle();
 	var object:Array<TObj> = [];
 	var scene:Array<TSceneFormat> = [];
 	var itemsLength:Int = 11;
-	var data:TObj = null;
 
 	var objectHandle:Handle = Id.handle();
 	var sceneHandle:Handle = Id.handle();
@@ -60,16 +53,13 @@ class Inspector {
 		return found.State.active._entities[index];
 	}
 
-	public function new(ui:Zui, px:Int, py:Int, w:Int, h:Int) {
-		this.ui = ui;
+	public function new() {
 		var base = Id.handle();
 		for (i in 0...itemsLength) {
 			objItemHandles.push(base.nest(i));
 		}
-		setAll(px, py, w, h);
+
 		objectHandle.nest(0); // Pre create children
-		ui.t.FILL_WINDOW_BG = true;
-		windowHandle.scrollEnabled = true;
 
 		traitListOpts = {
 			addCb: addTrait,
@@ -85,18 +75,10 @@ class Inspector {
 		}
 	}
 
-	public function redraw() {
-		windowHandle.redraws = 2;
+	override public function redraw() {
 		objectHandle.redraws = 2;
 		sceneHandle.redraws = 2;
 		layersHandle.redraws = 2;
-	}
-
-	public function setAll(px:Int, py:Int, w:Int, h:Int) {
-		x = px;
-		y = py;
-		width = w;
-		height = h;
 	}
 
 	public function setObject(objectData:TObj, i:Int) {
@@ -123,11 +105,12 @@ class Inspector {
 	}
 
 	@:access(zui.Zui)
-	public function render(ui:zui.Zui) {
+	override public function render(ui:zui.Zui) {
 		if (!visible)
 			return;
-
-		if (ui.window(windowHandle, this.x, this.y, this.width, this.height)) {
+		this.ui = ui;
+		if(ui.tab(parent.htab,"Inspector")){
+			ui.t.FILL_WINDOW_BG = true;
 			if (object.length > 0) {
 				var children:Map<Int, Handle> = Reflect.getProperty(objectHandle, "children");
 				children.get(0).selected = true; // Make the panel always open
@@ -140,6 +123,7 @@ class Inspector {
 				children.get(0).selected = true; // Make the panel always open
 				children.get(0).text = scene[0].name; // Set scene name in texInput field
 			}
+			// ui.t.FILL_WINDOW_BG = false;
 		}
 	}
 
@@ -429,7 +413,7 @@ class Inspector {
 	function drawObjectItems(handle:Handle, i:Int) {
 		if (i == -1)
 			return;
-		data = currentObject.raw;
+		var data = currentObject.raw;
 		changed = false;
 		ui.text(data.type);
 
@@ -730,7 +714,7 @@ class Inspector {
 	}
 
 	function drawTrait(handle:Handle, i:Int) {
-		var trait = data.traits[i];
+		var trait = currentObject.raw.traits[i];
 		if (trait != null) {
 			ui.text(trait.classname);
 		}
@@ -751,9 +735,7 @@ class Inspector {
 
 	@:access(found.object.Object)
 	function removeTrait(i:Int) {
-		trace(currentObject.traits.length);
-		var removedTrait = data.traits.splice(i, 1);
-		trace(currentObject.traits.length);
+		var removedTrait = currentObject.raw.traits.splice(i, 1);
 		if (removedTrait[0].type == "VisualScript") {
 			currentObject.removeTrait(currentObject.traits[i]);
 		} else if (removedTrait[0].type == "Script") {
@@ -774,7 +756,7 @@ class Inspector {
 	}
 
 	function getTraitName(i:Int) {
-		var trait = data.traits[i];
+		var trait = currentObject.raw.traits[i];
 		var name = "";
 		if (trait.type == "VisualScript") {
 			var t:Array<String> = trait.classname.split("/");

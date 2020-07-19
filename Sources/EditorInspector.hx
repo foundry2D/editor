@@ -13,28 +13,7 @@ import found.math.Util;
 #end
 
 // @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
-class EditorInspector implements EditorHierarchyObserver extends EditorTab {
-
-    public var x(get,never):Int;
-	function get_x() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.floor(this.screenX);
-	}
-	public var y(get,never):Int;
-	function get_y() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.floor(this.screenY);
-	}
-	public var w(get,never):Int;
-	function get_w() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.ceil(this.componentWidth);
-	}
-	public var h(get,never):Int;
-	function get_h() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.ceil(this.componentHeight);
-    }
+class EditorInspector implements EditorHierarchyObserver extends EditorPanel {
 
     public var rawData(default,set):TObj;
     function set_rawData(obj:TObj){
@@ -50,11 +29,13 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         return State.active._entities[index];
     }
     public var inspector:Inspector;
-    public function new(?ui:zui.Zui) {
+    public function new() {
         super();
-        this.text = "Inspector";
-        inspector = new Inspector(ui,x,y,w,h);
+        windowHandle.scrollEnabled = true;
+        inspector = new Inspector();
         inspector.searchImage = browseImage;
+        inspector.parent = this;
+        tabs.push(inspector);
         EditorHierarchy.register(this);
     }
     @:access(Inspector)
@@ -73,19 +54,19 @@ class EditorInspector implements EditorHierarchyObserver extends EditorTab {
         } 
         else{
             found.Found.tileeditor.selectTilemap(-1);
-        }             
+        }
+        inspector.redraw();    
     }
 
-    public function render(ui:zui.Zui){
-        if(selectedPage.text != "Inspector" || Found.fullscreen ){
+    override public function render(ui:zui.Zui){
+        if(Found.fullscreen ){
             inspector.visible = false;
             return;
         }
         else if(!inspector.visible) {
             inspector.visible = true;
         }
-        inspector.setAll(x,y,w,h);
-        inspector.render(ui);
+        super.render(ui);
     }
 
     @:access(Inspector,found.Scene)

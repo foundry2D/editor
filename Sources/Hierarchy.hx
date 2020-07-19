@@ -1,59 +1,37 @@
 package;
 
-import kha.math.Vector2;
-import kha.math.Vector3;
-
 import found.data.SceneFormat;
 import found.object.Object;
 import found.Found;
 
 import zui.Zui;
-import zui.Ext;
 import zui.Id;
 import zui.Zui.Handle;
 
-class Hierarchy {
+class Hierarchy extends Tab {
 
-    public var width:Int;
-    public var height:Int;
-    public var x:Int;
-    public var y:Int;
-    public var parent:EditorHierarchy;
 
-    var windowHandle:zui.Zui.Handle = Id.handle();
-
-    public function new(px:Int,py:Int,w:Int,h:Int) {
-        setAll(px,py,w,h);
-        windowHandle.scrollEnabled = true;
+    public function new() {
     }
 
-    public function redraw(){
-        windowHandle.redraws = 2;
+    override public function redraw(){
         sceneNameHandle.redraws = 2;
-        // objectHandle.redraws = 2;
-    }
-
-    public function setAll(px:Int,py:Int,w:Int,h:Int){
-        x = px;
-        y = py;
-        width = w;
-        height = h;
     }
 
     var sceneNameHandle:Handle = Id.handle();
     var handles:Array<Handle> = [];
     var scndoubleClickTime:Float = 0.0;
     @:access(zui.Zui)
-    public function render(ui:zui.Zui,raw:TSceneFormat){
-        if(ui.window(windowHandle, this.x, this.y, this.width, this.height)){
-
+    override public function render(ui:zui.Zui){
+        var raw = found.State.active.raw;
+        if(ui.tab(parent.htab,"Hierarchy")){
             sceneNameHandle.text = raw.name;
             if(kha.Scheduler.time() - scndoubleClickTime > ui.TOOLTIP_DELAY()){
                 sceneNameHandle.position = 0;
                 scndoubleClickTime = 0.0;
             }
             if(ui.getReleased()){
-                parent.selectScene();
+                cast(parent,EditorHierarchy).selectScene();
                 scndoubleClickTime = kha.Scheduler.time();
                 if( sceneNameHandle.position > 0){
                     sceneNameHandle.position = 0;
@@ -215,7 +193,7 @@ class Hierarchy {
                 itemHandle.position++;
                 ui.deselectText();
                 ui.inputReleased = false;
-                parent.onSelected(i,raw[i]);
+                cast(parent,EditorHierarchy).onSelected(i,raw[i]);
             }
         }
         var color = ui.t.FILL_ACCENT_BG;

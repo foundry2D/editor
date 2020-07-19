@@ -44,6 +44,7 @@ class EditorUi extends Trait{
     public var inspector:EditorInspector;
     public var hierarchy:EditorHierarchy;
     public var isPlayMode:Bool;
+    var managerEditor:EditorView;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     public var gameView:EditorGameView;
@@ -222,10 +223,10 @@ class EditorUi extends Trait{
         //     trace(scenes.length);
         // }else{
             // raw = ArmPack.decode(blob.bytes);
-            inspector = new EditorInspector(ui);
-            addToParent(editor.ePanelRight,inspector);
+            inspector = new EditorInspector();
+            editor.ePanelRight.addComponent(inspector);
             hierarchy = new EditorHierarchy(blob,inspector);
-            addToParent(editor.ePanelLeft,hierarchy);
+            editor.ePanelLeft.addComponent(hierarchy);
             addToParent(editor.ePanelTop,gameView);// @TODO: Do we really need to put this here ?
             addToParent(editor.ePanelTop,codeView);
             addToParent(editor.ePanelTop,animationView);

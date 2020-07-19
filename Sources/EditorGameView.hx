@@ -42,33 +42,7 @@ class EditorGameView extends EditorTab {
     public function new(){
 		super();
 		this.text = "Game";
-        #if arm_csm
-		var cscript = iron.Scene.active.camera.getTrait(armory.trait.internal.CanvasScript);
-		iron.Scene.active.root.addTrait(drawTrait);
-		drawTrait.notifyOnInit(function(){
-			iron.Scene.active.root.addTrait(drawTrait);
-			drawTrait.notifyOnRender2D(function(g:kha.graphics2.Graphics){
-				if(cscript.ready){
-					cscript.canvas.x = this.x;
-					cscript.canvas.y = this.y;
-					var wscale = Std.int(this.width)/cscript.canvas.width;
-					var hscale = Std.int(this.height)/cscript.canvas.height;
-					for(el in cscript.canvas.elements){
-						el.x = el.x*wscale;
-						el.y = el.y*hscale;
-						el.width = Std.int(el.width*wscale);
-						el.height = Std.int(el.height*hscale);
-					}
-					cscript.canvas.width = Std.int(this.width);
-					cscript.canvas.height = Std.int(this.height);
-				}
-			});
-			drawTrait.notifyOnRender2D(drawGameView);
-		});
-		#elseif found
 		found.Found.renderfunc = drawGameView;
-        #end
-
     }
 	
 	@:access(haxe.ui.core.Component)

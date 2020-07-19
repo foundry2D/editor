@@ -4,15 +4,15 @@
     <hbox id="header" height="3%" width="100%">
     </hbox>
     <hbox id="content" height="97%" width="100%" >
-        <tabview id="e-panel-left" height="100%" width="20%" style="background-color: red" >
-        </tabview>
+        <hbox id="e-panel-left" height="100%" width="20%" >
+        </hbox>
         <vbox id="e-panel-center" height="100%" width="60%"  >
             <tabview id="e-panel-top" height="50%" width="100%" style="background-color: green" >
             </tabview>
             <tabview id="e-panel-bottom" height="50%" width="100%" style="background-color: blue" >
             </tabview>
         </vbox>
-        <tabview id="e-panel-right" height="100%" width="20%" style="background-color: #00FFFF" >
-        </tabview>
+        <hbox id="e-panel-right" height="100%" width="20%" style="background-color: #00FFFF" >
+        </hbox>
     </hbox>
 </vbox>

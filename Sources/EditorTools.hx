@@ -3,7 +3,6 @@ package;
 import kha.math.Vector2;
 import found.Found;
 import haxe.ui.core.Component;
-import haxe.ui.core.Screen;
 import haxe.ui.events.MouseEvent;
 import kha.graphics2.Graphics;
 

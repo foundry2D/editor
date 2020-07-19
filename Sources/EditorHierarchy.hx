@@ -1,47 +1,19 @@
 package;
 
-import haxe.ui.containers.menus.*;
-import haxe.ui.core.Screen;
-import haxe.ui.data.ListDataSource;
-import haxe.ui.events.UIEvent;
-import haxe.ui.containers.dialogs.Dialog;
-import haxe.ui.events.MouseEvent;
-import EditorTab.TItem;
+import zui.Ext;
+import haxe.ui.containers.VBox;
 
 #if arm_csm
 import iron.data.SceneFormat;
 #else
-import kha.math.Vector2;
-import kha.math.Vector3;
 import found.State;
-import found.object.Object;
 import found.data.SceneFormat;
 #end
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-hierarchy.xml"))
-class EditorHierarchy extends EditorTab {
 
-    public var x(get,never):Int;
-	function get_x() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.floor(this.screenX);
-	}
-	public var y(get,never):Int;
-	function get_y() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.floor(this.screenY);
-	}
-	public var w(get,never):Int;
-	function get_w() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.ceil(this.componentWidth);
-	}
-	public var h(get,never):Int;
-	function get_h() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.ceil(this.componentHeight);
-    }
+class EditorHierarchy extends EditorPanel {
 
     static public var inspector:EditorInspector;
+    static var clone:EditorHierarchy;
     var selectedObjectUID : Int = -1;
     static var observers:Array<EditorHierarchyObserver> = [];
 
@@ -67,30 +39,38 @@ class EditorHierarchy extends EditorTab {
     public static function makeDirty(){
         if(!StringTools.contains(sceneName,'*'))
             sceneName+='*';
-        hierarchy.redraw();
+        clone.redraw();
         if(inspector.index == -1)return;
         State.active._entities[inspector.index].dataChanged = true;
         
     }
     public static function makeClean(){
         sceneName = StringTools.replace(sceneName,'*','');
+        clone.redraw();
+        
+    }
+    function redraw(){
+        windowHandle.redraws = 2;
         hierarchy.redraw();
     }
     static var hierarchy:Hierarchy;
     var scene:TSceneFormat;
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
-        this.text = "Hierarchy";
+        clone = this;
+        windowHandle.scrollEnabled = true;
         inspector = p_inspector;
-        hierarchy = new Hierarchy(x,y,w,h);
+        hierarchy = new Hierarchy();
         hierarchy.parent = this;
+        tabs.push(hierarchy);
+        tabs.push(inspector.inspector);
         setFromScene(raw,true);
 
     }
-    public function render(ui:zui.Zui){
+    
+    override public function render(ui:zui.Zui){
         if(scene == null) return;
-        hierarchy.setAll(x,y,w,h);
-        hierarchy.render(ui,scene);
+        super.render(ui);
     }
     public function setFromScene(raw:TSceneFormat,onBoot:Bool = false){
         sceneName = raw.name;
@@ -98,41 +78,5 @@ class EditorHierarchy extends EditorTab {
             inspector.clear();
         }
         scene = raw;
-            
-        // #if arm_csm
-        // tree.dataSource = getObjData(raw.objects,raw.name);
-        // #else
-        // tree.dataSource = getObjData(raw._entities,raw.name);
-        // #end
     }
-
-
-    // function duplicateObject(e:MouseEvent){
-    //     if(inspector.index >= 0){
-    //         addData2Scn(State.active.raw._entities[inspector.index]);
-    //     }
-    // }
-
-    // function removeObject(e:MouseEvent){
-    //     if(inspector.index >= 0){
-    //         rmvData2Scn(inspector.index);
-    //     }
-    // }
-    
-    // function addEmitter2Scn(e:MouseEvent){
-    //     var data:TEmitterData = {
-    //         name: "Emitter",
-    //         type: "emitter_object",
-    //         position: new Vector2(),
-    //         rotation:new Vector3(),
-    //         width: 0.0,
-    //         height:0.0,
-    //         scale: new Vector2(1.0,1.0),
-    //         center: new Vector2(),
-    //         depth: 0.0,
-    //         active: true,
-    //         amount: 1
-    //     };
-    //     addData2Scn(data);
-    // }
 }
