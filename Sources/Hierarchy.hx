@@ -87,7 +87,7 @@ class Hierarchy extends Tab {
                     drawHint = true;
                 }
                 if(ui.button(type)){
-                    objectTypeHandle.text = type;
+                    objectTypeHandle.position = index+1;
                     if(textInputHandle.text == ""){
                         var name = type.split('_')[0];
                         textInputHandle.text = name.charAt(0).toUpperCase()+name.substring(1,name.length);
@@ -117,13 +117,13 @@ class Hierarchy extends Tab {
         ui.t.LABEL_COL = ui.t.TEXT_COL = before;
 
         ui.combo(objectTypeHandle,objectTypes,"Type",true,Align.Left);
-        
+
         ui._y = ui._h - ui.t.BUTTON_H - border;
         ui.row([0.5, 0.5]);
         
         ui.enabled = !doesObjectWithNameExists && textInputHandle.text != "" && objectTypeHandle.position != 0/*None*/;
 		if (ui.button("Add")) {
-            addData2Scn(found.data.Creator.createType(textInputHandle.text,objectTypeHandle.text));
+            addData2Scn(found.data.Creator.createType(textInputHandle.text,objectTypes[objectTypeHandle.position]));
             zui.Popup.show = false;
             objectTypeHandle.text = textInputHandle.text = "";
         }
