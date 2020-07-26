@@ -7,10 +7,10 @@
         <hbox id="e-panel-left" height="100%" width="20%" >
         </hbox>
         <vbox id="e-panel-center" height="100%" width="60%"  >
-            <tabview id="e-panel-top" height="50%" width="100%" style="background-color: green" >
-            </tabview>
-            <tabview id="e-panel-bottom" height="50%" width="100%" style="background-color: blue" >
-            </tabview>
+            <hbox id="e-panel-top" height="50%" width="100%" style="background-color: green" >
+            </hbox>
+            <hbox id="e-panel-bottom" height="50%" width="100%" style="background-color: blue" >
+            </hbox>
         </vbox>
         <hbox id="e-panel-right" height="100%" width="20%" style="background-color: #00FFFF" >
         </hbox>

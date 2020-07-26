@@ -192,6 +192,8 @@ class EditorMenu {
 
     static function openScene(){
         var done = function(path:String){
+            if(path == "")return;
+
             var sep = Fs.sep;
             var name = path.split(sep)[path.split(sep).length-1];
             if(StringTools.contains(name,".json") && Fs.exists(path)){
@@ -208,6 +210,8 @@ class EditorMenu {
     }
     static function createScene(){
         var done = function(path:String){
+            if(path == "")return;
+            
             var sep = Fs.sep;
             var name = path.split(sep)[path.split(sep).length-1];
             #if found

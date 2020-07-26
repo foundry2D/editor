@@ -8,39 +8,14 @@ import found.State;
 import found.data.SceneFormat;
 import found.tool.AnimationEditor;
 
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-code.xml"))
-class EditorAnimationView  implements EditorHierarchyObserver extends EditorTab {
-
-    public var x(get,never):Int;
-	function get_x() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.floor(comp.screenX);
-	}
-	public var y(get,never):Int;
-	function get_y() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.floor(comp.screenY);
-	}
-	public var w(get,never):Int;
-	function get_w() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.ceil(comp.componentWidth);
-	}
-	public var h(get,never):Int;
-	function get_h() {
-        var comp = this.parentComponent !=null ? this.parentComponent: this;
-		return Math.ceil(comp.componentHeight);
-    }
+//@TODO: Maybe we should merge everything in the AnimatorEditor ?
+//I think we made it this way to make it easy to port the code to say a drawing tool...
+//We should revisite this in the futur
+class EditorAnimationView  implements EditorHierarchyObserver extends Tab {
     
     var animationEditor:found.tool.AnimationEditor;
-    // var textEditor:CodeComponent;
-    public function new(?ui:zui.Zui){
-        super();
-        percentWidth = 100;
-        percentHeight = 100;
-        this.text = "Animation";
-        animationEditor = new found.tool.AnimationEditor(ui,x,y,w,h);
-        animationEditor.visible = true;
+    public function new(){
+        
         EditorHierarchy.register(this);
     }
     public function notifyObjectSelectedInHierarchy(selectedObject:TObj,selectedUID:Int) : Void {
@@ -49,18 +24,22 @@ class EditorAnimationView  implements EditorHierarchyObserver extends EditorTab 
     }
     @:access(found.tool.AnimationEditor)
     public function notifyPlayPause(){
-        if(selectedPage == null || selectedPage.text != "Animation")return;
+        if(!active)return;
         animationEditor.doUpdate = !animationEditor.doUpdate;
     }
 
-    public function render(ui:zui.Zui) {
-        if(selectedPage == null || selectedPage.text != "Animation" )return;
+    override public function render(ui:zui.Zui) {
+
+        if(animationEditor == null && parent != null){
+            animationEditor = new found.tool.AnimationEditor(parent,this);
+        }
+        else if(animationEditor == null) { return; }
         
-        animationEditor.setAll(x,y,w,h);
+        animationEditor.setAll(parent.x,parent.y,parent.w,parent.h);
         animationEditor.render(ui);
     }
     public function update(dt:Float){
-        if(!animationEditor.visible)return;
+        if(!active)return;
         animationEditor.update(dt);
     }
 }

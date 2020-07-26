@@ -4,45 +4,20 @@ import found.App;
 import found.data.SceneFormat.TTrait;
 import zui.Id;
 import zui.Zui;
-import haxe.ui.core.Component;
 
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/project-explorer.xml"))
-class ProjectExplorer extends EditorTab {
-	public var x(get, never):Int;
 
-	function get_x() {
-		return Math.floor(screenX);
-	}
-
-	public var y(get, never):Int;
-
-	function get_y() {
-		return Math.floor(screenY);
-	}
-
-	public var w(get, never):Int;
-
-	function get_w() {
-		return Math.ceil(cast(this, Component).componentWidth);
-	}
-
-	public var h(get, never):Int;
-
-	function get_h() {
-		return Math.ceil(cast(this, Component).componentHeight);
-	}
+class ProjectExplorer extends Tab {
 
 	var explorerXBrowserW:Array<Float> = [0.25, 0.75];
 	var defaultPath:String = "/";
-
+	var init = false;
 	public static var currentPath(default, never):String;
 
 	public function new() {
-		super();
-		this.text = "Explorer";
+		
 	}
 
-	function redraw() {
+	override function redraw() {
 		windowHandle.redraws = windowHandle2.redraws = 2;
 	}
 
@@ -60,12 +35,24 @@ class ProjectExplorer extends EditorTab {
 	var fileExplorerHandle:Handle = Id.handle();
 
 	@:access(zui.Zui)
-	public function render(ui:Zui) {
-		if (ui.window(windowHandle, this.x + Std.int(ui.ELEMENT_OFFSET()), this.y, Std.int(this.w * explorerXBrowserW[0]), this.h)) {
+	override public function render(ui:Zui) {
+		if(!init && parent != null){
+			parent.postRenders.push(renderFolderExplorer);
+			parent.postRenders.push(renderFileExplorer);
+			init = true;
+		}
+
+		if(ui.tab(parent.htab,"Explorer")){
+			
+		}
+	}
+	function renderFolderExplorer(ui:zui.Zui){
+		if(!active)return;
+		var hoffset = Std.int(ui.BUTTON_H()+ui.ELEMENT_OFFSET());
+		if (ui.window(windowHandle, parent.x, parent.y+hoffset, Std.int(parent.w * explorerXBrowserW[0]), parent.h-hoffset)) {
 			if (ui.button("Import Assets")) {
 				openOnSystem();
 			}
-
 			folderExplorerHandle.text = ProjectExplorer.currentPath;
 			var folder = Cust.fileBrowser(ui, folderExplorerHandle, true);
 			if (folderExplorerHandle.changed) {
@@ -73,10 +60,16 @@ class ProjectExplorer extends EditorTab {
 				redraw();
 			}
 		}
+	}
+	function renderFileExplorer(ui:zui.Zui){
+		if(!active)return;
+
+		var hoffset = Std.int(ui.BUTTON_H()+ui.ELEMENT_OFFSET());
 		var offset = ui.ELEMENT_OFFSET() * 2;
-		if (ui.window(windowHandle2, this.x + Std.int(this.w * explorerXBrowserW[0] + offset), this.y, Std.int(this.w * explorerXBrowserW[1] - offset),
-			this.h)) {
+		if (ui.window(windowHandle2, parent.x + Std.int(parent.w * explorerXBrowserW[0] + offset), parent.y + hoffset, Std.int(parent.w * explorerXBrowserW[1] - offset),parent.h-hoffset)) {
+			
 			ui.text(ProjectExplorer.currentPath);
+
 			fileExplorerHandle.text = ProjectExplorer.currentPath;
 			var file:String = Cust.fileBrowser(ui, fileExplorerHandle);
 			if (fileExplorerHandle.changed) {

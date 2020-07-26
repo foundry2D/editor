@@ -51,6 +51,8 @@ class EditorUi extends Trait{
     public var codeView:EditorCodeView;
     var animationView:EditorAnimationView;
     var projectExplorer:ProjectExplorer;
+    var center:CenterPanel;
+    var bottom:BottomPanel;
     var menu:EditorMenuBar;
     public static var scenePath:String = "";
     public static  var projectPath(default,set):String = ".";
@@ -122,20 +124,22 @@ class EditorUi extends Trait{
     }
 
     public function render(canvas:kha.Canvas){
-
+        
         ui.begin(canvas.g2);
         if(menu != null)
             menu.render(ui);
         if(inspector != null)
             inspector.render(ui);
-        if(animationView != null)
-            animationView.render(ui);
-        if(codeView != null)
-            codeView.render(ui);
+        // if(animationView != null)
+        //     animationView.render(ui);
+        // if(codeView != null)
+        //     codeView.render(ui);
+        if(bottom != null)
+            bottom.render(ui);
         if(hierarchy != null)
             hierarchy.render(ui);
-        if(projectExplorer != null)
-            projectExplorer.render(ui);
+        if(center != null)
+            center.render(ui);
         ui.end();
         if(EditorMenu.show){
             EditorMenu.render(canvas.g2);
@@ -197,8 +201,15 @@ class EditorUi extends Trait{
         if(projectmanager != null)
             Screen.instance.removeComponent(projectmanager);
         editor = new EditorView();
+        center = new CenterPanel();
+        bottom = new BottomPanel();
+        projectExplorer = new ProjectExplorer();
+        bottom.addTab(projectExplorer);
         codeView = new EditorCodeView();
-        animationView = new EditorAnimationView(ui);
+        animationView = new EditorAnimationView();
+        center.addTab(gameView);
+        center.addTab(codeView);
+        center.addTab(animationView);
 
         #if arm_csm
         createHierarchy(iron.Scene.active.raw);
@@ -206,10 +217,10 @@ class EditorUi extends Trait{
         createHierarchy(found.State.active.raw);
         #end
         
-        projectExplorer = new ProjectExplorer();
+        
         menu  = new EditorMenuBar();
         editor.header.addComponent(menu);
-        addToParent(editor.ePanelBottom,projectExplorer);
+        editor.ePanelBottom.addComponent(bottom);
         var tools = new EditorTools(editor);
         Screen.instance.addComponent(editor);
         keyboard = Input.getKeyboard();
@@ -227,9 +238,9 @@ class EditorUi extends Trait{
             editor.ePanelRight.addComponent(inspector);
             hierarchy = new EditorHierarchy(blob,inspector);
             editor.ePanelLeft.addComponent(hierarchy);
-            addToParent(editor.ePanelTop,gameView);// @TODO: Do we really need to put this here ?
-            addToParent(editor.ePanelTop,codeView);
-            addToParent(editor.ePanelTop,animationView);
+            editor.ePanelTop.addComponent(center);
+            // addToParent(editor.ePanelTop,codeView);
+            // addToParent(editor.ePanelTop,animationView);
         // }
         
     }
@@ -238,41 +249,48 @@ class EditorUi extends Trait{
         parent.addComponent(child);
         child.init(parent);
     }
+    var lastChange:Float = 0.0;
     public function update(dt:Float): Void {
         if(mouse == null || keyboard == null)return;
+
+        if(keyboard.started("s") && keyboard.down("control"))
+			saveSceneData();
+
         if(animationView != null) {
             animationView.update(dt);
-        }
-        checkKeyPressed();
-        if(mouse.down("middle") && mouse.moved){
-            if(State.active!= null){
-                State.active.cam.position.x+=mouse.distX;
-                State.active.cam.position.y+=mouse.distY;
+            if(keyboard.started("space")){
+                animationView.notifyPlayPause();
             }
         }
-        if(mouse.down("left") && mouse.moved){
-            updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
-        }
-        else{
-            arrow = -1;
+        
+        //Game View based Input
+        if(gameView.active)
+        {
+            if(keyboard.down("f9") && 0.1 < kha.Scheduler.time()-lastChange){
+                lastChange = kha.Scheduler.time();
+                Found.fullscreen = !Found.fullscreen;
+            }
+            if(keyboard.started("f1")){
+                EditorUi.arrowMode = 0;
+            }
+            if(keyboard.started("f2")){
+                EditorUi.arrowMode = 1;
+            }
+
+            if(mouse.down("middle") && mouse.moved){
+                if(State.active!= null){
+                    State.active.cam.position.x+=mouse.distX;
+                    State.active.cam.position.y+=mouse.distY;
+                }
+            }
+            if(mouse.down("left") && mouse.moved){
+                updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
+            }
+            else{
+                arrow = -1;
+            }
         }
         
-    }
-    public function checkKeyPressed(){
-        if(keyboard.started("f9")){
-			Found.fullscreen = !Found.fullscreen;
-		}
-		if(keyboard.started("f1")){
-			EditorUi.arrowMode = 0;
-		}
-		if(keyboard.started("f2")){
-			EditorUi.arrowMode = 1;
-        }
-        if(keyboard.started("space") && animationView != null){
-            animationView.notifyPlayPause();
-        }
-		if(keyboard.started("s") && keyboard.down("control"))
-			saveSceneData();
     }
 
     #if found
@@ -289,10 +307,10 @@ class EditorUi extends Trait{
         var doUpdate = true;
         var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
-        var scaleFactor = Math.ceil(gameView.w)/Found.WIDTH;
+        var scaleFactor = Math.ceil(gameView.width)/Found.WIDTH;
 
-        var px = ((x-gameView.x-minusX)/gameView.w)*Found.WIDTH+State.active.cam.position.x;
-        var py = ((y-gameView.y-minusY)/gameView.h)*Found.HEIGHT+State.active.cam.position.y;
+        var px = ((x-gameView.x-minusX)/gameView.width)*Found.WIDTH+State.active.cam.position.x;
+        var py = ((y-gameView.y-minusY)/gameView.height)*Found.HEIGHT+State.active.cam.position.y;
         
         //Get scaling values
         var direction = 1;
@@ -336,7 +354,7 @@ class EditorUi extends Trait{
             
         }
         
-        if(px+((minusX+(minusX/5)*2)/gameView.w)*Found.WIDTH > Found.WIDTH +State.active.cam.position.x || px < State.active.cam.position.x || py > Found.HEIGHT+State.active.cam.position.y ||py+((minusY+(minusY/5)*2)/gameView.h)*Found.HEIGHT < State.active.cam.position.y){
+        if(px+((minusX+(minusX/5)*2)/gameView.width)*Found.WIDTH > Found.WIDTH +State.active.cam.position.x || px < State.active.cam.position.x || py > Found.HEIGHT+State.active.cam.position.y ||py+((minusY+(minusY/5)*2)/gameView.height)*Found.HEIGHT < State.active.cam.position.y){
             return;
         }
     }

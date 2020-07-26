@@ -6,32 +6,8 @@ import found.App;
 import found.Scene;
 import found.data.SceneFormat;
 import found.tool.NodeEditor;
-import haxe.ui.core.Component;
 
-class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
-	public var x(get, never):Int;
-
-	function get_x() {
-		return Math.floor(screenX);
-	}
-
-	public var y(get, never):Int;
-
-	function get_y() {
-		return Math.floor(screenY);
-	}
-
-	public var w(get, never):Int;
-
-	function get_w() {
-		return Math.ceil(cast(this, Component).componentWidth);
-	}
-
-	public var h(get, never):Int;
-
-	function get_h() {
-		return Math.ceil(cast(this, Component).componentHeight);
-	}
+class EditorCodeView implements EditorHierarchyObserver extends Tab {
 
 	var visualEditor:found.tool.NodeEditor;
 
@@ -42,14 +18,7 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 	var codeScriptWindowHandle = Id.handle();
 	var codeScriptTextAreaHandle = Id.handle();
 
-	public function new(?ui:zui.Zui) {
-		super();
-		this.percentWidth = 100;
-		this.percentHeight = 100;
-		this.text = "Code";
-
-		visualEditor = new found.tool.NodeEditor(x, y, w, h);
-		visualEditor.visible = true;
+	public function new() {
 
 		EditorHierarchy.register(this);
 	}
@@ -65,34 +34,42 @@ class EditorCodeView implements EditorHierarchyObserver extends EditorTab {
 		currentlyDisplayedTrait = trait;
 		traitNameWindowHandle.redraws = codeScriptWindowHandle.redraws = codeScriptTextAreaHandle.redraws = 2;
 		visualEditor.redraw();
+		if(currentlyDisplayedTrait.type != "VisualScript"){
+			visualEditor.visible = false;
+		}
+		else {
+			visualEditor.visible = true;
+		}
 	}
 
 	@:access(zui.Zui)
-	public function render(ui:zui.Zui) {
-		if (selectedPage == null || selectedPage.text != "Code")
-			return;
-
-		updateDisplayedTraitData();
-
-		if (ui.window(traitNameWindowHandle, x, y, w, h)) {
+	override public function render(ui:zui.Zui) {
+		if(visualEditor == null){
+			visualEditor = new found.tool.NodeEditor(ui,parent.x, parent.y, parent.w, parent.h);
+			visualEditor.visible = false;
+			parent.postRenders.push(visualEditor.render);
+		}
+		visualEditor.setAll(parent.x, parent.y + (ui.t.BUTTON_H + ui.t.ELEMENT_OFFSET)*2, parent.w, parent.h - (ui.t.BUTTON_H + ui.t.ELEMENT_OFFSET)*2);
+		var isActive = ui.tab(parent.htab,"Code");
+		if (isActive) {
 			if (currentlyDisplayedTrait != null) {
 				ui.row([0.7, 0.3]);
 				ui.text(currentlyDisplayedTrait.classname);
 				if (ui.button("Save")) {
 					saveDisplayedTraitData();
 				}
+				updateDisplayedTraitData();
+				if(currentlyDisplayedTrait.type != "VisualScript"){
+					var isEditable:Bool = StringTools.endsWith(currentlyDisplayedTrait.classname, ".hx");
+					Ext.textArea(ui, codeScriptTextAreaHandle, zui.Zui.Align.Left, isEditable);
+				}
+				else {
+					updateDisplayedTraitData();
+				}
 			}
 		}
-
-		if (currentlyDisplayedTrait == null || currentlyDisplayedTrait.type == "VisualScript") {
-			visualEditor.setAll(x, y + ui.t.BUTTON_H + ui.t.ELEMENT_OFFSET, w, h - ui.t.BUTTON_H - ui.t.ELEMENT_OFFSET);
-			visualEditor.render(ui);
-		} else {
-			if (ui.window(codeScriptWindowHandle, x, y + ui.t.BUTTON_H + ui.t.ELEMENT_OFFSET, w, h - ui.t.BUTTON_H - ui.t.ELEMENT_OFFSET)) {
-				var isEditable:Bool = StringTools.endsWith(currentlyDisplayedTrait.classname, ".hx");
-				Ext.textArea(ui, codeScriptTextAreaHandle, zui.Zui.Align.Left, isEditable);
-			}
-		}
+		visualEditor.visible = this.active;
+		
 	}
 
 	function updateDisplayedTraitData() {

@@ -10,8 +10,8 @@ class Conversion {
         var screen:FastVector2 = new FastVector2();
         var x = found.App.editorui.gameView.x;
         var y = found.App.editorui.gameView.y;
-        var width = found.App.editorui.gameView.w;
-        var height = found.App.editorui.gameView.h;
+        var width = found.App.editorui.gameView.width;
+        var height = found.App.editorui.gameView.height;
         var worldScale = FastMatrix3.scale(1.0/Found.WIDTH,1.0/Found.HEIGHT);
         var result = worldScale.multmat(FastMatrix3.translation(position.x,position.y));
 
@@ -25,7 +25,7 @@ class Conversion {
         var y = State.active.cam.position.y;
         var gv = found.App.editorui.gameView;
         var screenTranslation = FastMatrix3.translation(position.x-gv.x,position.y-gv.y);
-        var viewScale = FastMatrix3.scale(1.0/gv.w,1.0/gv.h);
+        var viewScale = FastMatrix3.scale(1.0/gv.width,1.0/gv.height);
         var result= viewScale.multmat(screenTranslation);
         world.x = x+Found.WIDTH*result._20;
         world.y = y+Found.HEIGHT*result._21;

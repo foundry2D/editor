@@ -55,6 +55,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorPanel {
         else{
             found.Found.tileeditor.selectTilemap(-1);
         }
+        windowHandle.redraws = 2;
         inspector.redraw();    
     }
 
@@ -83,6 +84,8 @@ class EditorInspector implements EditorHierarchyObserver extends EditorPanel {
        
     function browseImage(){
         var done = function(path:String){
+            if(path == "")return;
+            
             var error = true;
             var sep = Fs.sep;
             if(path != null){
