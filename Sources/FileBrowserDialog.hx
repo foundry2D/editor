@@ -44,14 +44,15 @@ class FileBrowserDialog {
         ui.text("");
         ui.row([0.5, 0.5]);
 		if (ui.button("Add")) {
-            doneCallback(textInputHandle.text);
             zui.Popup.show = false;
+            doneCallback(textInputHandle.text);
             textInputHandle.text = "";
             doneCallback = function(path:String){};
         }
         if (ui.button("Cancel")) {
             zui.Popup.show = false;
             textInputHandle.text = "";
+            doneCallback("");
             doneCallback = function(path:String){};
         }
     }
