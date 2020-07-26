@@ -31,14 +31,13 @@ class ManagerView extends Box {
 
     @:bind(newproject,MouseEvent.CLICK)
     function creator(e:MouseEvent){
-        var inst = new ProjectCreator(function(){
+        ProjectCreator.open(function(){
 
             khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                 var out:{list:Array<TProject>} = haxe.Json.parse(blob);
                 projectslist.dataSource.add(out.list.pop());
             });
         });
-        inst.show();
     }
 
     @:bind(run,MouseEvent.CLICK)
