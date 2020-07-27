@@ -3,9 +3,6 @@ package;
 import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
-import haxe.ui.components.Button;
-import haxe.ui.core.Component;
-import haxe.ui.containers.menus.*;
 import haxe.ui.core.Screen;
 import haxe.ui.containers.TabView;
 import haxe.ui.Toolkit;
@@ -22,7 +19,6 @@ import found.State;
 import found.Found;
 import found.Input;
 import found.math.Util;
-import found.object.Object.MoveData;
 import found.data.SceneFormat;
 #end
 
@@ -130,10 +126,6 @@ class EditorUi extends Trait{
             menu.render(ui);
         if(inspector != null)
             inspector.render(ui);
-        // if(animationView != null)
-        //     animationView.render(ui);
-        // if(codeView != null)
-        //     codeView.render(ui);
         if(bottom != null)
             bottom.render(ui);
         if(hierarchy != null)
@@ -227,22 +219,12 @@ class EditorUi extends Trait{
         mouse = Input.getMouse();
     }
     function createHierarchy(blob:TSceneFormat){
-        // if(isBlend){
-        //     bl = new BlendParser(blob);
-        //     trace(bl.dir("Scene"));
-        //     var scenes = bl.get("Scene");
-        //     trace(scenes.length);
-        // }else{
-            // raw = ArmPack.decode(blob.bytes);
-            inspector = new EditorInspector();
-            editor.ePanelRight.addComponent(inspector);
-            hierarchy = new EditorHierarchy(blob,inspector);
-            editor.ePanelLeft.addComponent(hierarchy);
-            editor.ePanelTop.addComponent(center);
-            // addToParent(editor.ePanelTop,codeView);
-            // addToParent(editor.ePanelTop,animationView);
-        // }
         
+        inspector = new EditorInspector();
+        editor.ePanelRight.addComponent(inspector);
+        hierarchy = new EditorHierarchy(blob,inspector);
+        editor.ePanelLeft.addComponent(hierarchy);
+        editor.ePanelTop.addComponent(center);    
     }
     @:access(EditorTab)
     public function addToParent(parent:TabView, child:EditorTab){
