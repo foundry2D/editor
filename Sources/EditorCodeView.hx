@@ -27,7 +27,8 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 		// @TODO: should we always load and reparse the data ?
 		// (i.e. we already parse the data to determine what to show the UI so maybe we should load if we find a visual script from the UI)
 		var traits:Array<TTrait> = selectedObject.traits != null ? selectedObject.traits : [];
-		setDisplayedTrait(traits[0]);
+		if(traits.length > 0)
+			setDisplayedTrait(traits[0]);
 	}
 
 	public function setDisplayedTrait(trait:TTrait):Void {		

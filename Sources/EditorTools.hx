@@ -1,40 +1,47 @@
 package;
 
+import kha.Image;
 import kha.math.Vector2;
 import found.Found;
-import haxe.ui.core.Component;
-import haxe.ui.events.MouseEvent;
 import kha.graphics2.Graphics;
+import found.math.Util;
 
-import utilities.Conversion;
 
 class EditorTools {
-    static public var arrows:Container;
     static public var vArrow:Arrow;
+    static var vertColl:Arrow;
     static public var hArrow:Arrow;
     static public var rect:Arrow;
-    static var position:Vector2 = new Vector2();
+    static public var redrawArrows:Bool = true;
     public function new(editor:EditorView){
-        arrows = new Container();
-        vArrow = new Arrow(1);
+        vArrow = new Arrow(3);
         hArrow = new Arrow(0);
         rect = new Arrow(2);
+        vertColl = new Arrow(1);
 
-        editor.addComponent(arrows);
-        editor.addComponent(vArrow);
-        editor.addComponent(hArrow);
-        editor.addComponent(rect);
     }
-    static public function render(g:Graphics,p_x:Float,p_y:Float,w:Float,h:Float){
-        var x = p_x;
-        var y = p_y;
-        position.x = x-found.State.active.cam.position.x;
-        position.y = y-found.State.active.cam.position.y;
-        // arrows.left = x;//(arrows.left)/Found.WIDTH*Math.ceil(w)+Math.floor(p_x);
-        // arrows.top = ;//(arrows.top)/Found.HEIGHT*Math.ceil(h)+Math.floor(p_y);
-        vArrow.render2Scene(g,x,y);
-        hArrow.render2Scene(g,x,y);
-        rect.render2Scene(g,x,y);
+    @:access(zui.Zui)
+    static public function render(ui:zui.Zui,p_x:Float,p_y:Float,w:Float,h:Float,resetY:Float){
+        var x = p_x +ui._x-found.State.active.cam.position.x;
+        var y = p_y+resetY-vArrow.size-found.State.active.cam.position.y;
+        
+
+        ui._x = x - rect.size * 0.75;
+        ui._y = y - rect.size *10.5;
+        vertColl.render2Scene(ui);
+        ui._x = x - rect.size * 0.5;
+        ui._y = y + rect.size*1.5;
+        ui.g.pushRotation(Util.degToRad(-90),ui._x,ui._y);
+        vArrow.render2Scene(ui);
+        ui.g.popTransformation();
+        ui._x = x ;
+        ui._y = y;
+        hArrow.render2Scene(ui);
+        ui._x = x + rect.size *0.5 ;
+        ui._y = y - rect.size *0.5;
+        rect.render2Scene(ui);
+        if(redrawArrows)
+            EditorTools.redrawArrows = false;
     }
     static public function drawGrid(g:Graphics){
         if(!Found.drawGrid)return;
@@ -66,123 +73,112 @@ class EditorTools {
         }
         g.color = kha.Color.White;
     }
-}
-class Container  extends Component{
-    public function new(){
-        super();
-    }
-    public override function renderTo(g:Graphics){
-        
-        g.color = kha.Color.fromBytes(128,128,128,64);
-        g.fillRect(left,top,this.componentWidth,this.componentHeight);
-        // for(comp in childComponents){
-        //     comp.renderTo(g);
-        // }
-        g.color = kha.Color.White;
-    }
-    
 } 
-class Arrow extends Component{
+class Arrow {
     var type:Int =0;// 0 = right 1 = up
     public var x:Float = 0;
     public var y:Float =0;
     public var size:Float= 8.0;
     public function new(?type:Int){
-        super();
         this.type = type;
-        this.componentWidth = type==2 ? size*1.5: size*2;
-        this.componentHeight = type==2 ? size*1.5:size*2;
-        this.registerEvent(MouseEvent.MOUSE_DOWN,activate);
     }
-    function activate(e:MouseEvent){
+    function activate(){
         if(found.App.editorui.inspector.index < 0 || found.App.editorui.inspector.index == found.State.active.cam.uid)return;
         EditorUi.arrow = type;
         switch(type){
             case 0:
-                EditorUi.minusX = size*5;
+                EditorUi.minusX = size*10;
             case 1:
-                EditorUi.minusY = -size*5;
+                EditorUi.minusY = -size*8.5;
             case 2:
                 EditorUi.minusX = 0;
                 EditorUi.minusY = 0;
         }
-        trace('Clicked an Arrow with type: $type with click'+e.type);
+        trace('Clicked an Arrow with type: $type with click');
     }
 
-    public function set(x:Float,y:Float,?size:Float=8.0){
-        var w = size*5;
-		var h = w;
-        this.x = x;
-        this.y = y;
-        this.left = x;
-        this.top = y;
-        this.size = size;
-        
-    }
-    public function render2Scene(g:Graphics,x:Float,y:Float){
+   
+    var vertical:Image;
+    var horizontal:Image;
+    var rect:Image;
+    var vertCollider:Image;
+    @:access(zui.Zui)
+    public function render2Scene(ui:zui.Zui){
         if(found.App.editorui.inspector.index < 0)return;
         var w = size*10;
-		var h = w;
+        var h = w;
+        var ty = size;
         if(type == 0){
+            if(horizontal == null)
+                horizontal = kha.Image.createRenderTarget(Std.int(w+size*2), Std.int(size*2));
             //Horizontal Line
-			g.color = kha.Color.Green;
-			g.fillRect(x,y,w,2.0);
-            if(EditorUi.arrowMode == 0){
-			    g.fillTriangle(x+w,y+size,x+w,y-size,x+w+size*2,y);
+            if(EditorTools.redrawArrows){
+                ui.g.end();
+                horizontal.g2.begin(true,kha.Color.Transparent);
+                horizontal.g2.color = kha.Color.Green;
+                horizontal.g2.fillRect(0,ty,w,2.0);
+                if(EditorUi.arrowMode == 0){
+                    horizontal.g2.fillTriangle(w,ty+size,w,ty+-size,w+size*2,ty);
+                }
+                else {
+                    horizontal.g2.fillRect(w,0,size*2,size*2);
+                }
+                horizontal.g2.end();
+                ui.g.begin(false);
             }
-            else {
-                g.fillRect(x+w,y+size,size*2,-size*2);
+            if(ui.image(horizontal) == zui.Zui.State.Down){
+                activate();
             }
         }
         else if( type == 2){
-            g.color = kha.Color.Yellow;
-            g.fillRect(x,y,size*2,-size*2);
-        }
-        else{
-			//Vertical Line
-			g.color = kha.Color.Red;
-			g.fillRect(x,y-h,2.0,h);
-            if(EditorUi.arrowMode == 0){
-                g.fillTriangle(x+size,y-h,x-size,y-h,x,y-h-size*2);
-            } 
-            else{
-                g.fillRect(x-size,y-h,size*2,-size*2);
+            if(rect == null){
+                rect = kha.Image.createRenderTarget(Std.int(size*2),Std.int(size*2));
+                ui.g.end();
+                rect.g2.begin(true,kha.Color.Transparent);
+                rect.g2.color = kha.Color.Yellow;
+                rect.g2.fillRect(0,0,size*2,size*2);
+                rect.g2.end();
+                ui.g.begin(false);
             }
-			
+            if(ui.image(rect) == zui.Zui.State.Down){
+                activate();
+            }
+        }
+        else if(type == 3){
+            if(vertical == null)
+                vertical = kha.Image.createRenderTarget(Std.int(w+size*2), Std.int(size*2));
+            //Vertical Line
+            if(EditorTools.redrawArrows){
+                ui.g.end();
+                vertical.g2.begin(true,kha.Color.Transparent);
+                vertical.g2.color = kha.Color.Red;
+                vertical.g2.fillRect(0,ty,w,2.0);
+                if(EditorUi.arrowMode == 0){
+                    vertical.g2.fillTriangle(w,ty+size,w,ty+-size,w+size*2+2.0,ty);
+                }
+                else {
+                    vertical.g2.fillRect(w,0,size*2,size*2);
+                }
+                vertical.g2.end();
+                ui.g.begin(false);
+            }
+            ui.image(vertical);
+            
+        }
+        else if(type ==1){
+            if(vertCollider == null)
+                vertCollider = kha.Image.createRenderTarget(Std.int(size*2), Std.int(w+size*2));
+            //Vertical Line
+            if(EditorTools.redrawArrows){
+                ui.g.end();
+                vertCollider.g2.begin(true,kha.Color.Transparent);
+                vertCollider.g2.end();
+                ui.g.begin(false);
+            }
+            if(ui.image(vertCollider) == zui.Zui.State.Down){
+                activate();
+            }
         }
     }
-    @:access(EditorTools)
-    //Debug render and set ui collision
-    public override function renderTo(g:Graphics){
-        if(found.App.editorui.inspector.index < 0 || found.App.editorui.inspector.index == found.State.active.cam.uid)return;
-        var pos = Conversion.WorldToScreen(cast(EditorTools.position));
-        var x = pos.x;
-        var y = pos.y;
-        var w = size*5;
-		var h = w;
-        
-        if(type ==1){
-            this.set(x-this.componentWidth*0.5,y-this.componentHeight*0.5-size*4);
-            #if debug_editor
-            g.color = kha.Color.fromBytes(255,128,128,128);
-            g.fillRect(this.left,this.top,this.componentWidth,this.componentHeight);
-            #end
-        }
-        else if(type == 0){
-            this.set(x+size*5,y-this.componentHeight*0.5);
-            #if debug_editor
-            g.color = kha.Color.fromBytes(128,255,128,128);
-            g.fillRect(this.left,this.top,this.componentWidth,this.componentHeight);
-            #end
-        }
-        else if(type == 2){
-            this.set(x,y-this.componentHeight);
-            #if debug_editor
-            //Rect
-            g.color = kha.Color.Yellow;
-            g.fillRect(this.left,this.top,this.componentWidth,this.componentHeight);
-            #end
-        }
-        
-    }
+    
 }

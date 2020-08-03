@@ -76,6 +76,7 @@ class Inspector extends Tab {
 	}
 
 	override public function redraw() {
+		parent.windowHandle.redraws = 2;
 		objectHandle.redraws = 2;
 		sceneHandle.redraws = 2;
 		layersHandle.redraws = 2;
@@ -479,7 +480,7 @@ class Inspector extends Tab {
 		}
 		ui.row([0.1, 0.45, 0.45]);
 		ui.text("S");
-		xScaleHandle.value = data.scale != null ? data.scale.x : 1.0;
+		xScaleHandle.value = Util.fround(data.scale != null ? data.scale.x : 1.0,2);
 		var sx = Ext.floatInput(ui, xScaleHandle, "X", Align.Right);
 		if (xScaleHandle.changed) {
 			data.scale.x = sx;
@@ -488,7 +489,7 @@ class Inspector extends Tab {
 			changed = true;
 		}
 
-		yScaleHandle.value = data.scale != null ? data.scale.y : 1.0;
+		yScaleHandle.value = Util.fround(data.scale != null ? data.scale.y : 1.0,2);
 		var sy = Ext.floatInput(ui, yScaleHandle, "Y", Align.Right);
 		if (yScaleHandle.changed) {
 			data.scale.y = sy;

@@ -48,12 +48,13 @@ class EditorGameView extends Tab {
 		return parent.h;
 	}
 	
-	@:access(EditorPanel)
+	@:access(EditorPanel,zui.Zui)
 	override public function render(ui:zui.Zui) {
 
 		if (Found.scenebuffer == null) Found.scenebuffer = kha.Image.createRenderTarget(Found.backbuffer.width, Found.backbuffer.height);
-		
+
 		if(ui.tab(parent.htab,"Game")){
+			var y = ui._y;
 			ui.image(Found.scenebuffer);
 			ui.g.end();
 			parent.windowHandle.redraws = 1;
@@ -65,18 +66,18 @@ class EditorGameView extends Tab {
 			if (State.active != null){
 				State.active.render(image);
 			}
-			image.g2.pushTransformation(FastMatrix3.translation(-State.active.cam.position.x,-State.active.cam.position.y));
-			if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
-				var i = found.App.editorui.inspector.index;
-				var e = State.active._entities[i];
-				if(e != State.active.cam)
-					EditorTools.render(image.g2,e.position.x,e.position.y,parent.w,parent.h);
-
-			}
-			image.g2.popTransformation();
 			image.g2.end();
 			found.App.frameCounter.render(image);
 			ui.g.begin(false);
+			if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
+				var i = found.App.editorui.inspector.index;
+				var e = State.active._entities[i];
+				if(e != State.active.cam){
+					EditorTools.render(ui,e.position.x,e.position.y,parent.w,parent.h,y);
+				}
+
+			}
 		}
+		parent.windowHandle.redraws = 2;
 	}
 }

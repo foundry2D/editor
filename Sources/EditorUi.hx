@@ -245,27 +245,30 @@ class EditorUi extends Trait{
             }
         }
         
+        if(keyboard.down("f9") && 0.1 < kha.Scheduler.time()-lastChange){
+            lastChange = kha.Scheduler.time();
+            Found.fullscreen = !Found.fullscreen;
+        }
+
         //Game View based Input
         if(gameView.active)
         {
-            if(keyboard.down("f9") && 0.1 < kha.Scheduler.time()-lastChange){
-                lastChange = kha.Scheduler.time();
-                Found.fullscreen = !Found.fullscreen;
-            }
-            if(keyboard.started("f1")){
+            if(keyboard.down("1") && keyboard.down("control")){
                 EditorUi.arrowMode = 0;
+                EditorTools.redrawArrows = true;
             }
-            if(keyboard.started("f2")){
+            else if(keyboard.down("2") && keyboard.down("control")){
                 EditorUi.arrowMode = 1;
+                EditorTools.redrawArrows = true;
             }
-
-            if(mouse.down("middle") && mouse.moved){
+            var inSceneView = mouse.x > gameView.x && mouse.y > gameView.y && mouse.x < gameView.x + gameView.width && mouse.y < gameView.y + gameView.height;
+            if(inSceneView && mouse.down("middle") && mouse.moved){
                 if(State.active!= null){
                     State.active.cam.position.x+=mouse.distX;
                     State.active.cam.position.y+=mouse.distY;
                 }
             }
-            if(mouse.down("left") && mouse.moved){
+            if(inSceneView && mouse.down("left") && mouse.moved){
                 updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
             }
             else{
@@ -281,7 +284,6 @@ class EditorUi extends Trait{
     public static var arrowMode:Int = 0;// 0 = Move; 1 = Scale
     public static var minusX:Float = 0;// Basically the arrow size maybe @RENAME ?
     public static var minusY:Float = 0;// Basically the arrow size maybe @RENAME ?
-    static var event:UIEvent = new UIEvent(UIEvent.CHANGE);
     @:access(EditorInspector)
     public function updateMouse(x:Float,y:Float,cx:Float,cy:Float){
         if(inspector.index==-1)return;
@@ -289,10 +291,9 @@ class EditorUi extends Trait{
         var doUpdate = true;
         var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
-        var scaleFactor = Math.ceil(gameView.width)/Found.WIDTH;
 
-        var px = ((x-gameView.x-minusX)/gameView.width)*Found.WIDTH+State.active.cam.position.x;
-        var py = ((y-gameView.y-minusY)/gameView.height)*Found.HEIGHT+State.active.cam.position.y;
+        var px = (x-gameView.x - minusX)+State.active.cam.position.x;
+        var py = (y-gameView.y - minusY)+State.active.cam.position.y;
         
         //Get scaling values
         var direction = 1;
@@ -302,8 +303,8 @@ class EditorUi extends Trait{
         else if(arrow == 1){
             direction = curPos.y-py < 0 ? -1:1;
         }
-        var sx = direction*(Math.abs(curPos.x-px)/Found.WIDTH);
-        var sy = direction*(Math.abs(curPos.y-py)/Found.HEIGHT);
+        var sx = Util.fround(direction*(Math.abs(curPos.x-px)/Found.WIDTH),2);
+        var sy = Util.fround(direction*(Math.abs(curPos.y-py)/Found.HEIGHT),2);
         
         //Clamp position to grid
         if(gridMove || keyboard.down("control")){//Clamp to grid
@@ -335,10 +336,6 @@ class EditorUi extends Trait{
             }
             
         }
-        
-        if(px+((minusX+(minusX/5)*2)/gameView.width)*Found.WIDTH > Found.WIDTH +State.active.cam.position.x || px < State.active.cam.position.x || py > Found.HEIGHT+State.active.cam.position.y ||py+((minusY+(minusY/5)*2)/gameView.height)*Found.HEIGHT < State.active.cam.position.y){
-            return;
-        }
     }
     @:access(EditorInspector)
     function updateScale(sx:Float,sy:Float,ctrl:Bool = false){
@@ -357,6 +354,7 @@ class EditorUi extends Trait{
                     Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"y",sy);
             }
         }
+        inspector.inspector.redraw();
     }
     @:access(EditorInspector)
     function updatePos(px:Float,py:Float){ 
