@@ -53,7 +53,7 @@ class EditorMenu {
     static var camControlRightHandle:Handle = Id.handle();
     static var camControlUpHandle:Handle = Id.handle();
     static var camControlDownHandle:Handle = Id.handle();
-    static final menuItemsCount = [5, 2, 3,12, 4, 3];
+    static final menuItemsCount = [5, 2, 3,12, 5, 3];
     @:access(zui.Zui)
     public static function render(g:kha.graphics2.Graphics){
 

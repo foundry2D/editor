@@ -87,6 +87,7 @@ class ManagerView extends CanvasScript {
 
 
     function runProject(){
+        this.visible = false;
         if(selectedItem != null){
             var project:TProject = selectedItem;
             found.State.addState('default',project.scenes[0]);
