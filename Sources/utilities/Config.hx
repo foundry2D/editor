@@ -21,7 +21,7 @@ class Config {
 				done();
 			});
 		}
-		catch (e: Dynamic) { done(); }
+		catch (e: Dynamic) { trace("Failed to load, will load defaults");done(); }
 	}
 
 	public static function save() {

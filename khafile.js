@@ -5,8 +5,6 @@ project.addAssets("keymap_presets/*", { notinlist: true, destination: "data/keym
 project.addShaders('Shaders/**');
 project.addSources('Sources');
 project.addLibrary('Libraries/foundsdk/hscript');
-project.addLibrary('Libraries/foundsdk/haxeui-core');
-project.addLibrary('Libraries/foundsdk/haxeui-kha');
 project.addDefine("debug");
 project.addDefine("editor");
 project.addDefine("tile_editor");

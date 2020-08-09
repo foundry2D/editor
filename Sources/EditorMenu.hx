@@ -26,13 +26,17 @@ import utilities.Config;
 }
 
 
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-menu.xml"))
 class EditorMenu {
     
     public static var show = false;
 	public static var menuCategory = 0;
 	public static var menuX = 0;
-	public static var menuY = 0;
+    public static var menuY = 0;
+    public static var menuW = 0;
+    public static var menuH(get,null):Float;
+    static function get_menuH() {
+        return 28 * menuItemsCount[menuCategory];
+    }
 	public static var menuElements = 0;
 	public static var keepOpen = false;
 	public static var menuCommands: Zui->Void = null;
@@ -49,12 +53,13 @@ class EditorMenu {
     static var camControlRightHandle:Handle = Id.handle();
     static var camControlUpHandle:Handle = Id.handle();
     static var camControlDownHandle:Handle = Id.handle();
+    static final menuItemsCount = [5, 2, 3,12, 4, 3];
     @:access(zui.Zui)
     public static function render(g:kha.graphics2.Graphics){
 
         var ui = found.Found.popupZuiInstance;
 
-        var menuW = Std.int(ui.ELEMENT_W() * 2.0);
+        menuW = Std.int(ui.ELEMENT_W() * 2.0);
 
         var BUTTON_COL = ui.t.BUTTON_COL;
 		ui.t.BUTTON_COL = ui.t.SEPARATOR_COL;
@@ -65,10 +70,9 @@ class EditorMenu {
         g.begin(false);
         ui.beginRegion(g, menuX, menuY, menuW);
 
-        var menuItemsCount = [5, 2, 3,12, 19, 5];
         var sepw = menuW / ui.SCALE();
         ui.g.color = ui.t.SEPARATOR_COL;
-        ui.g.fillRect( menuX, menuY, menuW, 28 * menuItemsCount[menuCategory] * ui.SCALE());
+        ui.g.fillRect( menuX, menuY, menuW, menuH * ui.SCALE());
         
         //Begin
         

@@ -10,6 +10,7 @@ import found.State;
 import found.data.SceneFormat;
 import found.object.Object;
 import found.math.Util;
+import zui.Canvas.TElement;
 #end
 
 // @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
@@ -59,7 +60,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorPanel {
         inspector.redraw();    
     }
 
-    override public function render(ui:zui.Zui){
+    override public function render(ui:zui.Zui,element:TElement){
         if(Found.fullscreen ){
             inspector.visible = false;
             return;
@@ -67,7 +68,7 @@ class EditorInspector implements EditorHierarchyObserver extends EditorPanel {
         else if(!inspector.visible) {
             inspector.visible = true;
         }
-        super.render(ui);
+        super.render(ui,element);
     }
 
     @:access(Inspector,found.Scene)

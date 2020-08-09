@@ -1,39 +1,14 @@
 package;
 
+import zui.Canvas.TElement;
 import found.App;
 import zui.Zui;
 import zui.Ext;
 
-import haxe.ui.containers.HBox;
-
 import EditorMenu;
 
 
-class EditorMenuBar extends HBox  {
-
-    public var x(get, never):Int;
-
-	function get_x() {
-		return Math.floor(screenX);
-	}
-
-	public var y(get, never):Int;
-
-	function get_y() {
-		return Math.floor(screenY);
-	}
-
-	public var w(get, never):Int;
-
-	function get_w() {
-		return Math.ceil(this.parentComponent.componentWidth);
-	}
-
-	public var h(get, never):Int;
-
-	function get_h() {
-		return Math.ceil(this.parentComponent.componentHeight);
-    }
+class EditorMenuBar implements View {
 
 	public static inline var defaultMenubarW = 330;
 
@@ -44,17 +19,17 @@ class EditorMenuBar extends HBox  {
 	var playImage:kha.Image;
 	var pauseImage:kha.Image;
 	public function new() {
-		super();
 		playImage = kha.Assets.images.play;
 		pauseImage = kha.Assets.images.pause;
 	}
 
 	@:access(zui.Zui,found.Scene,found.object.Object,found.Trait)
-	public function render(ui:Zui) {
+	public function render(ui:Zui,element:TElement) {
 
+		ui.inputEnabled = true;
 		var WINDOW_BG_COL = ui.t.WINDOW_BG_COL;
 		ui.t.WINDOW_BG_COL = ui.t.SEPARATOR_COL;
-		if (ui.window(menuHandle, this.x, this.y, this.w, this.h)) {
+		if (ui.window(menuHandle, Std.int(element.x), Std.int(element.y), Std.int(element.width),Std.int(element.height))) {
 			var _w = ui._w;
 			ui._x += 1; // Prevent "File" button highlight on startup
 
@@ -87,9 +62,9 @@ class EditorMenuBar extends HBox  {
 			}
 
 			ui._w = _w;
-			ui._x = this.w * 0.5;
+			ui._x = element.width * 0.5;
 			var origY = ui._y;
-			ui._y =  this.h * 0.5 - playImage.height * 0.25;
+			ui._y =  element.height * 0.5 - playImage.height * 0.25;
 			var currentImage = App.editorui.isPlayMode ? pauseImage : playImage;
 			var state = ui.image(currentImage);
 			if(state == zui.Zui.State.Released){
@@ -120,22 +95,8 @@ class EditorMenuBar extends HBox  {
 			ui.t.ELEMENT_OFFSET = ELEMENT_OFFSET;
 			ui.t.BUTTON_COL = BUTTON_COL;
 		}
-        ui.t.WINDOW_BG_COL = WINDOW_BG_COL; 
-	}
-
-	@:access(zui.Zui)
-	function menuButton(ui:Zui,name: String, category: Int) {
-		
-		ui._w = Std.int(ui.ops.font.width(ui.fontSize, name) + 25);
-		var pressed = ui.button(name);
-		if(pressed && EditorMenu.show){
-			EditorMenu.show = false;
-		}
-		else if (pressed || (EditorMenu.show && EditorMenu.menuCommands == null && ui.isHovered)) {
-			EditorMenu.show = true;
-			EditorMenu.menuCategory = category;
-			EditorMenu.menuX = Std.int(ui._x - ui._w);
-			EditorMenu.menuY = this.h;
-		}
+		ui.t.WINDOW_BG_COL = WINDOW_BG_COL;
+		//This only works if the menu is the first to be drawn; this may be buggy... @:TODO
+		ui.inputEnabled = !EditorMenu.show;
 	}
 }

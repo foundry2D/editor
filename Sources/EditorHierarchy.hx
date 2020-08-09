@@ -1,7 +1,7 @@
 package;
 
+import zui.Canvas.TElement;
 import zui.Ext;
-import haxe.ui.containers.VBox;
 
 #if arm_csm
 import iron.data.SceneFormat;
@@ -68,9 +68,9 @@ class EditorHierarchy extends EditorPanel {
 
     }
     
-    override public function render(ui:zui.Zui){
+    override public function render(ui:zui.Zui,element:TElement){
         if(scene == null) return;
-        super.render(ui);
+        super.render(ui,element);
     }
     public function setFromScene(raw:TSceneFormat,onBoot:Bool = false){
         sceneName = raw.name;

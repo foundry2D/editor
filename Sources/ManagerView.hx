@@ -1,132 +1,135 @@
 package;
 
-import utilities.Config;
+import found.Event;
+import zui.Zui;
+import zui.Ext;
+import zui.Themes.TTheme;
 import kha.Image;
 import kha.Assets;
 
-import haxe.ui.core.Screen;
-import haxe.ui.data.ArrayDataSource;
-import haxe.ui.events.MouseEvent;
-import haxe.ui.components.DropDown;
-import haxe.ui.containers.Box;
-import haxe.ui.containers.dialogs.Dialog;
+import utilities.Config;
+import zui.Id;
+import zui.Canvas.TElement;
 
 import found.data.Project.TProject;
+import found.trait.internal.CanvasScript;
 
-@:build(haxe.ui.macros.ComponentMacros.build("../Assets/project-manager.xml"))
-class ManagerView extends Box {
+
+class ManagerView extends CanvasScript {
+    var projects:Array<TProject>;
+    var selectedItem:TProject = null;
+    public var theme(get,null):TTheme;
+    function get_theme(){
+        if(canvas == null)return null;
+        return zui.Canvas.getTheme(this.canvas.theme);
+    }
+    var ui:zui.Zui;
     public function new(data:Array<TProject> =null) {
-        super();
-        percentWidth = 100;
-        percentHeight = 100;
-        projectslist.itemRenderer =  haxe.ui.macros.ComponentMacros.buildComponent(
-			"../Assets/custom/projectlist-items.xml");
+        super("projectView","font_default.ttf",kha.Assets.blobs.get("projectView_json"));
         if(data != null){
-            // projectslist.dataSource
-            for(proj in data){
-                projectslist.dataSource.add(proj);
+            projects = data;
+        }
+        this.addCustomDraw("List",drawView);
+        ui = new Zui({font:kha.Assets.fonts.font_default});
+        Event.add("onRun",runProject);
+        Event.add("onNew",createProject);
+        Event.add("onImportProject",importProject);
+        Event.add("onDeleteAllProjects",deleteAllProjects);
+        Event.add("onDelConfig",delConfig);
+    }
+    var titleElem:TElement = null;
+    
+    var tabsHandle = Id.handle();
+    var listHandle = Id.handle();
+    function drawView(g: kha.graphics2.Graphics,element:TElement){
+        if(titleElem == null)
+            titleElem = getElement("Title");
+        titleElem.text = "Foundry Engine - Project Manager";
+        
+        
+
+        ui.begin(g);
+        if(ui.window(Id.handle(),Std.int(element.x),Std.int(element.y),Std.int(element.width),Std.int(element.height))){
+            
+            if(ui.tab(tabsHandle,"Projects")){
+                var selected = Ext.list(ui,listHandle,projects,{itemDrawCb: drawItems,getNameCb:projName,removeCb: deleteProject, showAdd: false,showRadio: true,editable: false});
+                selectedItem = projects[selected];
+            }
+            if(ui.tab(tabsHandle,"Templates")){
+
             }
         }
+        ui.end();
     }
-
-    @:bind(newproject,MouseEvent.CLICK)
-    function creator(e:MouseEvent){
+    function projName(i:Int){
+        if(i < 0)return"";
+        return projects[i].name;
+    }
+    function drawItems(h:zui.Zui.Handle,i:Int){
+        if(ui.button("Path: "+projects[i].path,Align.Left)){
+            listHandle.nest(0).position = i;
+            redraw();
+        }
+    }
+    function redraw(){
+        tabsHandle.redraws = listHandle.redraws = 2;
+    }
+    
+    function createProject(){
         ProjectCreator.open(function(){
 
             khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                 var out:{list:Array<TProject>} = haxe.Json.parse(blob);
-                projectslist.dataSource.add(out.list.pop());
+                projects = out.list;
             });
         });
     }
 
-    @:bind(run,MouseEvent.CLICK)
-    function runProject(e:MouseEvent){
-        if(projectslist.selectedItem != null){
-            var project:TProject = projectslist.selectedItem;
+
+    function runProject(){
+        if(selectedItem != null){
+            var project:TProject = selectedItem;
             found.State.addState('default',project.scenes[0]);
             EditorUi.projectPath = project.path;
             EditorUi.scenePath = project.scenes[0];
             found.State.set('default',found.App.editorui.init);//
         }
     }
-    static var allProj:String = "Do you really want to delete all your local projects ?";
-    static var proj:String = "Do you really want to delete project named $proj ?";
-    static var lastIndex:Int = 0;
-    @:bind(delete,MouseEvent.CLICK)
-    function deleteProject(e:MouseEvent){
-        var cust = new CustomDialog({name:"Delete Projects",type:"warning"});
-        var dropdown = new DropDown();
-        dropdown.dataSource = new ArrayDataSource<String>();
-        dropdown.dataSource.add("All");
+    
+    function deleteProject(i:Int){
+        if(i < 0)return;
+        var project:TProject = projects[i];
+        khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+            var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+            var toRemove = null;
+            for(proj in out.list){
+                if(proj.name == project.name && proj.path == project.path){
+                    toRemove = proj;
+                    continue;
+                }
+                
+            }
+            out.list.remove(toRemove);
+            var data = haxe.Json.stringify(out);
+            khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
+                khafs.Fs.deleteDirectory(project.path,true);
+            });
+        });
+         
+    }
 
-        if(projectslist.selectedItem != null){
-            var project:TProject = projectslist.selectedItem;
-            cust.info.text = StringTools.replace(proj,"$proj",project.name);
-            dropdown.dataSource.add(project.name);
-            dropdown.selectedIndex = 1;
-            lastIndex = 1;
+    function deleteAllProjects() {
+        #if kha_webgl
+        khafs.Fs.dbKeys.clear();
+        #end
+        for( proj in projects){
+            khafs.Fs.deleteDirectory(proj.path,true);
         }
-        else{
-            cust.info.text = allProj;
-            dropdown.selectedIndex = 0;
-        }
-        cust.container.addComponent(dropdown);
-        dropdown.onChange = function(e:haxe.ui.events.UIEvent){
-            var curI = dropdown.selectedIndex;
-            if(lastIndex != curI){
-                if(projectslist.selectedItem != null && curI != 0){
-                    var project:TProject = projectslist.selectedItem;
-                    cust.info.text = StringTools.replace(proj,"$proj",project.name);
-                }
-                else{
-                    cust.info.text = allProj;
-                }
-                lastIndex = curI;
-            }
-        };
-        cust.onDialogClosed = function(e:DialogEvent){
-            if(e.button == DialogButton.APPLY){
-                var index = dropdown.selectedIndex;
-                if(index == 0){
-                    #if kha_webgl
-                    khafs.Fs.dbKeys.clear();
-                    #end
-                    for( i in 0...projectslist.dataSource.size){
-                        var proj:TProject = projectslist.dataSource.get(i);
-                        khafs.Fs.deleteDirectory(proj.path,true);
-                    }
-                    projectslist.dataSource.clear();
-                    khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
-                }
-                else {
-                    var project:TProject = projectslist.selectedItem;
-                    projectslist.dataSource.remove(project);
-                    khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
-                        var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
-                        var toRemove = null;
-                        for(proj in out.list){
-                            if(proj.name == project.name && proj.path == project.path){
-                                toRemove = proj;
-                                continue;
-                            }
-                         
-                        }
-                        out.list.remove(toRemove);
-                        var data = haxe.Json.stringify(out);
-                        khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
-                            khafs.Fs.deleteDirectory(project.path,true);
-                        });
-                    });
-                }
-            }
-        };
-        cust.show();
+        khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
     }
 
     
-    @:bind(importProject,MouseEvent.CLICK)
-    function openProject(e:MouseEvent) {
+    function importProject() {
         #if kha_html5
         khafs.Fs.curDir = EditorUi.cwd;
         khafs.Fs.input.click();
@@ -140,8 +143,8 @@ class ManagerView extends Box {
         // kha.Assets.loadImageFromPath
         // Image.fromEncodedBytes(haxe.io.Bytes.ofString(""),"",function(img:kha.Image){},function(img:String){},true);
     }
-    @:bind(deleteConfig,MouseEvent.CLICK)
-    function delConfig(e:MouseEvent){
+
+    function delConfig(){
         khafs.Fs.deleteFile("./config.found");
         Config.restore();
     }

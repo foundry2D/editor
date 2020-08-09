@@ -3,11 +3,7 @@ package;
 import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
-import haxe.ui.core.Screen;
-import haxe.ui.containers.TabView;
-import haxe.ui.Toolkit;
 import khafs.Fs;
-import haxe.ui.events.UIEvent;
 #if arm_csm
 import iron.Trait;
 import iron.data.SceneFormat;
@@ -64,7 +60,6 @@ class EditorUi extends Trait{
     var mouse:found.Input.Mouse;
     public function new(){
         super();
-        Toolkit.init();
         ui = new Zui({font: kha.Assets.fonts.font_default,autoNotifyInput: false});
         Fs.init(function(){
             Config.load(function() {
@@ -73,9 +68,11 @@ class EditorUi extends Trait{
                 gameView = new EditorGameView();
                 var done = function(){
 
-                    if(editor != null)
-                        Screen.instance.removeComponent(editor);
-                    Screen.instance.addComponent(projectmanager);
+                    if(editor != null && editor.visible){
+                        editor.visible = false;
+                        trace("This is valid logic ?");
+                    }
+                    for(f in projectmanager._render2D)found.App.notifyOnRender2D(f);
                     registerInput();
                 }
                 
@@ -101,38 +98,22 @@ class EditorUi extends Trait{
                     #end
                 }
             });    
-            
-            // else {
-            //     #if arm_csm
-            //     iron.App.notifyOnInit(function(){
-            //         iron.Scene.active.notifyOnInit(init);
-            //     });
-            //     iron.App.notifyOnReset(function(){
-            //         iron.Scene.active.notifyOnInit(init);
-            //     });
-            //     iron.App.notifyOnRender2D(render);
-            //     #elseif found
-            //     init();
-            //     #end
-            // }
         });
 
     }
 
+    @:access(found.App)
     public function render(canvas:kha.Canvas){
-        
-        ui.begin(canvas.g2);
-        if(menu != null)
-            menu.render(ui);
-        if(inspector != null)
-            inspector.render(ui);
-        if(bottom != null)
-            bottom.render(ui);
-        if(hierarchy != null)
-            hierarchy.render(ui);
-        if(center != null)
-            center.render(ui);
-        ui.end();
+        if(projectmanager != null && projectmanager.ready && projectmanager.visible){
+            canvas.g2.begin(projectmanager.visible,projectmanager.theme.WINDOW_BG_COL);
+            for(f in projectmanager._render2D)f(canvas.g2);
+            canvas.g2.end();
+        }
+        if(editor != null && editor.ready && editor.visible){
+            canvas.g2.begin();
+            for(f in editor._render2D)f(canvas.g2);
+            canvas.g2.end();
+        }
         if(EditorMenu.show){
             EditorMenu.render(canvas.g2);
         }
@@ -190,9 +171,8 @@ class EditorUi extends Trait{
 	#end
 
     public function init(){
-        if(projectmanager != null)
-            Screen.instance.removeComponent(projectmanager);
-        editor = new EditorView();
+        editor = new EditorView(ui);
+        for(f in editor._render2D)found.App.removeRender2D(f);
         center = new CenterPanel();
         bottom = new BottomPanel();
         projectExplorer = new ProjectExplorer();
@@ -211,29 +191,27 @@ class EditorUi extends Trait{
         
         
         menu  = new EditorMenuBar();
-        editor.header.addComponent(menu);
-        editor.ePanelBottom.addComponent(bottom);
+        editor.addToElementDraw("HeaderLayout",menu);
+        editor.addToElementDraw("BottomLayout",bottom);
         var tools = new EditorTools(editor);
-        Screen.instance.addComponent(editor);
         keyboard = Input.getKeyboard();
         mouse = Input.getMouse();
+        this.visible = true;
     }
     function createHierarchy(blob:TSceneFormat){
         
         inspector = new EditorInspector();
-        editor.ePanelRight.addComponent(inspector);
+        editor.addToElementDraw("RightLayout",inspector);
         hierarchy = new EditorHierarchy(blob,inspector);
-        editor.ePanelLeft.addComponent(hierarchy);
-        editor.ePanelTop.addComponent(center);    
+        editor.addToElementDraw("LeftLayout",hierarchy);
+        editor.addToElementDraw("TopLayout",center);    
     }
-    @:access(EditorTab)
-    public function addToParent(parent:TabView, child:EditorTab){
-        parent.addComponent(child);
-        child.init(parent);
-    }
+
     var lastChange:Float = 0.0;
     public function update(dt:Float): Void {
         if(mouse == null || keyboard == null)return;
+
+        ui.enabled = !zui.Popup.show;
 
         if(keyboard.started("s") && keyboard.down("control"))
 			saveSceneData();

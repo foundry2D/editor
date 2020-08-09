@@ -1,7 +1,5 @@
 package;
 
-import haxe.ui.core.Component;
-import haxe.ui.containers.VBox;
 import utilities.JsonObjectExplorer;
 
 import found.State;
