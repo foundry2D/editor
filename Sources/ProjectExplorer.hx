@@ -54,7 +54,7 @@ class ProjectExplorer extends Tab {
 				openOnSystem();
 			}
 			folderExplorerHandle.text = ProjectExplorer.currentPath;
-			var folder = Cust.fileBrowser(ui, folderExplorerHandle, true);
+			var folder = CustomExt.fileBrowser(ui, folderExplorerHandle, true);
 			if (folderExplorerHandle.changed) {
 				Reflect.setField(ProjectExplorer, "currentPath", folder);
 				redraw();
@@ -71,7 +71,7 @@ class ProjectExplorer extends Tab {
 			ui.text(ProjectExplorer.currentPath);
 
 			fileExplorerHandle.text = ProjectExplorer.currentPath;
-			var file:String = Cust.fileBrowser(ui, fileExplorerHandle);
+			var file:String = CustomExt.fileBrowser(ui, fileExplorerHandle);
 			if (fileExplorerHandle.changed) {
 				Reflect.setField(ProjectExplorer, "currentPath", file);
 

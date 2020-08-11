@@ -4,7 +4,7 @@ import zui.Zui;
 import zui.Zui.Handle;
 import khafs.Fs;
 
-class Cust {
+class CustomExt {
     static var lastFiles:Array<String> = [];
     static var lastFolders:Array<String> = [];
     @:access(zui.Zui)

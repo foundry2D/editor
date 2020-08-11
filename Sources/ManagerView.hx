@@ -1,5 +1,6 @@
 package;
 
+import zui.Canvas;
 import found.Event;
 import zui.Zui;
 import zui.Ext;
@@ -41,15 +42,16 @@ class ManagerView extends CanvasScript {
     
     var tabsHandle = Id.handle();
     var listHandle = Id.handle();
+    
     function drawView(g: kha.graphics2.Graphics,element:TElement){
         if(titleElem == null)
             titleElem = getElement("Title");
         titleElem.text = "Foundry Engine - Project Manager";
         
         
-
+        var elem = getScaledElement(element);
         ui.begin(g);
-        if(ui.window(Id.handle(),Std.int(element.x),Std.int(element.y),Std.int(element.width),Std.int(element.height))){
+        if(ui.window(Id.handle(),Std.int(elem.x),Std.int(elem.y),Std.int(elem.width),Std.int(elem.height))){
             
             if(ui.tab(tabsHandle,"Projects")){
                 var selected = Ext.list(ui,listHandle,projects,{itemDrawCb: drawItems,getNameCb:projName,removeCb: deleteProject, showAdd: false,showRadio: true,editable: false});

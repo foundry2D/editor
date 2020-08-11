@@ -1,5 +1,6 @@
 package;
 
+import zui.Canvas;
 import zui.Zui;
 import zui.Canvas.TElement;
 import found.trait.internal.CanvasScript;
@@ -27,7 +28,7 @@ class EditorView  extends CanvasScript {
             ui.begin(g);
         var drawable = toDraw.get(element.name);
         if(drawable != null){
-            drawable.render(ui,element);
+            drawable.render(ui,getScaledElement(element));
         }
         else{
             trace("No ui will be drawn for element named: " + element.name);

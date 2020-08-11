@@ -28,7 +28,7 @@ class FileBrowserDialog {
     static function fileBrowserPopupDraw(ui:Zui){
         zui.Popup.boxTitle = "File Browser";
 
-        var selectedFile = Cust.fileBrowser(ui,fbHandle);
+        var selectedFile = CustomExt.fileBrowser(ui,fbHandle);
         if(fbHandle.changed){
             textInputHandle.text = selectedFile;
         }

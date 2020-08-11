@@ -22,11 +22,8 @@ class EditorGameView extends Tab {
     var drawTrait:Trait = new Trait();
 
     public function new(){
-		// Found.renderfunc = rendrer;
+
 	}
-	// function rendrer(g:kha.graphics2.Graphics){
-	// 	haxe.ui.core.Screen.instance.renderTo(g);
-	// }
 	public var x(get,null):Float;
 	function get_x(){
 		return parent.x;

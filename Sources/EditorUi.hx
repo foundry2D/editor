@@ -117,7 +117,6 @@ class EditorUi extends Trait{
         if(EditorMenu.show){
             EditorMenu.render(canvas.g2);
         }
-
     }
 
     function registerInput(){
@@ -226,6 +225,10 @@ class EditorUi extends Trait{
         if(keyboard.down("f9") && 0.1 < kha.Scheduler.time()-lastChange){
             lastChange = kha.Scheduler.time();
             Found.fullscreen = !Found.fullscreen;
+        }
+
+        if(mouse.x > EditorMenu.menuX + EditorMenu.menuW || mouse.x < EditorMenu.menuX - ui.ELEMENT_W() * 0.05 || mouse.y > EditorMenu.menuY + EditorMenu.menuH || mouse.y < EditorMenu.menuY - ui.ELEMENT_H()){
+            EditorMenu.show = false;
         }
 
         //Game View based Input
