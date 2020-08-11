@@ -58,7 +58,6 @@ class EditorHierarchy extends EditorPanel {
     public function new(raw:TSceneFormat=null,p_inspector:EditorInspector = null) {
         super();
         clone = this;
-        windowHandle.scrollEnabled = true;
         inspector = p_inspector;
         hierarchy = new Hierarchy();
         hierarchy.parent = this;

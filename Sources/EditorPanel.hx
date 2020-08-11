@@ -47,7 +47,8 @@ class EditorPanel implements View {
             for (tab in tabs){
                 tab.render(ui);
             }
-            ui._y = y;
+            //@TODO: Tooltips might be a bad idea since reseting the y of the window makes scrolling unfunctional 
+            // ui._y = y;
             // ui.tooltip("Add a new Tab");//@TODO: Add translation
             // if(ui.tab(htab,"+")){
             //     htab.position = 0;

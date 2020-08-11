@@ -69,7 +69,8 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 				}
 			}
 		}
-		visualEditor.visible = this.active;
+		if(!this.active && visualEditor.visible)
+			visualEditor.visible = this.active;
 		
 	}
 

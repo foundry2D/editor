@@ -119,56 +119,6 @@ class EditorUi extends Trait{
         }
     }
 
-    function registerInput(){
-        kha.input.Mouse.get().notify(onMouseDownEditor, onMouseUpEditor, onMouseMoveEditor, onMouseWheelEditor);
-        kha.input.Keyboard.get().notify(onKeyDownEditor, onKeyUpEditor, onKeyPressEditor);
-        #if (kha_android || kha_ios)
-        if (kha.input.Surface.get() != null) kha.input.Surface.get().notify(onTouchDownEditor, onTouchUpEditor, onTouchMoveEditor);
-        #end
-    }
-    function unregisterInput(){
-        kha.input.Mouse.get().remove(onMouseDownEditor, onMouseUpEditor, onMouseMoveEditor, onMouseWheelEditor);
-        kha.input.Keyboard.get().remove(onKeyDownEditor, onKeyUpEditor, onKeyPressEditor);
-        #if (kha_android || kha_ios)
-        if (kha.input.Surface.get() != null) kha.input.Surface.get().remove(onTouchDownEditor, onTouchUpEditor, onTouchMoveEditor);
-        #end
-    }
-
-    function onMouseDownEditor(button: Int, x: Int, y: Int) {
-        ui.onMouseDown(button,x,y);
-    }
-    function onMouseUpEditor(button: Int, x: Int, y: Int) {
-        ui.onMouseUp(button,x,y);
-    }
-    function onMouseMoveEditor(x: Int, y: Int, movementX: Int, movementY: Int) {
-        ui.onMouseMove(x,y,movementX,movementY);
-    }
-    function onMouseWheelEditor(delta: Int) {
-        ui.onMouseWheel(delta);
-    }
-    function onKeyDownEditor(code: kha.input.KeyCode) {
-        ui.onKeyDown(code);
-    }
-    function onKeyUpEditor(code: kha.input.KeyCode) {
-        ui.onKeyUp(code);
-    }
-    function onKeyPressEditor(char: String) {
-        ui.onKeyPress(char);
-    }
-
-    #if (kha_android || kha_ios)
-	function onTouchDownEditor(index: Int, x: Int, y: Int) {
-		// Two fingers down - right mouse button
-		if (index == 1) { ui.onMouseDown(0, x, y); ui.onMouseDown(1, x, y); }
-	}
-
-	function onTouchUpEditor(index: Int, x: Int, y: Int) {
-		if (index == 1) ui.onMouseUp(1, x, y);
-	}
-
-	function onTouchMoveEditor(index: Int, x: Int, y: Int) {}
-	#end
-
     public function init(){
         editor = new EditorView(ui);
         for(f in editor._render2D)found.App.removeRender2D(f);
@@ -182,11 +132,12 @@ class EditorUi extends Trait{
         center.addTab(codeView);
         center.addTab(animationView);
 
-        #if arm_csm
-        createHierarchy(iron.Scene.active.raw);
-        #elseif found
-        createHierarchy(found.State.active.raw);
-        #end
+        inspector = new EditorInspector();
+        editor.addToElementDraw("RightLayout",inspector);
+        hierarchy = new EditorHierarchy(found.State.active.raw,inspector);
+        editor.addToElementDraw("LeftLayout",hierarchy);
+        editor.addToElementDraw("TopLayout",center);
+        
         
         
         menu  = new EditorMenuBar();
@@ -196,14 +147,6 @@ class EditorUi extends Trait{
         keyboard = Input.getKeyboard();
         mouse = Input.getMouse();
         this.visible = true;
-    }
-    function createHierarchy(blob:TSceneFormat){
-        
-        inspector = new EditorInspector();
-        editor.addToElementDraw("RightLayout",inspector);
-        hierarchy = new EditorHierarchy(blob,inspector);
-        editor.addToElementDraw("LeftLayout",hierarchy);
-        editor.addToElementDraw("TopLayout",center);    
     }
 
     var lastChange:Float = 0.0;
@@ -373,5 +316,55 @@ class EditorUi extends Trait{
         trace("Implement me");
     }
     #end
+
+    function registerInput(){
+        kha.input.Mouse.get().notify(onMouseDownEditor, onMouseUpEditor, onMouseMoveEditor, onMouseWheelEditor);
+        kha.input.Keyboard.get().notify(onKeyDownEditor, onKeyUpEditor, onKeyPressEditor);
+        #if (kha_android || kha_ios)
+        if (kha.input.Surface.get() != null) kha.input.Surface.get().notify(onTouchDownEditor, onTouchUpEditor, onTouchMoveEditor);
+        #end
+    }
+    function unregisterInput(){
+        kha.input.Mouse.get().remove(onMouseDownEditor, onMouseUpEditor, onMouseMoveEditor, onMouseWheelEditor);
+        kha.input.Keyboard.get().remove(onKeyDownEditor, onKeyUpEditor, onKeyPressEditor);
+        #if (kha_android || kha_ios)
+        if (kha.input.Surface.get() != null) kha.input.Surface.get().remove(onTouchDownEditor, onTouchUpEditor, onTouchMoveEditor);
+        #end
+    }
+
+    function onMouseDownEditor(button: Int, x: Int, y: Int) {
+        ui.onMouseDown(button,x,y);
+    }
+    function onMouseUpEditor(button: Int, x: Int, y: Int) {
+        ui.onMouseUp(button,x,y);
+    }
+    function onMouseMoveEditor(x: Int, y: Int, movementX: Int, movementY: Int) {
+        ui.onMouseMove(x,y,movementX,movementY);
+    }
+    function onMouseWheelEditor(delta: Int) {
+        ui.onMouseWheel(delta);
+    }
+    function onKeyDownEditor(code: kha.input.KeyCode) {
+        ui.onKeyDown(code);
+    }
+    function onKeyUpEditor(code: kha.input.KeyCode) {
+        ui.onKeyUp(code);
+    }
+    function onKeyPressEditor(char: String) {
+        ui.onKeyPress(char);
+    }
+
+    #if (kha_android || kha_ios)
+	function onTouchDownEditor(index: Int, x: Int, y: Int) {
+		// Two fingers down - right mouse button
+		if (index == 1) { ui.onMouseDown(0, x, y); ui.onMouseDown(1, x, y); }
+	}
+
+	function onTouchUpEditor(index: Int, x: Int, y: Int) {
+		if (index == 1) ui.onMouseUp(1, x, y);
+	}
+
+	function onTouchMoveEditor(index: Int, x: Int, y: Int) {}
+	#end
     
 }
