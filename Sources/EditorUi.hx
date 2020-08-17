@@ -1,5 +1,6 @@
 package;
 
+import kha.System;
 import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
@@ -60,6 +61,7 @@ class EditorUi extends Trait{
     var mouse:found.Input.Mouse;
     public function new(){
         super();
+        kha.Window.get(0).notifyOnResize(onResize);
         ui = new Zui({font: kha.Assets.fonts.font_default,autoNotifyInput: false});
         Fs.init(function(){
             Config.load(function() {
@@ -101,7 +103,16 @@ class EditorUi extends Trait{
         });
 
     }
-
+    @:access(found.trait.internal.CanvasScript)
+    function onResize(w:Int, h:Int){
+        trace("Resized ?");
+        if(projectmanager != null && projectmanager.ready && projectmanager.visible){
+            projectmanager.scaleOnReady();
+        }
+        if(editor != null && editor.ready && editor.visible){
+            editor.scaleOnReady();
+        }
+    }
     @:access(found.App)
     public function render(canvas:kha.Canvas){
         if(projectmanager != null && projectmanager.ready && projectmanager.visible){
