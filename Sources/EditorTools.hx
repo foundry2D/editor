@@ -21,9 +21,9 @@ class EditorTools {
 
     }
     @:access(zui.Zui)
-    static public function render(ui:zui.Zui,p_x:Float,p_y:Float,w:Float,h:Float,resetY:Float){
-        var x = p_x +ui._x-found.State.active.cam.position.x;
-        var y = p_y+resetY-vArrow.size-found.State.active.cam.position.y;
+    static public function render(ui:zui.Zui,p_x:Float,p_y:Float,resetY:Float){
+        var x = p_x +ui._x;
+        var y = p_y+resetY-vArrow.size;
         
 
         ui._x = x - rect.size * 0.75;

@@ -1,6 +1,8 @@
 package;
 
 
+import kha.math.FastVector2;
+import utilities.Conversion;
 import kha.Image;
 import kha.math.FastMatrix3;
 #if arm_csm
@@ -43,6 +45,9 @@ class EditorGameView extends Tab {
 	function get_height(){
 		return parent.h;
 	}
+
+	public var drawWidth:Float = 0.0;
+	public var drawHeight:Float = 0.0;
 	
 	@:access(EditorPanel,zui.Zui)
 	override public function render(ui:zui.Zui) {
@@ -51,6 +56,30 @@ class EditorGameView extends Tab {
 
 		if(ui.tab(parent.htab,"Game")){
 			var y = ui._y;
+			{//Zui insanity related to how images are drawn
+				var h:Float = null;
+				var iw = Found.scenebuffer.width * ui.SCALE();
+				var ih = Found.scenebuffer.height * ui.SCALE();
+				var w = Math.min(iw, ui._w);
+				var x = ui._x;
+				var scroll = ui.currentWindow != null ? ui.currentWindow.scrollEnabled : false;
+				var r = ui.curRatio == -1 ? 1.0 : ui.getRatio(ui.ratios[ui.curRatio], 1);
+				if (ui.imageScrollAlign) { // Account for scrollbar size
+					w = Math.min(iw, ui._w - ui.buttonOffsetY * 2);
+					x += ui.buttonOffsetY;
+					if (!scroll) {
+						w -= ui.SCROLL_W() * r;
+						x += ui.SCROLL_W() * r / 2;
+					}
+				}
+				else if (scroll) w += ui.SCROLL_W() * r;
+
+				// Image size
+				var ratio:Float = h == null ? w / iw : h / ih;
+				h == null ? h = ih * ratio :w = iw * ratio;
+				drawWidth = w;
+				drawHeight = h;
+			}
 			ui.image(Found.scenebuffer);
 			ui.g.end();
 			parent.windowHandle.redraws = 1;
@@ -69,7 +98,11 @@ class EditorGameView extends Tab {
 				var i = found.App.editorui.inspector.index;
 				var e = State.active._entities[i];
 				if(e != State.active.cam){
-					EditorTools.render(ui,e.position.x,e.position.y,parent.w,parent.h,y);
+					var tpos = new FastVector2(e.position.x,e.position.y);
+					tpos.x -= State.active.cam.position.x;
+					tpos.y -= State.active.cam.position.y;
+					tpos = Conversion.WorldToScreen(tpos);
+					EditorTools.render(ui,tpos.x,tpos.y,y);
 				}
 
 			}
