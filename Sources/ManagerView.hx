@@ -68,6 +68,7 @@ class ManagerView extends CanvasScript {
         return projects[i].name;
     }
     function drawItems(h:zui.Zui.Handle,i:Int){
+        if(i < 0) return;
         if(ui.button("Path: "+projects[i].path,Align.Left)){
             listHandle.nest(0).position = i;
             redraw();
@@ -89,13 +90,21 @@ class ManagerView extends CanvasScript {
 
 
     function runProject(){
-        this.visible = false;
         if(selectedItem != null){
+            this.visible = false;
             var project:TProject = selectedItem;
-            found.State.addState('default',project.scenes[0]);
+            var path = project.scenes[0];
+            var sep = khafs.Fs.sep;
+            var firstName = StringTools.replace(path.split(sep)[path.split(sep).length-1],'.json',"");
+            for(i in 0...project.scenes.length){
+                path = project.scenes[i];
+                name = StringTools.replace(path.split(sep)[path.split(sep).length-1],'.json',"");
+                found.State.addState(name,project.scenes[i]);
+            }
+            EditorUi.projectName = project.name;
             EditorUi.projectPath = project.path;
             EditorUi.scenePath = project.scenes[0];
-            found.State.set('default',found.App.editorui.init);//
+            found.State.set(firstName,found.App.editorui.init);//
         }
     }
     
@@ -104,7 +113,7 @@ class ManagerView extends CanvasScript {
         var project:TProject = projects[i];
         khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
             var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
-            var toRemove = null;
+            var toRemove:TProject = null;
             for(proj in out.list){
                 if(proj.name == project.name && proj.path == project.path){
                     toRemove = proj;
@@ -116,6 +125,13 @@ class ManagerView extends CanvasScript {
             var data = haxe.Json.stringify(out);
             khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
                 khafs.Fs.deleteDirectory(project.path,true);
+                for(proj in projects){
+                    if(proj.name == project.name && proj.path == project.path){
+                        projects.remove(proj);
+                        break;
+                    }
+                }
+                redraw();
             });
         });
          
@@ -129,6 +145,8 @@ class ManagerView extends CanvasScript {
             khafs.Fs.deleteDirectory(proj.path,true);
         }
         khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
+        projects = [];
+        redraw();
     }
 
     

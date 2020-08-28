@@ -16,7 +16,6 @@ import found.State;
 import found.Found;
 import found.Input;
 import found.math.Util;
-import found.data.SceneFormat;
 #end
 
 import utilities.Config;
@@ -48,6 +47,7 @@ class EditorUi extends Trait{
     var bottom:BottomPanel;
     var menu:EditorMenuBar;
     public static var scenePath:String = "";
+    public static var projectName:String = "";
     public static  var projectPath(default,set):String = ".";
     static function set_projectPath(path:String){
         Reflect.setField(ProjectExplorer,"currentPath",path);

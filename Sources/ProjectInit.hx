@@ -65,7 +65,7 @@ class ProjectInit {
             var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
             Reflect.setField(DataLoader,"version",Data.version);
 
-            var scene:Dynamic = DataLoader.parse(kha.Assets.blobs.default_json.toString());
+            var scene:TSceneFormat = DataLoader.parse(kha.Assets.blobs.default_json.toString());
             scene.name = "PlayState";
             var data = DataLoader.stringify(scene);
             khafs.Fs.saveContent(path+"/Assets/PlayState.json",data);

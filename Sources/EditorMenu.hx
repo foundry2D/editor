@@ -1,5 +1,6 @@
 package;
 
+import found.App;
 import zui.Ext;
 import zui.Id;
 import kha.System;
@@ -10,6 +11,7 @@ import khafs.Fs;
 
 import found.data.SceneFormat;
 import found.data.Data;
+import found.data.DataLoader;
 import found.math.Util;
 import found.Url;
 
@@ -201,8 +203,9 @@ class EditorMenu {
             var sep = Fs.sep;
             var name = path.split(sep)[path.split(sep).length-1];
             if(StringTools.contains(name,".json") && Fs.exists(path)){
+                name = StringTools.replace(name,'.json',"");
                 EditorUi.scenePath = path;
-                Data.getSceneRaw(path,loadScene);
+                found.State.set(name,found.App.editorui.init);//
 
             }
             else{
@@ -217,23 +220,33 @@ class EditorMenu {
             if(path == "")return;
             
             var sep = Fs.sep;
-            var name = path.split(sep)[path.split(sep).length-1];
+            var name = StringTools.replace(path.split(sep)[path.split(sep).length-1],'.json',"");
             #if found
-            var scene:TSceneFormat = {
-                name: StringTools.replace(name,'.json',""),
-                _entities:[],
-                _depth: true,
-                _Zsort: false,
-                traits: [] // Scene root traits
-            }
+            var scene:Dynamic = DataLoader.parse(kha.Assets.blobs.default_json.toString());
+            scene.name = name;
+            scene._entities = scene._entities.splice(0,1);//We only keep the camera
+            var data = DataLoader.stringify(scene);
             #end
-            EditorUi.scenePath = path;
-            Fs.saveContent(path,haxe.Json.stringify(scene),
-            function(){
-                Data.getSceneRaw(path,loadScene);
+            final p:String = StringTools.endsWith(path,".json") ? path : path +".json";
+            EditorUi.scenePath = p;
+            Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+                var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+                for(proj in out.list){
+                    if(proj.name == EditorUi.projectName){
+                        proj.scenes.push(p);
+                    }
+                }
+                khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",haxe.Json.stringify(out));
+                Fs.saveContent(p,data,
+                function(){
+                    App.editorui.visible = App.editorui.editor.visible = false;
+                    found.State.addState(name,p);
+                    EditorUi.scenePath = p;
+                    found.State.set(name,found.App.editorui.init);//
+                });
             });
         }
-        FileBrowserDialog.open(done);
+        FileBrowserDialog.open(done,EditorUi.projectPath);
         
     }
 
