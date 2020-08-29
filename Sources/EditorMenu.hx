@@ -95,7 +95,11 @@ class EditorMenu {
                 trace("Implemente me !");
                 show = false;
             }
-            if (ui.button("      " + tr("Export Project..."), Left)){
+            if (ui.button("      " + tr("Export Project files..."), Left)){
+                #if kha_html5
+                Fs.download(EditorUi.projectPath);
+                #else
+                #end
                 show = false;
             }
             ui.fill(0, 0, sepw, 1, ui.t.ACCENT_SELECT_COL);
