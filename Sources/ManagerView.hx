@@ -1,20 +1,22 @@
 package;
 
-import zui.Canvas;
-import found.Event;
+
+import haxe.io.BytesInput;
+import haxe.zip.Reader;
+
+import zui.Id;
 import zui.Zui;
 import zui.Ext;
 import zui.Themes.TTheme;
-import kha.Image;
-import kha.Assets;
-
-import utilities.Config;
-import zui.Id;
 import zui.Canvas.TElement;
 
+import found.Event;
+import found.data.Data;
 import found.data.Project.TProject;
 import found.trait.internal.CanvasScript;
+import utilities.Config;
 
+import khafs.Fs;
 
 class ManagerView extends CanvasScript {
     var projects:Array<TProject>;
@@ -81,7 +83,7 @@ class ManagerView extends CanvasScript {
     function createProject(){
         ProjectCreator.open(function(){
 
-            khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+            Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                 var out:{list:Array<TProject>} = haxe.Json.parse(blob);
                 projects = out.list;
             });
@@ -94,7 +96,7 @@ class ManagerView extends CanvasScript {
             this.visible = false;
             var project:TProject = selectedItem;
             var path = project.scenes[0];
-            var sep = khafs.Fs.sep;
+            var sep = Fs.sep;
             var firstName = StringTools.replace(path.split(sep)[path.split(sep).length-1],'.json',"");
             for(i in 0...project.scenes.length){
                 path = project.scenes[i];
@@ -111,7 +113,7 @@ class ManagerView extends CanvasScript {
     function deleteProject(i:Int){
         if(i < 0)return;
         var project:TProject = projects[i];
-        khafs.Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+        Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
             var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
             var toRemove:TProject = null;
             for(proj in out.list){
@@ -123,8 +125,8 @@ class ManagerView extends CanvasScript {
             }
             out.list.remove(toRemove);
             var data = haxe.Json.stringify(out);
-            khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
-                khafs.Fs.deleteDirectory(project.path,true);
+            Fs.saveContent(EditorUi.cwd+"/pjml.found",data,function(){
+                Fs.deleteDirectory(project.path,true);
                 for(proj in projects){
                     if(proj.name == project.name && proj.path == project.path){
                         projects.remove(proj);
@@ -139,34 +141,79 @@ class ManagerView extends CanvasScript {
 
     function deleteAllProjects() {
         #if kha_webgl
-        khafs.Fs.dbKeys.clear();
+        Fs.dbKeys.clear();
         #end
         for( proj in projects){
-            khafs.Fs.deleteDirectory(proj.path,true);
+            Fs.deleteDirectory(proj.path,true);
         }
-        khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}');
+        Fs.saveContent(EditorUi.cwd+Fs.sep+"pjml.found",'{"list":[]}');
         projects = [];
         redraw();
     }
 
     
+    //@TODO: Enable checking project version and patching the project if its version is smaller.
     function importProject() {
         #if kha_html5
-        khafs.Fs.curDir = EditorUi.cwd;
-        khafs.Fs.input.click();
+        Fs.curDir = EditorUi.cwd;
+        Fs.onInputDone = function(lastPath:String){
+            if(!StringTools.endsWith(lastPath,".zip")){trace('Is not a zip file: $lastPath ');return;}
+            var p = lastPath.split(Fs.sep);
+            p.pop();
+            var path = p.join(Fs.sep);
+            var project:Null<TProject> = null;
+            Data.getBlob(lastPath,function(b:kha.Blob){
+                var input = new BytesInput(b.bytes);
+                var entries = Reader.readZip(input);
+                var dirPath = "";
+                for(entry in entries){
+                    var data = Reader.unzip(entry);
+                    if(data != null){
+                        var t = entry.fileName.split(Fs.sep);
+                        if(StringTools.endsWith(t.pop(),".prj")){
+                            project = haxe.Json.parse(data.toString());
+                            continue;
+                        }
+                        dirPath = t.join(Fs.sep);
+                        var func:Void->Void = function(){
+                            Fs.saveContent(path + Fs.sep + entry.fileName,data.toString());
+                        };
+                        if(!Fs.isDirectory(dirPath)){
+                            Fs.createDirectory(dirPath,func);
+                        }
+                        else {
+                            func();
+                        }
+                    }
+                    else {
+                        var fname = entry.fileName;
+                        trace('Item with name $fname is null at path: $lastPath');
+                    }
+                }
+                if(project != null){
+                    Fs.getContent(EditorUi.cwd+Fs.sep+"pjml.found", function(blob:String){
+                        var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+                        out.list.push(project);
+                        Fs.saveContent(EditorUi.cwd+Fs.sep+"pjml.found",haxe.Json.stringify(out),function(){
+                            projects.push(project);
+                            Fs.deleteFile(lastPath);
+                            redraw();
+                        });
+                        
+                    });
+                }
+                else {
+                    trace("Zip did not have a project file. Aborting project creation...\n Project files will still be added to File System");
+                }
+            });
+        }
+        Fs.input.click();
         #else
-        // FileBrowserDialog.open(e);
-        // FileBrowserDialog.inst.onDialogClosed = function(e:DialogEvent){
-            // if(e.button == DialogButton.APPLY)
-                // path.text = FileBrowserDialog.inst.fb.path.text;
-        // }
         #end
-        // kha.Assets.loadImageFromPath
-        // Image.fromEncodedBytes(haxe.io.Bytes.ofString(""),"",function(img:kha.Image){},function(img:String){},true);
     }
 
     function delConfig(){
-        khafs.Fs.deleteFile("./config.found");
+        Fs.deleteFile("./config.found");
         Config.restore();
     }
     

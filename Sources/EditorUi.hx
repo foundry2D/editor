@@ -59,6 +59,7 @@ class EditorUi extends Trait{
     public var ui:Zui;
     var keyboard:found.Input.Keyboard;
     var mouse:found.Input.Mouse;
+    final fsFiletypeExceptions:Array<String> = [".vhx",".prj"];
     public function new(){
         super();
         kha.Window.get(0).notifyOnResize(onResize);
@@ -100,7 +101,7 @@ class EditorUi extends Trait{
                     #end
                 }
             });    
-        });
+        },fsFiletypeExceptions);
 
     }
     @:access(found.trait.internal.CanvasScript)

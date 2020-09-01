@@ -96,10 +96,21 @@ class EditorMenu {
                 show = false;
             }
             if (ui.button("      " + tr("Export Project files..."), Left)){
-                #if kha_html5
-                Fs.download(EditorUi.projectPath);
-                #else
-                #end
+                Fs.getContent(EditorUi.cwd+Fs.sep+"pjml.found", function(blob:String){
+                    var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+                    var curproj:Null<found.data.Project.TProject> = null;
+                    for(proj in out.list){
+                        if(proj.name == EditorUi.projectName){
+                            curproj = proj;
+                        }
+                    }
+                    Fs.saveContent(EditorUi.projectPath+Fs.sep+EditorUi.projectName + ".prj",haxe.Json.stringify(curproj),function(){
+                        #if kha_html5
+                        Fs.download(EditorUi.projectPath);
+                        #else
+                        #end
+                    });
+                });
                 show = false;
             }
             ui.fill(0, 0, sepw, 1, ui.t.ACCENT_SELECT_COL);
@@ -233,14 +244,14 @@ class EditorMenu {
             #end
             final p:String = StringTools.endsWith(path,".json") ? path : path +".json";
             EditorUi.scenePath = p;
-            Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
+            Fs.getContent(EditorUi.cwd+Fs.sep+"pjml.found", function(blob:String){
                 var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
                 for(proj in out.list){
                     if(proj.name == EditorUi.projectName){
                         proj.scenes.push(p);
                     }
                 }
-                khafs.Fs.saveContent(EditorUi.cwd+"/pjml.found",haxe.Json.stringify(out));
+                Fs.saveContent(EditorUi.cwd+Fs.sep+"pjml.found",haxe.Json.stringify(out));
                 Fs.saveContent(p,data,
                 function(){
                     App.editorui.visible = App.editorui.editor.visible = false;
