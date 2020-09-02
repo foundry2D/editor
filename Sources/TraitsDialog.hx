@@ -217,6 +217,6 @@ class TraitsDialog {
 			currentObject.raw.traits = [trait];
 		}
 
-		App.editorui.inspector.inspector.setObjectTraitsChanged();		
+		App.editorui.inspector.setObjectTraitsChanged();		
 	}
 }

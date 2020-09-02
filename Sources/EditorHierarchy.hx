@@ -62,7 +62,7 @@ class EditorHierarchy extends EditorPanel {
         hierarchy = new Hierarchy();
         hierarchy.parent = this;
         tabs.push(hierarchy);
-        tabs.push(inspector.inspector);
+        tabs.push(inspector);
         setFromScene(raw,true);
 
     }

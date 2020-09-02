@@ -23,14 +23,13 @@ import utilities.Config;
 class EditorUi extends Trait{
     public var visible(default,set) = true;
     function set_visible(v:Bool){
-        if(inspector == null)return true;
         if(v){
             registerInput();
         }
         else {
             unregisterInput();
         }
-        return inspector.inspector.visible  = visible  = v;
+        return visible  = v;
     }
     public var editor:EditorView;
     public var inspector:EditorInspector;
@@ -45,6 +44,7 @@ class EditorUi extends Trait{
     var projectExplorer:ProjectExplorer;
     var center:EditorPanel;
     var bottom:EditorPanel;
+    var right:EditorPanel;
     var menu:EditorMenuBar;
     public static var scenePath:String = "";
     public static var projectName:String = "";
@@ -144,8 +144,12 @@ class EditorUi extends Trait{
         center.addTab(codeView);
         center.addTab(animationView);
 
+        // Setup right layout
+        right = new EditorPanel();
         inspector = new EditorInspector();
-        editor.addToElementDraw("RightLayout",inspector);
+        right.addTab(inspector);
+        editor.addToElementDraw("RightLayout", right);
+
         hierarchy = new EditorHierarchy(found.State.active.raw,inspector);
         editor.addToElementDraw("LeftLayout",hierarchy);
         editor.addToElementDraw("TopLayout",center);
@@ -311,7 +315,7 @@ class EditorUi extends Trait{
                     Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"y",sy);
             }
         }
-        inspector.inspector.redraw();
+        inspector.redraw();
     }
     @:access(EditorInspector)
     function updatePos(px:Float,py:Float){ 
@@ -328,7 +332,7 @@ class EditorUi extends Trait{
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
         }
-        inspector.inspector.redraw();
+        inspector.redraw();
     }
     @:access(found.anim.Sprite)
     function saveSceneData(){
