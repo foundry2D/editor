@@ -14,7 +14,7 @@ class ProjectExplorer extends Tab {
 	public static var currentPath(default, never):String;
 
 	public function new() {
-		
+		super(tr("Project Explorer"));
 	}
 
 	override function redraw() {
@@ -42,7 +42,7 @@ class ProjectExplorer extends Tab {
 			init = true;
 		}
 
-		if(ui.tab(parent.htab,"Explorer")){
+		if(ui.tab(parent.htab,this.name)){
 			
 		}
 	}
@@ -50,7 +50,7 @@ class ProjectExplorer extends Tab {
 		if(!active)return;
 		var hoffset = Std.int(ui.BUTTON_H()+ui.ELEMENT_OFFSET());
 		if (ui.window(windowHandle, parent.x, parent.y+hoffset, Std.int(parent.w * explorerXBrowserW[0]), parent.h-hoffset)) {
-			if (ui.button("Import Assets")) {
+			if (ui.button(tr("Import Assets"))) {
 				openOnSystem();
 			}
 			folderExplorerHandle.text = ProjectExplorer.currentPath;

@@ -54,6 +54,7 @@ class Inspector extends Tab {
 	}
 
 	public function new() {
+		super("Inspector");
 		var base = Id.handle();
 		for (i in 0...itemsLength) {
 			objItemHandles.push(base.nest(i));
@@ -110,7 +111,7 @@ class Inspector extends Tab {
 		if (!visible)
 			return;
 		this.ui = ui;
-		if(ui.tab(parent.htab,"Inspector")){
+		if(ui.tab(parent.htab,this.name)){
 			ui.t.FILL_WINDOW_BG = true;
 			if (object.length > 0) {
 				var children:Map<Int, Handle> = Reflect.getProperty(objectHandle, "children");

@@ -22,9 +22,8 @@ import utilities.Config;
 	var MenuFile = 0;
 	var MenuEdit = 1;
 	var MenuViewport = 2;
-	var MenuMode = 3;
-	var MenuCamera = 4;
-	var MenuHelp = 5;
+	var MenuCamera = 3;
+	var MenuHelp = 4;
 }
 
 
@@ -56,7 +55,7 @@ class EditorMenu {
     static var camControlUpHandle:Handle = Id.handle();
     static var camControlDownHandle:Handle = Id.handle();
     static final menuItemsCount = [5, 2, 3,12, 5, 3];
-    @:access(zui.Zui)
+    @:access(zui.Zui,EditorUi)
     public static function render(g:kha.graphics2.Graphics){
 
         var ui = found.Found.popupZuiInstance;
@@ -84,15 +83,15 @@ class EditorMenu {
                 show = false;
             }
             if (ui.button("      " + tr("Open..."), Left, Config.keymap.file_open)){
-                openScene();
+                App.editorui.openScene();
                 show = false;
             }
             if (ui.button("      " + tr("Save"), Left, Config.keymap.file_save)){
-                saveProject();
+                App.editorui.saveSceneData();
                 show = false;
             }
             if (ui.button("      " + tr("Save As..."), Left, Config.keymap.file_save_as)){
-                trace("Implemente me !");
+                App.editorui.saveSceneAs();
                 show = false;
             }
             if (ui.button("      " + tr("Export Project files..."), Left)){
@@ -136,7 +135,7 @@ class EditorMenu {
             }
             ui.enabled = active;
             drawGridHandle.value = found.Found.GRID; 
-            var size = Ext.floatInput(ui,drawGridHandle,tr("Grid size"));
+            var size = Ext.floatInput(ui,drawGridHandle,tr("Grid Size"));
             if(drawGridHandle.changed){
                 found.Found.GRID = Std.int(Util.snap(size,8));
             }
@@ -203,33 +202,6 @@ class EditorMenu {
         g.end();
     }
 
-    @:access(EditorUi)
-    static function saveProject(){
-        #if html5
-        
-        #else//use the filesystem
-        #end
-    }
-
-    static function openScene(){
-        var done = function(path:String){
-            if(path == "")return;
-
-            var sep = Fs.sep;
-            var name = path.split(sep)[path.split(sep).length-1];
-            if(StringTools.contains(name,".json") && Fs.exists(path)){
-                name = StringTools.replace(name,'.json',"");
-                EditorUi.scenePath = path;
-                found.State.set(name,found.App.editorui.init);//
-
-            }
-            else{
-                trace('Error: file with name $name is not a valid scene name or the path "$path" was invalid ');
-            }
-
-        }
-        FileBrowserDialog.open(done);
-    }
     static function createScene(){
         var done = function(path:String){
             if(path == "")return;

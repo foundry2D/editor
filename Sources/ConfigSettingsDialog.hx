@@ -24,15 +24,16 @@ class ConfigSettingsDialog {
     static var playModeHandle = Id.handle();
     @:access(zui.Zui, zui.Popup)
     static function configSettingsPopupDraw(ui:Zui){
-        zui.Popup.boxTitle = "Edit Config Settings";
+        zui.Popup.boxTitle = tr("Edit Config Settings");
         
-        var selected = ui.combo(localeHandle,languages, tr("Localization"));
+        ui.text(tr("Localization")+": ");
+        var selected = ui.combo(localeHandle,languages);
         if(localeHandle.changed){
             Config.raw.locale = languages[selected];
         }
 
         playModeHandle.selected = Config.raw.defaultPlayMode;
-        var value = ui.check(playModeHandle,"Boot in Play Mode");
+        var value = ui.check(playModeHandle,tr("Boot in Play Mode"));
         if(playModeHandle.changed){
             Config.raw.defaultPlayMode = value;
         }

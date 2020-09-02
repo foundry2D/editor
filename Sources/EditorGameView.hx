@@ -24,7 +24,7 @@ class EditorGameView extends Tab {
     var drawTrait:Trait = new Trait();
 
     public function new(){
-
+		super(tr("Game"));
 	}
 	public var x(get,null):Float;
 	function get_x(){
@@ -54,7 +54,7 @@ class EditorGameView extends Tab {
 
 		if (Found.scenebuffer == null) Found.scenebuffer = kha.Image.createRenderTarget(Found.backbuffer.width, Found.backbuffer.height);
 
-		if(ui.tab(parent.htab,"Game")){
+		if(ui.tab(parent.htab,this.name)){
 			var y = ui._y;
 			{//Zui insanity related to how images are drawn
 				var h:Float = null;

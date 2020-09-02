@@ -40,9 +40,9 @@ class EditorMenuBar implements View {
 
 			Ext.beginMenu(ui);
 
-			var menuCategories = 6;
+			var menuCategories = 5;
 			for (i in 0...menuCategories) {
-				var categories = [tr("File"), tr("Edit"), tr("Viewport"), tr("Mode"), tr("Camera"), tr("Help")];
+				var categories = [tr("File"), tr("Edit"), tr("Viewport"), tr("Camera"), tr("Help")];
 				var pressed = Ext.menuButton(ui, categories[i]);
 				if(pressed && EditorMenu.show){
 					EditorMenu.show = false;

@@ -18,6 +18,7 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 	var codeScriptTextAreaHandle = Id.handle();
 
 	public function new() {
+		super(tr("Code"));
 		EditorHierarchy.register(this);
 	}
 
@@ -45,7 +46,7 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 			parent.postRenders.push(visualEditor.render);
 		}
 		visualEditor.setAll(parent.x, parent.y + (ui.t.BUTTON_H + ui.t.ELEMENT_OFFSET) * 2, parent.w, parent.h - (ui.t.BUTTON_H + ui.t.ELEMENT_OFFSET) * 2);
-		var isActive = ui.tab(parent.htab, "Code");
+		var isActive = ui.tab(parent.htab, this.name);
 		if (isActive) {
 			if (currentlyDisplayedTrait != null) {
 				ui.row([0.7, 0.3]);

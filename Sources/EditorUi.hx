@@ -73,7 +73,7 @@ class EditorUi extends Trait{
 
                     if(editor != null && editor.visible){
                         editor.visible = false;
-                        trace("This is valid logic ?");
+                        throw("This is valid logic ?");
                     }
                     for(f in projectmanager._render2D)found.App.notifyOnRender2D(f);
                     registerInput();
@@ -167,8 +167,13 @@ class EditorUi extends Trait{
 
         ui.enabled = !zui.Popup.show;
 
-        if(keyboard.started("s") && keyboard.down("control"))
-			saveSceneData();
+        if(keysDown(Config.keymap.file_save))
+            saveSceneData();
+        
+        if(center.tabname != tr("Code") && keysDown(Config.keymap.file_open)){
+            openScene();
+        }
+
 
         if(animationView != null) {
             animationView.update(dt);
@@ -214,7 +219,23 @@ class EditorUi extends Trait{
         
     }
 
-    #if found
+    function keysDown(keymap:String) {
+        var keys = keymap.split('+');
+        for(key in keys){
+            if(key == "ctrl")key = "control";
+
+            if(key.length == 1){
+                if(!keyboard.started(key))
+                    return false;
+            }
+            else {
+                if(!keyboard.down(key))
+                    return false;
+            }
+        }
+        return true;
+    }
+    
     public static var gridMove:Bool = false;
     public static var arrow:Int = -1;
     public static var arrowMode:Int = 0;// 0 = Move; 1 = Scale
@@ -310,7 +331,7 @@ class EditorUi extends Trait{
         inspector.inspector.redraw();
     }
     @:access(found.anim.Sprite)
-    public function saveSceneData(){
+    function saveSceneData(){
         if(StringTools.contains(EditorHierarchy.sceneName,'*')){
             var i = 0;
             for(entity in State.active._entities){
@@ -323,11 +344,33 @@ class EditorUi extends Trait{
             Fs.saveContent(scenePath,DataLoader.stringify(State.active.raw));
         }
     }
-    #elseif arm_csm
-    public function saveSceneData(){
-        trace("Implement me");
+    
+    function saveSceneAs() {
+        FileBrowserDialog.open(function(path:String){
+            scenePath = path;
+            this.saveSceneData();
+        },projectPath);
     }
-    #end
+
+    function openScene(){
+        var done = function(path:String){
+            if(path == "")return;
+
+            var sep = Fs.sep;
+            var name = path.split(sep)[path.split(sep).length-1];
+            if(StringTools.contains(name,".json") && Fs.exists(path)){
+                name = StringTools.replace(name,'.json',"");
+                scenePath = path;
+                found.State.set(name,this.init);//
+
+            }
+            else{
+                trace('Error: file with name $name is not a valid scene name or the path "$path" was invalid ');
+            }
+
+        }
+        FileBrowserDialog.open(done);
+    }
 
     function registerInput(){
         kha.input.Mouse.get().notify(onMouseDownEditor, onMouseUpEditor, onMouseMoveEditor, onMouseWheelEditor);

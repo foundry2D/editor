@@ -1,6 +1,5 @@
 package utilities;
 
-import haxe.io.Bytes;
 import haxe.Json;
 import found.data.Data;
 import kha.System;
@@ -67,7 +66,8 @@ class Translator {
 	// Returns a list of supported locales (plus English and the automatically detected system locale).
 	public static function getSupportedLocales(): Array<String> {
 		var locales = ["system", "en"];
-		for (localeFilename in khafs.Fs.readDirectory( "locale")) {
+		//@TODO: Fix this to have translation files. In theory, the asset files will be available locally. 
+		for (localeFilename in khafs.Fs.readDirectory("locale")) {
 			// Trim the `.json` file extension from file names
 			locales.push(localeFilename.substr(0, -5));
 		}

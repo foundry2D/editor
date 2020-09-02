@@ -26,7 +26,7 @@ class FileBrowserDialog {
     static var textInputHandle = Id.handle();
     @:access(zui.Zui, zui.Popup)
     static function fileBrowserPopupDraw(ui:Zui){
-        zui.Popup.boxTitle = "File Browser";
+        zui.Popup.boxTitle = tr("File Browser");
 
         var selectedFile = CustomExt.fileBrowser(ui,fbHandle);
         if(fbHandle.changed){
@@ -37,19 +37,19 @@ class FileBrowserDialog {
 
         ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - border;
 
-        ui.textInput(textInputHandle, "Filename");
+        ui.textInput(textInputHandle, tr("Filename"));
 
         ui.row([0.5,0.5]);
         ui._y = ui._h - ui.t.BUTTON_H - border;
         ui.text("");
         ui.row([0.5, 0.5]);
-		if (ui.button("Add")) {
+		if (ui.button(tr("Add"))) {
             zui.Popup.show = false;
             doneCallback(textInputHandle.text);
             textInputHandle.text = "";
             doneCallback = function(path:String){};
         }
-        if (ui.button("Cancel")) {
+        if (ui.button(tr("Cancel"))) {
             zui.Popup.show = false;
             textInputHandle.text = "";
             doneCallback("");

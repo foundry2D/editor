@@ -20,9 +20,9 @@ class ProjectCreator {
     static var typeHandle = Id.handle();
     @:access(zui.Zui, zui.Popup)
     static function projectCreatorPopupDraw(ui:zui.Zui){
-        zui.Popup.boxTitle = "New Project";
+        zui.Popup.boxTitle = tr("New Project");
 
-        ui.text("Project Name");
+        ui.text(tr("Project Name"));
         ui.row([0.8,0.1,0.1]);
         ui.textInput(nameInputHandle);
         ui.radio(typeHandle,0,"2D");
@@ -30,7 +30,7 @@ class ProjectCreator {
         ui.radio(typeHandle,1,"3D");
         ui.enabled = true;
 
-        ui.text("Location");
+        ui.text(tr("Location"));
         ui.row([0.75,0.25]);
         ui.textInput(pathInputHandle);
         if(ui.button("...")){
@@ -41,14 +41,14 @@ class ProjectCreator {
         ui._y = ui._h - ui.t.BUTTON_H - (zui.Popup.borderW*2 +zui.Popup.borderOffset);
 
         ui.row([0.5, 0.5]);
-		if (ui.button("Apply")) {
+		if (ui.button(tr("Apply"))) {
             ProjectCreator.createProject();
             zui.Popup.show = false;
             nameInputHandle.text = "";
             pathInputHandle.text = "";
             onDone = function(){};
         }
-        if (ui.button("Cancel")) {
+        if (ui.button(tr("Cancel"))) {
             zui.Popup.show = false;
             nameInputHandle.text = "";
             pathInputHandle.text = "";
@@ -62,7 +62,7 @@ class ProjectCreator {
         if(Fs.isDirectory(p)){
             var outp = p;
             var type = typeHandle.position == 0 ? Type.twoD: Type.threeD;
-            var projName = nameInputHandle.text != "" ? nameInputHandle.text:"Project";
+            var projName = nameInputHandle.text != "" ? nameInputHandle.text:tr("Project");
             outp = p+Fs.sep+projName;
             Fs.createDirectory(outp);
             ProjectInit.done = onDone;

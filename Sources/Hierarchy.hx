@@ -12,6 +12,7 @@ class Hierarchy extends Tab {
 
 
     public function new() {
+        super(tr("Hierarchy"));
     }
 
     override public function redraw(){
@@ -24,7 +25,7 @@ class Hierarchy extends Tab {
     @:access(zui.Zui)
     override public function render(ui:zui.Zui){
         var raw = found.State.active.raw;
-        if(ui.tab(parent.htab,"Hierarchy")){
+        if(ui.tab(parent.htab,this.name)){
             sceneNameHandle.text = raw.name;
             if(kha.Scheduler.time() - scndoubleClickTime > ui.TOOLTIP_DELAY()){
                 sceneNameHandle.position = 0;
@@ -42,7 +43,8 @@ class Hierarchy extends Tab {
                     ui.inputReleased = false;
                 }
             }
-            var label = StringTools.endsWith(EditorHierarchy.sceneName,"*") ? "Scene(changed): ": "Scene: ";
+            var label = StringTools.endsWith(EditorHierarchy.sceneName,"*") ? tr("Scene(changed)"): tr("Scene");
+            label +=": ";
             var name = ui.textInput(sceneNameHandle,label,Align.Right);
             if(sceneNameHandle.changed){
                 EditorHierarchy.sceneName = StringTools.replace(EditorHierarchy.sceneName,raw.name,name);
@@ -58,7 +60,7 @@ class Hierarchy extends Tab {
                 var itemHandle = handles[i];
                 i = itemDrawCb(ui,itemHandle,i,raw._entities);
             }
-            if (ui.button("New Object")) {
+            if (ui.button(tr("New Object"))) {
                 zui.Popup.showCustom(Found.popupZuiInstance, objectCreationPopupDraw, -1, -1, 600, 500);
             }
         }
@@ -75,10 +77,10 @@ class Hierarchy extends Tab {
     @:access(zui.Zui, zui.Popup)
     function objectCreationPopupDraw(ui:Zui){
 
-        zui.Popup.boxTitle = "Add an Object";
+        zui.Popup.boxTitle = tr("Add an Object");
         var border = 2 * zui.Popup.borderW + zui.Popup.borderOffset;
         var exists = false;
-        if (ui.panel(Id.handle({selected: true}), "Object Types:", true)) {
+        if (ui.panel(Id.handle({selected: true}), tr("Object Types")+":", true)) {
             var index = 0;
             for(type in objectTypes){
                 if(type == "None")continue;
@@ -95,7 +97,7 @@ class Hierarchy extends Tab {
                     }
                 }
                 if(drawHint){
-                    ui.text(typeDescr[index]);
+                    ui.text(tr(typeDescr[index]));
                 }
                 index++;
             }
@@ -110,25 +112,25 @@ class Hierarchy extends Tab {
             ui.t.LABEL_COL = ui.t.TEXT_COL = kha.Color.Red;
         }
         
-        var name = ui.textInput(textInputHandle, "Name");
+        var name = ui.textInput(textInputHandle, tr("Name"));
         if(textInputHandle.changed){
             doesObjectWithNameExists = found.State.active.getObject(textInputHandle.text) != null;
         }
         ui.t.LABEL_COL = ui.t.TEXT_COL = before;
 
-        ui.combo(objectTypeHandle,objectTypes,"Type",true,Align.Left);
+        ui.combo(objectTypeHandle,objectTypes,tr("Type"),true,Align.Left);
 
         ui._y = ui._h - ui.t.BUTTON_H - border;
         ui.row([0.5, 0.5]);
         
         ui.enabled = !doesObjectWithNameExists && textInputHandle.text != "" && objectTypeHandle.position != 0/*None*/;
-		if (ui.button("Add")) {
+		if (ui.button(tr("Add"))) {
             addData2Scn(found.data.Creator.createType(textInputHandle.text,objectTypes[objectTypeHandle.position]));
             zui.Popup.show = false;
             objectTypeHandle.text = textInputHandle.text = "";
         }
         ui.enabled = true;
-        if (ui.button("Cancel")) {
+        if (ui.button(tr("Cancel"))) {
             zui.Popup.show = false;
             objectTypeHandle.text = textInputHandle.text = "";
 		}

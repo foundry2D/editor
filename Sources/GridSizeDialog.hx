@@ -17,20 +17,20 @@ class GridSizeDialog {
 
     @:access(zui.Zui, zui.Popup)
 	static function gridSizePopupDraw(ui:Zui) {
-        zui.Popup.boxTitle = "Grid Size";
+        zui.Popup.boxTitle = tr("Grid Size");
         
         var border = 2 * zui.Popup.borderW + zui.Popup.borderOffset;
         
         var gridSizeH = Id.handle({value: Found.GRID});
-        Ext.floatInput(ui, gridSizeH, "Grid Size");
+        Ext.floatInput(ui, gridSizeH, tr("Grid Size"));
 
         var changeGrid = Id.handle();
-        ui.check(changeGrid,"Affect main Grid");
+        ui.check(changeGrid,tr("Affect main Grid"));
         
 
         ui._y = ui._h - ui.t.BUTTON_H - border;
 		ui.row([0.5, 0.5]);
-		if (ui.button("Apply")) {
+		if (ui.button(tr("Apply"))) {
 			
             map.tw = map.th = Std.int(gridSizeH.value);
             if(changeGrid.selected){
@@ -40,7 +40,7 @@ class GridSizeDialog {
             map = null;
             TileEditor.ui.enabled = true;
 		}
-		if (ui.button("Cancel")) {
+		if (ui.button(tr("Cancel"))) {
             zui.Popup.show = false;
             map = null;
             TileEditor.ui.enabled = true;

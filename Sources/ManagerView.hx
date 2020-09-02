@@ -48,18 +48,18 @@ class ManagerView extends CanvasScript {
     function drawView(g: kha.graphics2.Graphics,element:TElement){
         if(titleElem == null)
             titleElem = getElement("Title");
-        titleElem.text = "Foundry Engine - Project Manager";
+        translate();
         
         
         var elem = getScaledElement(element);
         ui.begin(g);
         if(ui.window(Id.handle(),Std.int(elem.x),Std.int(elem.y),Std.int(elem.width),Std.int(elem.height))){
             
-            if(ui.tab(tabsHandle,"Projects")){
+            if(ui.tab(tabsHandle,tr("Projects"))){
                 var selected = Ext.list(ui,listHandle,projects,{itemDrawCb: drawItems,getNameCb:projName,removeCb: deleteProject, showAdd: false,showRadio: true,editable: false});
                 selectedItem = projects[selected];
             }
-            if(ui.tab(tabsHandle,"Templates")){
+            if(ui.tab(tabsHandle,tr("Templates"))){
 
             }
         }
@@ -78,6 +78,15 @@ class ManagerView extends CanvasScript {
     }
     function redraw(){
         tabsHandle.redraws = listHandle.redraws = 2;
+    }
+
+    function translate(){
+        titleElem.text = "Foundry Engine - "+tr("Project Manager");
+        getElement("Run").text = tr("Run");
+        getElement("New").text = tr("New Project");
+        getElement("Import").text = tr("Import");
+        getElement("Delete").text = tr("Delete All Projects");
+        getElement("DelApp").text = tr("Delete App Config");
     }
     
     function createProject(){

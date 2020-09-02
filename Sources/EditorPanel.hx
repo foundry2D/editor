@@ -6,6 +6,11 @@ class EditorPanel implements View {
 
     var tabs:Array<Tab> = [];
     public var htab:zui.Zui.Handle;
+    public var tabname(get,null):String;
+    function get_tabname(){
+        if(tabs.length == 0)return "";
+        return tabs[htab.position].name;
+    }
     public var windowHandle:zui.Zui.Handle;
     public var postRenders:Array<zui.Zui->Void>;
     var element:TElement = null;
@@ -36,7 +41,7 @@ class EditorPanel implements View {
     public function new(){
         postRenders = new Array<zui.Zui->Void>();
         windowHandle = new Handle();
-        htab = new Handle({position: 0});
+        htab = new Handle({text: "",position: 0});
     }
     @:access(zui.Zui)
     public function render(ui:zui.Zui,element:TElement):Void{
