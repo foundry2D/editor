@@ -43,8 +43,8 @@ class EditorUi extends Trait{
     public var codeView:EditorCodeView;
     var animationView:EditorAnimationView;
     var projectExplorer:ProjectExplorer;
-    var center:CenterPanel;
-    var bottom:BottomPanel;
+    var center:EditorPanel;
+    var bottom:EditorPanel;
     var menu:EditorMenuBar;
     public static var scenePath:String = "";
     public static var projectName:String = "";
@@ -134,8 +134,8 @@ class EditorUi extends Trait{
     public function init(){
         editor = new EditorView(ui);
         for(f in editor._render2D)found.App.removeRender2D(f);
-        center = new CenterPanel();
-        bottom = new BottomPanel();
+        center = new EditorPanel();
+        bottom = new EditorPanel();
         projectExplorer = new ProjectExplorer();
         bottom.addTab(projectExplorer);
         codeView = new EditorCodeView();
