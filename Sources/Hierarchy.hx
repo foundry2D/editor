@@ -186,7 +186,6 @@ class Hierarchy extends Tab {
             doubleClickTime = 0.0;
         }
         if(ui.getReleased()){
-            trace(itemHandle.position);
             doubleClickTime = kha.Scheduler.time();
             if( itemHandle.position > 0){
                 itemHandle.position = 0;

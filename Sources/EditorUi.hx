@@ -1,6 +1,6 @@
 package;
 
-import kha.System;
+
 import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
@@ -34,7 +34,13 @@ class EditorUi extends Trait{
     public var editor:EditorView;
     public var inspector:EditorInspector;
     public var hierarchy:EditorHierarchy;
-    public var isPlayMode:Bool;
+    public var isPlayMode(default,set):Bool;
+    function set_isPlayMode(b:Bool){
+        isPlayMode = b;
+        if(console != null)
+            console.clear(true);
+        return isPlayMode;
+    }
     var managerEditor:EditorView;
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
@@ -42,6 +48,7 @@ class EditorUi extends Trait{
     public var codeView:EditorCodeView;
     var animationView:EditorAnimationView;
     var projectExplorer:ProjectExplorer;
+    var console:EditorConsole;
     var center:EditorPanel;
     var bottom:EditorPanel;
     var right:EditorPanel;
@@ -138,6 +145,8 @@ class EditorUi extends Trait{
         bottom = new EditorPanel();
         projectExplorer = new ProjectExplorer();
         bottom.addTab(projectExplorer);
+        console = new EditorConsole();
+        bottom.addTab(console);
         codeView = new EditorCodeView();
         animationView = new EditorAnimationView();
         center.addTab(gameView);
@@ -240,11 +249,10 @@ class EditorUi extends Trait{
         return true;
     }
     
-    public static var gridMove:Bool = false;
     public static var arrow:Int = -1;
     public static var arrowMode:Int = 0;// 0 = Move; 1 = Scale
-    public static var minusX:Float = 0;// Basically the arrow size maybe @RENAME ?
-    public static var minusY:Float = 0;// Basically the arrow size maybe @RENAME ?
+    var lastMX:Float;
+    var lastMY:Float;
     @:access(EditorInspector)
     public function updateMouse(x:Float,y:Float,cx:Float,cy:Float){
         if(inspector.index==-1)return;
@@ -253,35 +261,31 @@ class EditorUi extends Trait{
         var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
 
-        var px = (x-gameView.x - minusX)+State.active.cam.position.x;
-        var py = (y-gameView.y - minusY)+State.active.cam.position.y;
-        
-        //Get scaling values
-        var direction = 1;
-        if(arrow == 0){
-            direction = curPos.x-px > 0 ? -1:1;
-        }
-        else if(arrow == 1){
-            direction = curPos.y-py < 0 ? -1:1;
-        }
-        var sx = Util.fround(direction*(Math.abs(curPos.x-px)/Found.WIDTH),2);
-        var sy = Util.fround(direction*(Math.abs(curPos.y-py)/Found.HEIGHT),2);
-        
-        //Clamp position to grid
-        if(gridMove || keyboard.down("control")){//Clamp to grid
-            doUpdate  = Math.abs(curPos.x-px) > Found.GRID*0.99 || Math.abs(px-curPos.x) > Found.GRID*0.99;
-            px = Math.floor(px);
-            px = Util.snap(px,Found.GRID);
-        }
-        if(gridMove || keyboard.down("control") ){//Clamp to grid
-            doUpdate  = doUpdate ? doUpdate : Math.abs(curPos.y-py) > Found.GRID*0.99 || Math.abs(py-curPos.y) > Found.GRID*0.99;
-            py = Math.floor(py);
-            py = Util.snap(py,Found.GRID);
-        }
+        var px = cx/gameView.width*Found.WIDTH;
+        var py = cy/gameView.height*Found.HEIGHT;
+    
+        var sx = cx/gameView.width;
+        var sy = cy/gameView.height;
 
         if(doUpdate){
             if(arrowMode == 0 || arrow == 2){
-                updatePos(px,py);
+                var canUpdate = Math.abs(lastMX - mouse.x) > Found.GRID || Math.abs(lastMY - mouse.y) > Found.GRID;
+                var ctrl = keyboard.down("control");
+                if(ctrl && canUpdate){
+                    if(arrow == 0){
+                        px *= lastMX - mouse.x > 0 ? 1:-1;
+                    }
+                    else if(arrow == 1){
+                        py *= lastMY - mouse.y > 0 ? 1:-1;
+                    }
+                    updatePos(px,py,true);
+                    lastMX = mouse.x;
+                    lastMY = mouse.y;
+                }
+                else if(!ctrl) {
+                    updatePos(px,py,false);
+                }
+
             }
             else if(arrowMode == 1){
                 var isDown = keyboard.down("control");
@@ -301,8 +305,8 @@ class EditorUi extends Trait{
     @:access(EditorInspector)
     function updateScale(sx:Float,sy:Float,ctrl:Bool = false){
         if(ctrl){
-            State.active._entities[inspector.index].scale.x = sx;
-            State.active._entities[inspector.index].scale.y = sy;
+            State.active._entities[inspector.index].scale.x += sx;
+            State.active._entities[inspector.index].scale.y += sy;
             Reflect.setProperty(State.active.raw._entities[inspector.index].scale,"x",sx);
         }
         else{
@@ -318,19 +322,23 @@ class EditorUi extends Trait{
         inspector.redraw();
     }
     @:access(EditorInspector)
-    function updatePos(px:Float,py:Float){ 
+    function updatePos(px:Float,py:Float,toGrid:Bool){
+        var x = State.active._entities[inspector.index].position.x + px;
+        var y = State.active._entities[inspector.index].position.y + py;
+        x = toGrid ? Util.snap(Math.floor(x),Found.GRID) : x;
+        y = toGrid ? Util.snap(Math.floor(y),Found.GRID) : y;
         switch(arrow){
             case 0:
-                State.active._entities[inspector.index].position.x = px;
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
+                State.active._entities[inspector.index].position.x = x;
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",x);
             case 1:
-                State.active._entities[inspector.index].position.y = py;
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                State.active._entities[inspector.index].position.y = y;
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",y);
             case 2:
-                State.active._entities[inspector.index].position.x = px;
-                State.active._entities[inspector.index].position.y = py;
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",px);
-                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",py);
+                State.active._entities[inspector.index].position.x = x;
+                State.active._entities[inspector.index].position.y = y;
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",x);
+                Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",y);
         }
         inspector.redraw();
     }
