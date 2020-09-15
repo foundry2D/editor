@@ -19,15 +19,26 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 
 	public function new() {
 		super(tr("Code"));
-		EditorHierarchy.register(this);
+		EditorHierarchy.getInstance().register(this);
+	}
+
+	public function notifySceneSelectedInHierarchy() : Void {
+		setDisplayedTrait(null);
 	}
 
 	public function notifyObjectSelectedInHierarchy(selectedObject:TObj, selectedUID:Int):Void {
 		// @TODO: should we always load and reparse the data ?
 		// (i.e. we already parse the data to determine what to show the UI so maybe we should load if we find a visual script from the UI)
-		var traits:Array<TTrait> = selectedObject.traits != null ? selectedObject.traits : [];
-		if (traits.length > 0)
-			setDisplayedTrait(traits[0]);
+		if(selectedUID >= 0) {
+			var traits:Array<TTrait> = selectedObject.traits != null ? selectedObject.traits : [];
+			if (traits.length > 0) {
+				setDisplayedTrait(traits[0]);
+			} else {
+				setDisplayedTrait(null);
+			}
+		} else {
+			setDisplayedTrait(null);
+		}		
 	}
 
 	public function setDisplayedTrait(trait:TTrait):Void {
@@ -127,6 +138,6 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 		}
 
 		currentObject.dataChanged = true;
-		EditorHierarchy.makeDirty();
+		EditorHierarchy.getInstance().makeDirty();
 	}
 }

@@ -70,7 +70,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	}
 
 	public function new() {
-		super("Inspector");
+		super(tr("Inspector"));
 		
 		var base = Id.handle();
 		for (i in 0...itemsLength) {
@@ -92,7 +92,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			addLabel: "New Trait"
 		}
 
-		EditorHierarchy.register(this);
+		EditorHierarchy.getInstance().register(this);
 	}
 
 	override public function redraw() {
@@ -125,13 +125,12 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		redraw();
 	}
 
-	public function clear() {
-		selectedSceneData = null;
-		selectedObjectData = null;
+
+	public function notifySceneSelectedInHierarchy() : Void {
+		selectScene();		
 	}
 
 	public function notifyObjectSelectedInHierarchy(selectedObject:TObj, selectedUID:Int):Void {
-		clear();
 		index = selectedUID;
 		setObject(selectedObject, index);
 
@@ -140,19 +139,17 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		} else {
 			found.Found.tileeditor.selectTilemap(-1);
 		}
+
 		redraw();
 	}
 
 	override public function render(ui:zui.Zui) {
-		if (Found.fullscreen)
-			return;
-
 		super.render(ui);
 
 		this.ui = ui;
 
 		changed = false;
-		if (ui.tab(parent.htab, "Inspector")) {
+		if (ui.tab(parent.htab, this.name)) {
 			ui.t.FILL_WINDOW_BG = true;
 			if (selectedObjectData != null) {
 				drawSelectedObjectItems(ui);
@@ -471,7 +468,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		}
 
 		if (changed) {
-			EditorHierarchy.makeDirty();
+			EditorHierarchy.getInstance().makeDirty();
 		}
 	}
 
@@ -620,7 +617,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		ui.unindent();
 
 		if (changed || layersHandle.changed) {
-			EditorHierarchy.makeDirty();
+			EditorHierarchy.getInstance().makeDirty();
 		}
 	}
 
@@ -723,7 +720,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		}
 
 		if (changed) {
-			EditorHierarchy.makeDirty();
+			EditorHierarchy.getInstance().makeDirty();
 		}
 	}
 
@@ -742,7 +739,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		objectTraitsChanged = true;
 
 		currentObject.dataChanged = true;
-		EditorHierarchy.makeDirty();
+		EditorHierarchy.getInstance().makeDirty();
 
 		redraw();
 	}
@@ -766,7 +763,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		}
 
 		currentObject.dataChanged = true;
-		EditorHierarchy.makeDirty();
+		EditorHierarchy.getInstance().makeDirty();
 	}
 
 	function getTraitName(i:Int) {
@@ -792,7 +789,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		selectedObjectData.traits.push(trait);
 		Scene.createTraits([trait], currentObject);
 		changed = true;
-		EditorHierarchy.makeDirty();
+		EditorHierarchy.getInstance().makeDirty();
 	}
 
 	public function notifySceneSelect() {
@@ -814,7 +811,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 						if (index != -1 && selectedObjectData != null) {
 							Reflect.setProperty(selectedObjectData, "imagePath", path);
 							cast(found.State.active._entities[index], found.anim.Sprite).set(cast(selectedObjectData));
-							EditorHierarchy.makeDirty();
+							EditorHierarchy.getInstance().makeDirty();
 						}
 						error = false;
 					default:

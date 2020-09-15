@@ -241,6 +241,6 @@ class EditorMenu {
         found.App.reset();
         found.State.addState(scene.name,scene.name+'.json');
         found.State.set(scene.name);
-        found.App.editorui.hierarchy.setFromScene(scene);
+        found.App.editorui.hierarchy.setSceneData(scene);
     }
 }

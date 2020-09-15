@@ -52,6 +52,7 @@ class EditorUi extends Trait{
     var center:EditorPanel;
     var bottom:EditorPanel;
     var right:EditorPanel;
+    var left:EditorPanel;
     var menu:EditorMenuBar;
     public static var scenePath:String = "";
     public static var projectName:String = "";
@@ -152,6 +153,7 @@ class EditorUi extends Trait{
         center.addTab(gameView);
         center.addTab(codeView);
         center.addTab(animationView);
+        editor.addToElementDraw("TopLayout",center);
 
         // Setup right layout
         right = new EditorPanel();
@@ -159,11 +161,11 @@ class EditorUi extends Trait{
         right.addTab(inspector);
         editor.addToElementDraw("RightLayout", right);
 
-        hierarchy = new EditorHierarchy(found.State.active.raw,inspector);
-        editor.addToElementDraw("LeftLayout",hierarchy);
-        editor.addToElementDraw("TopLayout",center);
-        
-        
+        // Setup left layout
+        left = new EditorPanel();
+        hierarchy = EditorHierarchy.getInstance();
+        left.addTab(hierarchy);
+        editor.addToElementDraw("LeftLayout", left);
         
         menu  = new EditorMenuBar();
         editor.addToElementDraw("HeaderLayout",menu);
@@ -344,7 +346,7 @@ class EditorUi extends Trait{
     }
     @:access(found.anim.Sprite)
     function saveSceneData(){
-        if(StringTools.contains(EditorHierarchy.sceneName,'*')){
+        if(EditorHierarchy.getInstance().isDirty()){
             var i = 0;
             for(entity in State.active._entities){
                 if(entity.dataChanged){
@@ -352,7 +354,7 @@ class EditorUi extends Trait{
                 }
                 i++;
             }
-            EditorHierarchy.makeClean();
+            EditorHierarchy.getInstance().makeClean();
             Fs.saveContent(scenePath,DataLoader.stringify(State.active.raw));
         }
     }

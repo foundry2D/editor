@@ -274,7 +274,7 @@ class CollisionEditorDialog {
 			}
 			
 			sprite != null ? sprite.dataChanged = true:tile.map.dataChanged =true;
-			EditorHierarchy.makeDirty();
+			EditorHierarchy.getInstance().makeDirty();
 			exit();
 		}
 		if(ui.button("Remove")){
@@ -287,7 +287,7 @@ class CollisionEditorDialog {
 			}
 			data.body.clear_shapes();
 			sprite != null ? sprite.dataChanged = true:tile.map.dataChanged =true;
-			EditorHierarchy.makeDirty();
+			EditorHierarchy.getInstance().makeDirty();
 			exit();
 		}
 		if (ui.button("Cancel")) {

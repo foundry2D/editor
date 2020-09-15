@@ -14,8 +14,13 @@ class EditorAnimationView  implements EditorHierarchyObserver extends Tab {
     var animationEditor:found.tool.AnimationEditor;
     public function new(){
         super(tr("Animation"));
-        EditorHierarchy.register(this);
+        EditorHierarchy.getInstance().register(this);
     }
+
+    public function notifySceneSelectedInHierarchy() : Void {
+        animationEditor.selectedUID = -1;
+    }
+
     public function notifyObjectSelectedInHierarchy(selectedObject:TObj,selectedUID:Int) : Void {
         animationEditor.selectedUID = selectedUID;
         
