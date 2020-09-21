@@ -114,13 +114,7 @@ class EditorUi extends Trait{
     }
     @:access(found.trait.internal.CanvasScript)
     function onResize(w:Int, h:Int){
-        trace("Resized ?");
-        if(projectmanager != null && projectmanager.ready && projectmanager.visible){
-            projectmanager.scaleOnReady();
-        }
-        if(editor != null && editor.ready && editor.visible){
-            editor.scaleOnReady();
-        }
+        
     }
     @:access(found.App)
     public function render(canvas:kha.Canvas){

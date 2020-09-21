@@ -19,7 +19,7 @@ import utilities.Config;
 import khafs.Fs;
 
 class ManagerView extends CanvasScript {
-    var projects:Array<TProject>;
+    var projects:Array<TProject> = [];
     var selectedItem:TProject = null;
     public var theme(get,null):TTheme;
     function get_theme(){
@@ -32,8 +32,9 @@ class ManagerView extends CanvasScript {
         if(data != null){
             projects = data;
         }
-        this.addCustomDraw("List",drawView);
         ui = new Zui({font:kha.Assets.fonts.font_default});
+        this.addCustomDraw("List",drawView);
+        
         Event.add("onRun",runProject);
         Event.add("onNew",createProject);
         Event.add("onImportProject",importProject);
@@ -51,9 +52,9 @@ class ManagerView extends CanvasScript {
         translate();
         
         
-        var elem = getScaledElement(element);
+        var elem = element;
         ui.begin(g);
-        if(ui.window(Id.handle(),Std.int(elem.x),Std.int(elem.y),Std.int(elem.width),Std.int(elem.height))){
+        if(ui.window(Id.handle(),Math.floor(elem.x),Math.floor(elem.y),elem.width,elem.height)){
             
             if(ui.tab(tabsHandle,tr("Projects"))){
                 var selected = Ext.list(ui,listHandle,projects,{itemDrawCb: drawItems,getNameCb:projName,removeCb: deleteProject, showAdd: false,showRadio: true,editable: false});
@@ -184,14 +185,11 @@ class ManagerView extends CanvasScript {
                             continue;
                         }
                         dirPath = t.join(Fs.sep);
-                        var func:Void->Void = function(){
-                            Fs.saveContent(path + Fs.sep + entry.fileName,data.toString());
-                        };
                         if(!Fs.isDirectory(dirPath)){
-                            Fs.createDirectory(dirPath,func);
+                            Fs.createDirectory(dirPath);
                         }
                         else {
-                            func();
+                            Fs.saveContent(path + Fs.sep + entry.fileName,data.toString());
                         }
                     }
                     else {

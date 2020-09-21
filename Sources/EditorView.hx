@@ -28,7 +28,7 @@ class EditorView  extends CanvasScript {
             ui.begin(g);
         var drawable = toDraw.get(element.name);
         if(drawable != null){
-            drawable.render(ui,getScaledElement(element));
+            drawable.render(ui,element);
         }
         else{
             trace("No ui will be drawn for element named: " + element.name);
