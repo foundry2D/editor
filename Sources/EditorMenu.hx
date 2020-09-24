@@ -177,13 +177,13 @@ class EditorMenu {
         }
         else if (menuCategory == MenuHelp) {
             if (ui.button("      " + tr("Manual"), Left)) {
-                Url.explorer("https://armorpaint.org/manual");
+                Url.explorer("https://github.com/foundry2D/foundry2d/wiki");
             }
             if (ui.button("      " + tr("Issue Tracker"), Left)) {
-                Url.explorer("https://github.com/armory3d/armorpaint/issues");
+                Url.explorer("https://github.com/foundry2D/foundry2d/issues");
             }
             if (ui.button("      " + tr("Report Bug"), Left)) {
-                var url = "https://github.com/armory3d/armorpaint/issues/new?labels=bug&template=bug_report.md&body=*ArmorPaint%20" + Data.version + "-" + Main.sha + ",%20" + System.systemId + "*";
+                var url = "https://github.com/foundry2D/foundry2d/issues/new?labels=bug&template=bug_report.md&body=*Foundry2d%20" + Data.version + "-" + Main.sha + ",%20" + System.systemId + "*";
                 Url.explorer(url);
             }
         }
