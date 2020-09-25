@@ -728,6 +728,10 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		var trait = currentObject.raw.traits[i];
 		if (trait != null) {
 			ui.text(trait.classname);
+			if(trait.props != null){
+				for(p in trait.props)
+					ui.text(p);
+			}
 		}
 	}
 

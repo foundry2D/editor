@@ -31,8 +31,20 @@ class ListTraits {
 
         var c = Context.getLocalClass().get();
         if(c.name == "EditorUi") return Context.getBuildFields();
+        var props:Array<String> = [];
+        for(f in haxe.macro.Context.getBuildFields()){
+            for(m in f.meta){
+                if(m.name == "prop"){
+                    props.push(f.name);
+                }
+            }
+        }
         
-        list.traits.push({type: "Script",classname: c.module});
+        var tdef:TraitDef = {type: "Script",classname: c.module};
+        if(props.length > 0){
+            tdef.props = props;
+        }
+        list.traits.push(tdef);
 
         sys.io.File.saveContent('../Assets/listTraits.json',Json.stringify(list));
         
