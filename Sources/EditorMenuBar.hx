@@ -23,7 +23,7 @@ class EditorMenuBar implements View {
 		pauseImage = kha.Assets.images.pause;
 	}
 
-	@:access(zui.Zui,found.Scene,found.object.Object,found.Trait)
+	@:access(zui.Zui)
 	public function render(ui:Zui,element:TElement) {
 
 		ui.inputEnabled = true;
@@ -68,26 +68,7 @@ class EditorMenuBar implements View {
 			var currentImage = App.editorui.isPlayMode ? pauseImage : playImage;
 			var state = ui.image(currentImage);
 			if(state == zui.Zui.State.Released){
-				if(App.editorui.isPlayMode){
-					for(object in found.State.active.activeEntities){
-						for (t in object.traits){
-							if (t._remove != null) {
-								for (f in t._remove) f();
-							}
-						}
-					}
-					App.editorui.isPlayMode = false;
-				}
-				else{
-					for(object in found.State.active.activeEntities){
-						for (t in object.traits){
-							if (t._init != null) {
-								for (f in t._init) App.notifyOnInit(f);
-							}
-						}
-					}
-					App.editorui.isPlayMode = true;
-				}
+				EditorUi.togglePlayMode();
 			}
 			else if(state == zui.Zui.State.Hovered){
 			}

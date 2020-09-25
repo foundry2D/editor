@@ -1,6 +1,7 @@
 package;
 
 
+import found.trait.internal.LoadingScript;
 import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
@@ -178,6 +179,9 @@ class EditorUi extends Trait{
 
         if(keysDown(Config.keymap.file_save))
             saveSceneData();
+        
+        if(keysDown(Config.keymap.toggle_playmode))
+            togglePlayMode();
         
         if(center.tabname != tr("Code") && keysDown(Config.keymap.file_open)){
             openScene();
@@ -378,6 +382,30 @@ class EditorUi extends Trait{
 
         }
         FileBrowserDialog.open(done);
+    }
+
+    @:access(found.Scene,found.object.Object,found.Trait)
+    public static function togglePlayMode(){
+        if(found.App.editorui.isPlayMode){
+            for(object in found.State.active.activeEntities){
+                for (t in object.traits){
+                    if (t._remove != null) {
+                        for (f in t._remove) f();
+                    }
+                }
+            }
+            found.App.editorui.isPlayMode = false;
+        }
+        else{
+            for(object in found.State.active.activeEntities){
+                for (t in object.traits){
+                    if (t._init != null) {
+                        for (f in t._init) found.App.notifyOnInit(f);
+                    }
+                }
+            }
+            found.App.editorui.isPlayMode = true;
+        }
     }
 
     function registerInput(){
