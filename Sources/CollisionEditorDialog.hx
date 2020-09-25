@@ -82,8 +82,8 @@ class CollisionEditorDialog {
 		}
 		else {
 			shape = echo.Shape.defaults;
-			shape.offset_x = image.width * 0.5;
-			shape.offset_y = image.height * 0.5;
+			shape.offset_x = data._w * 0.5;
+			shape.offset_y = data._h * 0.5;
 			shape.width = image.width; 
 			shape.height = image.height;
 			shape.type = ShapeType.RECT;
@@ -95,8 +95,8 @@ class CollisionEditorDialog {
 		if(comboBoxHandle.changed){
 			if(selectedCollisionTypeIndex == ShapeType.RECT){
 				shape = echo.Shape.defaults;
-				shape.offset_x = image.width * 0.5;
-				shape.offset_y = image.height * 0.5;
+				shape.offset_x = data._w * 0.5;
+				shape.offset_y = data._h * 0.5;
 				shape.width = image.width; 
 				shape.height = image.height;
 				shape.type = ShapeType.RECT;
@@ -104,8 +104,8 @@ class CollisionEditorDialog {
 			if(selectedCollisionTypeIndex == ShapeType.CIRCLE) {
 				var radius = 0.5 * (image.width > image.height ? image.width : image.height);
 				shape = echo.Shape.defaults;
-				shape.offset_x = image.width*0.5;
-				shape.offset_y = image.height*0.5;
+				shape.offset_x = data._w * 0.5;
+				shape.offset_y = data._h * 0.5;
 				shape.radius = radius;
 				shape.type = ShapeType.CIRCLE;
 			}
@@ -163,17 +163,17 @@ class CollisionEditorDialog {
 				case ShapeType.RECT:
 
 					var xHandle = Id.handle();
-					xHandle.value = shape.offset_x;
-					var x = ui.slider(xHandle,"X",data._w *0.5,data._w + data._w *0.5);
+					xHandle.value = shape.offset_x - data._w * 0.5;
+					var x = ui.slider(xHandle,"X",0,image.width);
 					if(xHandle.changed){
-						shape.offset_x = x;
+						shape.offset_x = x + data._w * 0.5;
 					}
 
 					var yHandle = Id.handle();
-					yHandle.value = shape.offset_y;
-					var y = ui.slider(yHandle,"Y",data._h *0.5,data._h + data._h *0.5);
+					yHandle.value = shape.offset_y - data._h * 0.5;
+					var y = ui.slider(yHandle,"Y",0,image.height);
 					if(yHandle.changed){
-						shape.offset_y = y;
+						shape.offset_y = y + data._h * 0.5;
 					}
 
 					var widthHandle = Id.handle();
@@ -195,17 +195,17 @@ class CollisionEditorDialog {
 				case ShapeType.CIRCLE:
 
 					var xHandle = Id.handle();
-					xHandle.value = shape.offset_x;
+					xHandle.value = shape.offset_x - data._w * 0.5;
 					var x = ui.slider(xHandle,"X",0,data._w);
 					if(xHandle.changed){
-						shape.offset_x = x;
+						shape.offset_x = x + data._w * 0.5;
 					}
 
 					var yHandle = Id.handle();
-					yHandle.value = shape.offset_y;
+					yHandle.value = shape.offset_y - data._h * 0.5;
 					var y = ui.slider(yHandle,"Y",0,data._h);
 					if(yHandle.changed){
-						shape.offset_y = y;
+						shape.offset_y = y + data._h * 0.5;
 					}
 
 					var radiusHandle = Id.handle();
