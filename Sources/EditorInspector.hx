@@ -107,8 +107,8 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		selectedSceneData = null;
 
 		if (i != -1) {
-			selectedObjectData = objectData;
 			index = i;
+			selectedObjectData = currentObject.raw;
 			traitListHandle.nest(0).position = 0;
 		} else {
 			selectedObjectData = null;

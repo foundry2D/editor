@@ -194,9 +194,12 @@ class AnimationEditor {
                 }
 
                 if(animIndex > -1){
-                    var editable = false;
+                    var editable = true;
                     fpsHandle.text = ""+curSprite.data.animation._speeddiv;
-                    curSprite.data.animation._speeddiv = Std.parseInt(ui.textInput(fpsHandle,"Fps: ",Align.Left,editable));
+                    ui.textInput(fpsHandle,"Fps",Align.Left,editable);
+                    if(fpsHandle.changed){
+                        curSprite.data.animation._speeddiv = Std.parseInt(fpsHandle.text);
+                    }
                 }
                 ui.row([0.5,0.5]);
                 if(delta > numberOfFrames){

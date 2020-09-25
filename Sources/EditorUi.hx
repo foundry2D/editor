@@ -218,7 +218,7 @@ class EditorUi extends Trait{
                     State.active.cam.position.y+=mouse.distY;
                 }
             }
-            if(inSceneView && mouse.down("left") && mouse.moved){
+            if(inSceneView && mouse.down("left")){
                 updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
             }
             else{

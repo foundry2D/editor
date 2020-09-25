@@ -1,5 +1,6 @@
 package;
 
+import zui.Themes;
 import kha.Color;
 import kha.Assets;
 
@@ -54,7 +55,8 @@ class EditorConsole extends Tab {
             showRadio: true,
             getNameCb: function(id:Int) {
                 if(id < 0)return "";
-                return  content[id].content;
+                ui.t.TEXT_COL = content[id].type == 2 ? 0xffe34320 : content[id].type == 1 ? kha.Color.Yellow : 0xffe8e7e5;
+                return content[id].content;
             },
             removeCb: function(id:Int){
                 if(id < 0)return;
@@ -76,11 +78,13 @@ class EditorConsole extends Tab {
         if(id < 0)return;
         var out = content[id];
         ui._y -= ui.BUTTON_H();
-        ui.image(typeImages[out.type]);
+        ui.image(typeImages[out.type],0xffffffff,lineHeight);
     }
     var handle = zui.Id.handle();
     var checkH = zui.Id.handle();
     var comboH = zui.Id.handle();
+    var lineHeight:Float = 0.0;
+    @:access(zui.Zui)
     override public function render(pui:zui.Zui) {
         this.ui =  pui;
         if (ui.tab(parent.htab,tr(this.name))) {
@@ -105,7 +109,13 @@ class EditorConsole extends Tab {
 
             ui.t.ACCENT_SELECT_COL = ui.t.ACCENT_HOVER_COL = ui.t.ACCENT_COL = Color.Transparent;
 
+            lineHeight = ui.ELEMENT_H()*0.65;
+            var tCol = ui.t.TEXT_COL;
+            var lastFnt = ui.FONT_SIZE();
+            ui.fontSize = Math.ceil(lineHeight);
             zui.Ext.list(ui,handle,contents,options);
+            ui.t.TEXT_COL = tCol;
+            ui.fontSize = lastFnt;
 
             ui.t.ACCENT_COL = col;
             ui.t.ACCENT_HOVER_COL = hover;

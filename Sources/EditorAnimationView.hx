@@ -1,8 +1,6 @@
 package;
 
-import utilities.JsonObjectExplorer;
 
-import found.State;
 import found.data.SceneFormat;
 
 //@TODO: Maybe we should merge everything in the AnimatorEditor ?
