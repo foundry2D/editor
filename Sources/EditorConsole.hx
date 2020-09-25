@@ -54,7 +54,7 @@ class EditorConsole extends Tab {
             itemDrawCb: drawItem,
             showRadio: true,
             getNameCb: function(id:Int) {
-                if(id < 0)return "";
+                if(id < 0 || content[id] == null)return "";
                 ui.t.TEXT_COL = content[id].type == 2 ? 0xffe34320 : content[id].type == 1 ? kha.Color.Yellow : 0xffe8e7e5;
                 return content[id].content;
             },
@@ -75,7 +75,7 @@ class EditorConsole extends Tab {
     var ui:zui.Zui;
     @:access(zui.Zui)
     function drawItem(h:zui.Zui.Handle,id:Int){
-        if(id < 0)return;
+        if(id < 0 || content[id] == null)return;
         var out = content[id];
         ui._y -= ui.BUTTON_H();
         ui.image(typeImages[out.type],0xffffffff,lineHeight);
