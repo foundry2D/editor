@@ -830,7 +830,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	}
 
 	public function updateField(uid:Int, id:String, data:Any) {
-		if (uid > found.State.active._entities.length - 1)
+		if (uid > found.State.active._entities.length - 1 || selectedSceneData != null)
 			return;
 		switch (id) {
 			case "_positions":

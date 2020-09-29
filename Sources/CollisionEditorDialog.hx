@@ -1,19 +1,13 @@
 
 import kha.Image;
 import found.anim.Tile;
-import kha.Blob;
 import kha.graphics2.GraphicsExtension;
-import khafs.Fs;
 
 import zui.Id;
 import zui.Zui;
 
 import found.Found;
-import found.App;
-import found.Scene;
 import found.anim.Sprite;
-import found.anim.Tilemap;
-import found.data.SceneFormat;
 
 import echo.data.Types.ShapeType;
 import echo.shape.Rect;
@@ -40,7 +34,7 @@ class CollisionEditorDialog {
 			shouldTileInit = true;
 		}
 		else {
-			trace("Error: CollisionEditor can not be opened without a Tile or a Sprite");
+			error("CollisionEditor can not be opened without a Tile or a Sprite");
 			found.App.editorui.ui.enabled = true;
 			zui.Popup.show = false;
 		}
@@ -261,7 +255,7 @@ class CollisionEditorDialog {
 			else {
 				tile.raw.rigidBodies.get(tile.tileId).shapes = shapes;
 			}
-			
+
 			if(Reflect.hasField(data,"body")){
 				data.body.clear_shapes();
 				var i=0;
