@@ -261,11 +261,14 @@ class CollisionEditorDialog {
 			else {
 				tile.raw.rigidBodies.get(tile.tileId).shapes = shapes;
 			}
-			data.body.clear_shapes();
-			var i=0;
-			while(i < shapes.length){
-				data.body.create_shape(shapes[i]);
-				i++;
+			
+			if(Reflect.hasField(data,"body")){
+				data.body.clear_shapes();
+				var i=0;
+				while(i < shapes.length){
+					data.body.create_shape(shapes[i]);
+					i++;
+				}
 			}
 
 			if(tile != null){
