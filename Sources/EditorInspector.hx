@@ -1,3 +1,5 @@
+import echo.data.Options.ShapeOptions;
+import echo.Shape;
 import echo.Body;
 import found.App;
 import found.Found;
@@ -349,6 +351,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			var addRigidbody = function(state:String) {
 				if (state == "+") {
 					selectedObjectData.rigidBody = Body.defaults;
+					currentObject.raw = selectedObjectData;
 					if (currentObject.body == null)
 						currentObject.body = new echo.Body(selectedObjectData.rigidBody);
 					if (currentObject.body.shapes == null && currentObject.body.shapes.length == 0) {
@@ -362,6 +365,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 					if (found.State.active.physics_world != null) {
 						found.State.active.physics_world.remove(currentObject.body);
 					}
+					currentObject.raw = selectedObjectData;
 					currentObject.body = null;
 				}
 				currentObject.dataChanged = true;
@@ -451,6 +455,14 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 					}
 
 					if (ui.button("Edit Collision")) {
+						if(selectedObjectData.rigidBody.shapes == null){
+							var shape:ShapeOptions = Shape.defaults;
+							shape.offset_x = shape.offset_y = 48;
+							shape.width = currentObject.width;
+							shape.height = currentObject.height;
+							selectedObjectData.rigidBody.shapes = [];
+							currentObject.raw = selectedObjectData;
+						}
 						CollisionEditorDialog.open(cast(currentObject));
 					}
 				}
@@ -468,6 +480,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		}
 
 		if (changed) {
+			currentObject.raw = selectedObjectData;
 			EditorHierarchy.getInstance().makeDirty();
 		}
 	}
