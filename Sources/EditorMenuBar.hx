@@ -1,5 +1,6 @@
 package;
 
+import found.audio.Music;
 import zui.Canvas.TElement;
 import found.App;
 import zui.Zui;
@@ -69,6 +70,7 @@ class EditorMenuBar implements View {
 			var state = ui.image(currentImage);
 			if(state == zui.Zui.State.Released){
 				EditorUi.togglePlayMode();
+				Music.stopAll();
 			}
 			else if(state == zui.Zui.State.Hovered){
 			}

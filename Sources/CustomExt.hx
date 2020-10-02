@@ -79,7 +79,7 @@ class CustomExt {
                 case ".png" | ".jpg":
                     name = "picture_grey";
                 case ".mp3" | ".wav":
-                    name = " audio-file_grey";
+                    name = "audio_file_grey";
             }
         }
         return kha.Assets.images.get(name);
