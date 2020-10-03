@@ -289,6 +289,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		} else {
 			if (ui.button("Create Layers")) {
 				selectScene();
+				return;
 			}
 		}
 

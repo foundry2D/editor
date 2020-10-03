@@ -339,6 +339,7 @@ class AnimationEditor {
         }
         var frameHandles:Array<Array<zui.Zui.Handle>> = [];
         function drawItem(handle:Handle,i:Int){
+            if(frameHandles.length == 0)return;
             var cur:TFrame = curFrames[i];
             
             var startHandle = frameHandles[i][0];

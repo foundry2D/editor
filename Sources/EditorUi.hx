@@ -399,6 +399,9 @@ class EditorUi extends Trait{
         else{
             for(object in found.State.active.activeEntities){
                 for (t in object.traits){
+                    if (t._awake != null) {
+                        for (f in t._awake) found.App.notifyOnAwake(f);
+                    }
                     if (t._init != null) {
                         for (f in t._init) found.App.notifyOnInit(f);
                     }
