@@ -108,9 +108,11 @@ class ManagerView extends CanvasScript {
             var path = project.scenes[0];
             var sep = Fs.sep;
             var firstName = StringTools.replace(path.split(sep)[path.split(sep).length-1],'.json',"");
+            firstName = StringTools.replace(path.split(sep)[path.split(sep).length-1],'_json',"");
             for(i in 0...project.scenes.length){
                 path = project.scenes[i];
                 name = StringTools.replace(path.split(sep)[path.split(sep).length-1],'.json',"");
+                name = StringTools.replace(path.split(sep)[path.split(sep).length-1],'_json',"");
                 found.State.addState(name,project.scenes[i]);
             }
             EditorUi.projectName = project.name;

@@ -1,6 +1,7 @@
 package;
 
 
+import kha.Assets;
 import found.trait.internal.LoadingScript;
 import found.data.DataLoader;
 import zui.Zui;
@@ -17,6 +18,7 @@ import found.State;
 import found.Found;
 import found.Input;
 import found.math.Util;
+import found.data.Project.TProject;
 #end
 
 import utilities.Config;
@@ -89,12 +91,14 @@ class EditorUi extends Trait{
                 }
                 
                 if(!Fs.exists(EditorUi.cwd+"/pjml.found")){
-                    projectmanager = new ManagerView();
+                    var projList:Array<TProject> = getLocalProjects();
+                    projectmanager = new ManagerView(projList);
                     done();
                 }
                 else {
                     Fs.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
-                        var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(data);
+                        var out:{list:Array<TProject>} = haxe.Json.parse(data);
+                        out.list = out.list.concat(getLocalProjects());
                         projectmanager = new ManagerView(out.list);
                         done();
                     });
@@ -116,6 +120,16 @@ class EditorUi extends Trait{
     @:access(found.trait.internal.CanvasScript)
     function onResize(w:Int, h:Int){
         
+    }
+    function getLocalProjects():Array<TProject>{
+        var out:Array<TProject> = [];
+        for(asset in Assets.blobs.names){
+            if(StringTools.endsWith(asset,"_prj")){
+                var proj:TProject = haxe.Json.parse(Assets.blobs.get(asset).toString());
+                out.push(proj);
+            }
+        }
+        return out;
     }
     @:access(found.App)
     public function render(canvas:kha.Canvas){
