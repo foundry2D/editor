@@ -266,7 +266,6 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			var layer = ui.combo(layerHandle, layersName);
 			if (layerHandle.changed) {
 				selectedObjectData.layer = layer;
-				currentObject.layer = selectedObjectData.layer;
 				currentObject.dataChanged = true;
 				changed = true;
 				layerHandle.changed = false;
@@ -280,7 +279,6 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 				var depth = Ext.floatInput(ui, depthHandle);
 				if (depthHandle.changed) {
 					selectedObjectData.depth = depth;
-					currentObject.depth = selectedObjectData.depth;
 					currentObject.dataChanged = true;
 					changed = true;
 				}
@@ -685,7 +683,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		layersName.splice(index, 1);
 		for (entity in found.State.active._entities) {
 			if (entity.layer == index) {
-				entity.layer = entity.raw.layer = 0;
+				entity.raw.layer = 0;
 			}
 		}
 	}
