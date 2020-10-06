@@ -112,7 +112,7 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 		} else {
 			traitData = codeScriptTextAreaHandle.text;
 		}
-
+		
 		khafs.Fs.saveContent(currentlyDisplayedTrait.classname, traitData, function() {
 			saveTraitOnCurrentObject(currentlyDisplayedTrait);
 		});

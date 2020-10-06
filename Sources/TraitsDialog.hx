@@ -145,6 +145,10 @@ class TraitsDialog {
 	}
 
 	static function saveNewVisualTrait(traitName:String, traitSavePath:String) {
+		#if kha_debug_html5
+		var t = traitSavePath.split(Fs.sep);
+		traitSavePath = t[t.length-1].replace(".","_");
+		#end
 		var trait:TTrait = {
 			type: "VisualScript",
 			classname: traitSavePath

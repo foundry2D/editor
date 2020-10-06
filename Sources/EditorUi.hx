@@ -121,7 +121,7 @@ class EditorUi extends Trait{
     function onResize(w:Int, h:Int){
         
     }
-    function getLocalProjects():Array<TProject>{
+    static function getLocalProjects():Array<TProject>{
         var out:Array<TProject> = [];
         for(asset in Assets.blobs.names){
             if(StringTools.endsWith(asset,"_prj")){
@@ -391,7 +391,7 @@ class EditorUi extends Trait{
 
             }
             else{
-                trace('Error: file with name $name is not a valid scene name or the path "$path" was invalid ');
+                error('file with name $name is not a valid scene name or the path "$path" was invalid ');
             }
 
         }

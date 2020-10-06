@@ -1,5 +1,6 @@
 package;
 
+import found.data.Project.TProject;
 import found.App;
 import zui.Ext;
 import zui.Id;
@@ -214,7 +215,17 @@ class EditorMenu {
             scene._entities = scene._entities.splice(0,1);//We only keep the camera
             var data = DataLoader.stringify(scene);
             #end
-            final p:String = StringTools.endsWith(path,".json") ? path : path +".json";
+            var p:String = StringTools.endsWith(path,".json") ? path : path +".json";
+
+            #if kha_debug_html5
+            var t = p.split(Fs.sep);
+            p = t[t.length-1].replace(".","_");
+            EditorUi.scenePath = p;
+            Fs.getContent(EditorUi.projectName + "_prj", function(blob:String){
+                final proj:TProject = haxe.Json.parse(blob);
+                proj.scenes.push(p);
+                Fs.saveContent(EditorUi.projectName + "_prj",haxe.Json.stringify(proj));
+            #else
             EditorUi.scenePath = p;
             Fs.getContent(EditorUi.cwd+Fs.sep+"pjml.found", function(blob:String){
                 var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
@@ -224,6 +235,7 @@ class EditorMenu {
                     }
                 }
                 Fs.saveContent(EditorUi.cwd+Fs.sep+"pjml.found",haxe.Json.stringify(out));
+            #end
                 Fs.saveContent(p,data,
                 function(){
                     App.editorui.visible = App.editorui.editor.visible = false;

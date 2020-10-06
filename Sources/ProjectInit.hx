@@ -1,5 +1,6 @@
 package;
 
+import found.data.Project.TProject;
 import found.data.Data;
 import khafs.Fs;
 import found.data.Project.Type;
@@ -52,32 +53,47 @@ class ProjectInit {
         if(!Fs.exists(path+"/Shaders")) Fs.createDirectory(path+"/Shaders");
         if(!Fs.exists(path+"/Sources")) Fs.createDirectory(path+"/Sources",main2d);
         if(!Fs.exists(path+"/Sources/Scripts")) Fs.createDirectory(path+"/Sources/Scripts");
+        #if !kha_debug_html5
         if(!Fs.exists(EditorUi.cwd+"/pjml.found")) 
             Fs.saveContent(EditorUi.cwd+"/pjml.found",'{"list":[]}',createDefaults);
         else
+        #end
             createDefaults();
         
         
         
     }
     static function createDefaults(){
+        #if !kha_debug_html5
         Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
             var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
+        #end
             Reflect.setField(DataLoader,"version",Data.version);
 
             var scene:TSceneFormat = DataLoader.parse(kha.Assets.blobs.default_json.toString());
-            scene.name = "PlayState";
+            scene.name = 'Play$project';
             var data = DataLoader.stringify(scene);
-            khafs.Fs.saveContent(path+"/Assets/PlayState.json",data);
+            var p = path+'/Assets/Play$project.json';
 
-            out.list.push({name: project,dataVersion: Data.version,path: path,scenes:[path+"/Assets/PlayState.json"],type: Type.twoD});
+            #if kha_debug_html5
+            var t = p.split(Fs.sep);
+            p = t[t.length-1].replace(".","_");
+            khafs.Fs.saveContent(p,data);
+            data = haxe.Json.stringify({name: project,dataVersion: Data.version,path: path.replace(Fs.sep,""),scenes:[p],type: Type.twoD});
+            p = project+"_prj";
+            khafs.Fs.saveContent(p,data);
+            #else
+            khafs.Fs.saveContent(p,data);
+            out.list.push({name: project,dataVersion: Data.version,path: path,scenes:[p],type: Type.twoD});
             data = haxe.Json.stringify(out);
             path = EditorUi.cwd+"/pjml.found";
             khafs.Fs.saveContent(path,data);
+            #end
             if(ProjectInit.done != null)
                 ProjectInit.done();
-
+        #if !kha_debug_html5
         });
+        #end
     }
     static function main2d(){
         if(!Fs.exists(path+"/Sources/Main.hx")){

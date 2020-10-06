@@ -47,8 +47,15 @@ class ManagerView extends CanvasScript {
     var listHandle = Id.handle();
     
     function drawView(g: kha.graphics2.Graphics,element:TElement){
-        if(titleElem == null)
+        if(titleElem == null){
             titleElem = getElement("Title");
+            #if kha_debug_html5
+            getElement("Import").visible = false;
+            getElement("Delete").visible = false;
+            getElement("DelApp").visible = false;
+            #end
+        }
+            
         translate();
         
         
@@ -90,13 +97,18 @@ class ManagerView extends CanvasScript {
         getElement("DelApp").text = tr("Delete App Config");
     }
     
+    @:access(EditorUi)
     function createProject(){
         ProjectCreator.open(function(){
 
+            #if kha_debug_html5
+            projects = EditorUi.getLocalProjects();
+            #else
             Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                 var out:{list:Array<TProject>} = haxe.Json.parse(blob);
                 projects = out.list;
             });
+            #end
         });
     }
 
