@@ -1,6 +1,6 @@
 package;
 
-import zui.Themes;
+import found.tool.Log;
 import kha.Color;
 import kha.Assets;
 
@@ -13,7 +13,6 @@ class EditorConsole extends Tab {
     var content:Array<ConsoleOutput>= [];
     var typeImages:Array<kha.Image> = [];
     var outputTypes:Array<String>;
-    final oldTrace:Dynamic->Null<haxe.PosInfos>->Void;
     final options:zui.Ext.ListOpts;
     function log(v:Dynamic, ?infos:Null<haxe.PosInfos>){
         var type = 0; 
@@ -38,13 +37,11 @@ class EditorConsole extends Tab {
             redraw();
         var str = haxe.Log.formatOutput(v,infos);
         content.push({type:type,content: str});
-        oldTrace(v,infos);
     }
     
     public function new() {
         super(tr("Console"));
-        oldTrace = haxe.Log.trace;
-        haxe.Log.trace = log;
+        Log.addCustomLogging(log);
         typeImages.push(Assets.images.information);
         typeImages.push(Assets.images.warning);
         typeImages.push(Assets.images.warning);
