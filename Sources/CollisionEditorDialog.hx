@@ -1,4 +1,5 @@
 
+import kha.math.Vector2;
 import kha.Image;
 import found.anim.Tile;
 import kha.graphics2.GraphicsExtension;
@@ -60,6 +61,9 @@ class CollisionEditorDialog {
 		var initX = ui._x;
 		var data:Dynamic =  sprite != null ? sprite:tile;
 		
+		var _w = sprite != null ? sprite._w: tile._w;
+		var _h = sprite != null ? sprite._h: tile._h;
+
 		var shapes:Array<echo.data.Options.ShapeOptions> = [];
 		if(sprite != null && data.raw.rigidBody.shapes != null){
 			shapes = data.raw.rigidBody.shapes;
@@ -76,8 +80,8 @@ class CollisionEditorDialog {
 		}
 		else {
 			shape = echo.Shape.defaults;
-			shape.offset_x = data._w * 0.5;
-			shape.offset_y = data._h * 0.5;
+			shape.offset_x = _w * 0.5;
+			shape.offset_y = _h * 0.5;
 			shape.width = image.width; 
 			shape.height = image.height;
 			shape.type = ShapeType.RECT;
@@ -89,8 +93,8 @@ class CollisionEditorDialog {
 		if(comboBoxHandle.changed){
 			if(selectedCollisionTypeIndex == ShapeType.RECT){
 				shape = echo.Shape.defaults;
-				shape.offset_x = data._w * 0.5;
-				shape.offset_y = data._h * 0.5;
+				shape.offset_x = _w * 0.5;
+				shape.offset_y = _h * 0.5;
 				shape.width = image.width; 
 				shape.height = image.height;
 				shape.type = ShapeType.RECT;
@@ -98,8 +102,8 @@ class CollisionEditorDialog {
 			if(selectedCollisionTypeIndex == ShapeType.CIRCLE) {
 				var radius = 0.5 * (image.width > image.height ? image.width : image.height);
 				shape = echo.Shape.defaults;
-				shape.offset_x = data._w * 0.5;
-				shape.offset_y = data._h * 0.5;
+				shape.offset_x = _w * 0.5;
+				shape.offset_y = _h * 0.5;
 				shape.radius = radius;
 				shape.type = ShapeType.CIRCLE;
 			}
@@ -145,8 +149,9 @@ class CollisionEditorDialog {
 
 		var tempX = ui._x;
 		ui._x -= ui.buttonOffsetY+ui.SCROLL_W() * r / 2;
-		var tempH = tile != null ? image.height:null;//dont change image height in ui.image
+		var tempH = tile != null ? image.height:image.height * sprite.scale.y;//dont change image height in ui.image
 		var state = ui.image(image,0xffffffff,tempH,0,0,image.width,image.height);
+		// sprite != null ? ui.g.scale(-sprite.scale.x,-sprite.scale.y):ui.g.scale(1,1);
 		ui._x = tempX;
 
 		ui._y += ui.ELEMENT_OFFSET() * 2;
@@ -157,54 +162,54 @@ class CollisionEditorDialog {
 				case ShapeType.RECT:
 
 					var xHandle = Id.handle();
-					xHandle.value = shape.offset_x - data._w * 0.5;
+					xHandle.value = shape.offset_x - _w * 0.5;
 					var x = ui.slider(xHandle,"X",0,image.width);
 					if(xHandle.changed){
-						shape.offset_x = x + data._w * 0.5;
+						shape.offset_x = x + _w * 0.5;
 					}
 
 					var yHandle = Id.handle();
-					yHandle.value = shape.offset_y - data._h * 0.5;
+					yHandle.value = shape.offset_y - _h * 0.5;
 					var y = ui.slider(yHandle,"Y",0,image.height);
 					if(yHandle.changed){
-						shape.offset_y = y + data._h * 0.5;
+						shape.offset_y = y + _h * 0.5;
 					}
 
 					var widthHandle = Id.handle();
 					widthHandle.value = shape.width;
-					var w = ui.slider(widthHandle,"Width",0.1,data._w);
+					var w = ui.slider(widthHandle,"Width",0.1,_w);
 					if(widthHandle.changed){
 						shape.width = w;
 					}
 
 					var heightHandle = Id.handle();
 					heightHandle.value = shape.height;
-					var h = ui.slider(heightHandle,"Height",0.1,data._h);
+					var h = ui.slider(heightHandle,"Height",0.1,_h);
 					if(heightHandle.changed){
 						shape.height = h;
 					}
 					ui.g.color = color;
-					ui.g.fillRect(ui._x+shape.offset_x-data._w*0.5,initY+shape.offset_y-data._h*0.5,shape.width,shape.height);
+					ui.g.fillRect(ui._x+shape.offset_x-_w*0.5,initY+shape.offset_y-_h*0.5,shape.width,shape.height);
 					ui.g.color = kha.Color.White;
 				case ShapeType.CIRCLE:
 
 					var xHandle = Id.handle();
-					xHandle.value = shape.offset_x - data._w * 0.5;
-					var x = ui.slider(xHandle,"X",0,data._w);
+					xHandle.value = shape.offset_x - _w * 0.5;
+					var x = ui.slider(xHandle,"X",0,_w);
 					if(xHandle.changed){
-						shape.offset_x = x + data._w * 0.5;
+						shape.offset_x = x + _w * 0.5;
 					}
 
 					var yHandle = Id.handle();
-					yHandle.value = shape.offset_y - data._h * 0.5;
-					var y = ui.slider(yHandle,"Y",0,data._h);
+					yHandle.value = shape.offset_y - _h * 0.5;
+					var y = ui.slider(yHandle,"Y",0,_h);
 					if(yHandle.changed){
-						shape.offset_y = y + data._h * 0.5;
+						shape.offset_y = y + _h * 0.5;
 					}
 
 					var radiusHandle = Id.handle();
 					radiusHandle.value = shape.radius;
-					var maxRadius = 0.5 * (data._w < data._h ? data._w : data._h);
+					var maxRadius = (_w > _h ? _w : _h);
 					var radius = ui.slider(radiusHandle,"Radius",1,maxRadius);
 					if(radiusHandle.changed){
 						shape.radius = radius;
@@ -232,8 +237,8 @@ class CollisionEditorDialog {
 
 							if(x >= vert.x + tempX - w *2 &&  x <= vert.x + tempX + w * 2 && y >= vert.y + tempY - w *2 && y <= vert.y + tempY + w *2 ){
 								ui.g.color = selectedCol;
-								var tx = Math.min(x,data._w);
-								var ty = Math.min(y,data._h);
+								var tx = Math.min(x,_w);
+								var ty = Math.min(y,_h);
 								vert.x = Math.max(0,tx);
 								vert.y = Math.max(0,ty);
 							} 
