@@ -369,7 +369,7 @@ class AnimationEditor {
             if(!ownerTab.active)return;
 
             if(doUpdate && curSprite != null){
-                curSprite.update(dt);
+                curSprite.animate();
                 var currentCount = curSprite.data.animation._speeddiv - (curSprite.data.animation._count % curSprite.data.animation._speeddiv); 
                 delta = currentCount/curSprite.data.animation._speeddiv;
                 timelineHandle.redraws = windowHandle.redraws = 1;//redraw
