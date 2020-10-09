@@ -85,7 +85,6 @@ class Arrow {
     function activate(){
         if(found.App.editorui.inspector.index < 0 || found.App.editorui.inspector.index == found.State.active.cam.uid)return;
         EditorUi.arrow = type;
-        warn('Clicked an Arrow with type: $type with click');
     }
 
    

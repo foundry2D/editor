@@ -103,6 +103,7 @@ class ManagerView extends CanvasScript {
 
             #if kha_debug_html5
             projects = EditorUi.getLocalProjects();
+            redraw();
             #else
             Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
                 var out:{list:Array<TProject>} = haxe.Json.parse(blob);
@@ -137,6 +138,7 @@ class ManagerView extends CanvasScript {
     function deleteProject(i:Int){
         if(i < 0)return;
         var project:TProject = projects[i];
+        #if !kha_debug_html5
         Fs.getContent(EditorUi.cwd+"/pjml.found", function(blob:String){
             var out:{list:Array<found.data.Project.TProject>} = haxe.Json.parse(blob);
             var toRemove:TProject = null;
@@ -160,6 +162,12 @@ class ManagerView extends CanvasScript {
                 redraw();
             });
         });
+        #else
+        for(scenePath in project.scenes){
+            Fs.deleteFile(scenePath);    
+        }
+        Fs.deleteFile(project.path+"_prj");
+        #end
          
     }
 
