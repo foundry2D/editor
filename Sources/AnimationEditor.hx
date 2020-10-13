@@ -42,6 +42,7 @@ class AnimationEditor {
             height = h;
         }
 
+        var oldUid = -1;
         @:access(found.anim.Sprite,found.anim.Animation)
         function set_selectedUID(value:Int):Int{
             var oldUid = selectedUID;
@@ -53,6 +54,13 @@ class AnimationEditor {
                 if(object.raw.type == "sprite_object"){
                     curSprite = cast(object);
                     selectedUID = value;
+                    curFrames = curSprite.data.animation._frames;
+                    animations.resize(0);
+                    for(anim in curSprite.data.raw.anims)
+                    {
+                        animations.push(anim.name);
+                    }
+                    animIndex = curSprite.data.curAnim;
                 }
                 else {
                     selectedUID = -1;
@@ -68,6 +76,7 @@ class AnimationEditor {
             }
             if(oldUid != selectedUID){
                 timelineHandle.redraws = windowHandle.redraws = 2;
+                oldUid = selectedUID;
             }
             return selectedUID;
         }
@@ -79,7 +88,8 @@ class AnimationEditor {
         var animAction:Array<Float> = [];
         var curFrames(default,set):Array<TFrame> = [];
         function set_curFrames(data:Array<TFrame>){
-            if(curFrames.length != data.length){
+            if(curFrames.length != data.length || oldUid != selectedUID){
+                frameHandles = [];
                 for(frame in data){
                     var handles = [];
                     for(i in 0...5){
@@ -113,16 +123,15 @@ class AnimationEditor {
             numberOfFrames = timeline.width / (11 * sc)-1;
 
             if(curSprite != null && lastImage != curSprite.data.raw.imagePath){
-                lastImage = curSprite.data.raw.imagePath;
-                frameHandles = []; 
-                if(curSprite.data.raw.anims.length > 0){
+                lastImage = curSprite.data.raw.imagePath; 
+                if(curSprite.data.raw.anims.length > 0 && curSprite.data.raw.anims.length != animations.length ){
                     for(anim in curSprite.data.raw.anims){
                         animations.push(anim.name);
                     }
                     animIndex = curSprite.data.curAnim;
                     curFrames = curSprite.data.animation._frames;
                 }
-                else {
+                else if(curSprite.data.raw.anims.length == 0) {
                     // curFrames.resize(0);
                     animations.resize(0);
                 }

@@ -60,7 +60,8 @@ class Translator {
             // Generate extended font atlas
             // Basic Latin + Latin-1 Supplement + Latin Extended-A
             kha.graphics2.Graphics.fontGlyphs = [for (i in 32...383) i];
-        });
+		});
+		zui.Nodes.tr = Translator.tr;
 	}
 
 	// Returns a list of supported locales (plus English and the automatically detected system locale).

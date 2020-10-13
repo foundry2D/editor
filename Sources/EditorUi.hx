@@ -411,6 +411,11 @@ class EditorUi extends Trait{
             found.App.editorui.isPlayMode = false;
         }
         else{
+            for(obj in found.State.active.inactiveEntities){
+                if(obj.raw.active){
+                    obj.active = true;
+                }
+            }
             for(object in found.State.active.activeEntities){
                 for (t in object.traits){
                     if (t._awake != null) {

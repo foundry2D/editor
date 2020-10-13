@@ -28,7 +28,7 @@ class ManagerView extends CanvasScript {
     }
     var ui:zui.Zui;
     public function new(data:Array<TProject> =null) {
-        super("projectView","font_default.ttf",kha.Assets.blobs.get("projectView_json"));
+        super("projectView","font_default.ttf",kha.Assets.blobs.get("projectView_json"),true);
         if(data != null){
             projects = data;
         }
