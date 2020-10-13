@@ -7,5 +7,6 @@ project.addSources('Sources');
 project.addLibrary('Libraries/foundsdk/hscript');
 project.addDefine("editor");
 project.addDefine("tile_editor");
-project.addParameter("--macro ListTraits.init()")
+var platform = '"'+process.argv[2]+'"';
+project.addParameter(`--macro ListTraits.init(${platform})`)
 resolve(project);

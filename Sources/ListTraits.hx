@@ -19,10 +19,6 @@ typedef Data= {
 class ListTraits {
     static var list:Data = null;
     public macro static function build():Array<Field> {
-        // var p = new sys.io.Process("pwd", []);
-        // var out:String = p.stdout.readAll().toString();
-        // p.close();
-        // trace(out);
         if(list == null){
             list = Json.parse(sys.io.File.getContent('../Assets/listTraits.json'));
             if(list.traits == null)
@@ -50,8 +46,16 @@ class ListTraits {
         
         return Context.getBuildFields();
     }
-    public macro static function init():Array<Field> {
-        sys.io.File.saveContent('../Assets/listTraits.json','{}');
+    public macro static function init(platform:String):Array<Field> {
+        if(platform != "--type=extensionHost"){
+            // var p = new sys.io.Process("pwd", []);
+            // var out:String = p.stdout.readUntil(13).toString();
+            // p.close();
+            // var path = out+"\\"+platform;
+            // var t = sys.io.File.getContent("../Assets/listTraits.json");
+            // sys.io.File.saveContent(path+"\\"+"listTraits.json",t);
+            sys.io.File.saveContent('../Assets/listTraits.json','{}');
+        }
         return Context.getBuildFields();
     }
 }
