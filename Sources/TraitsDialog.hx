@@ -45,13 +45,12 @@ class TraitsDialog {
 		}
 
 		var border = 2 * zui.Popup.borderW + zui.Popup.borderOffset;
+		ui._y -= border*1.2;
+		ui.endElement();
 
-		ui._y = ui._h - ui.t.BUTTON_H - 2 * ui.t.ELEMENT_H - 3 * ui.t.ELEMENT_OFFSET - border;
 		ui.row([0.6, 0.4]);
 		ui.textInput(textInputHandle, "Script Name");
 		var selectedTraitTypeIndex:Int = ui.combo(comboBoxHandle, traitTypes, "Trait Type");
-
-		ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - 2 * ui.t.ELEMENT_OFFSET - border;
 		if (textInputHandle.text != "") {
 			if (camelCaseRegex.match(textInputHandle.text) && camelCaseRegex.matched(0) == textInputHandle.text) {
 				fullFileName = traitsFolderPath + textInputHandle.text + "." + traitTypeExtensions[selectedTraitTypeIndex];
@@ -61,8 +60,7 @@ class TraitsDialog {
 				ui.text(fullFileName, Align.Left, 0xff0000);
 			}
 		}
-
-		ui._y = ui._h - ui.t.BUTTON_H - border;
+		
 		ui.row([0.5, 0.5]);
 		if (ui.button("Add")) {
 			if (camelCaseRegex.match(textInputHandle.text) && camelCaseRegex.matched(0) == textInputHandle.text) {

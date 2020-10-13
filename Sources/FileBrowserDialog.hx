@@ -35,12 +35,14 @@ class FileBrowserDialog {
 
         var border = zui.Popup.borderW*2 +zui.Popup.borderOffset;
 
-        ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - border;
-
+        ui._y -= border;
+        
+        ui.endElement();
+        
         ui.textInput(textInputHandle, tr("Filename"));
 
         ui.row([0.5,0.5]);
-        ui._y = ui._h - ui.t.BUTTON_H - border;
+        // ui._y = ui._h - ui.t.BUTTON_H - border;
         ui.text("");
         ui.row([0.5, 0.5]);
 		if (ui.button(tr("Add"))) {
