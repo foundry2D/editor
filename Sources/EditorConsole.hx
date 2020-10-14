@@ -35,10 +35,22 @@ class EditorConsole extends Tab {
         }
         if(active)
             redraw();
-        var str = haxe.Log.formatOutput(v,infos);
+        var str =  Std.isOfType(v,String) ? haxe.Log.formatOutput(v,infos) : formatNonString(v);
         content.push({type:type,content: str});
     }
-    
+    function formatNonString(data:Dynamic){
+        var str = "";
+        for(f in Reflect.fields(data)){
+            if(Reflect.fields(Reflect.field(data,f)).length > 0){
+                str+= formatNonString(Reflect.field(data,f));
+            }
+            else{
+                var d = Reflect.field(data,f);
+                str+= '$f: $d; ';
+            }
+        }
+        return str;
+    }
     public function new() {
         super(tr("Console"));
         Log.addCustomLogging(log);
