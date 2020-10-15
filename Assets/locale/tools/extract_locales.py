@@ -32,7 +32,6 @@ def process_file(f: IO[Any], fname: str, template_data: Dict[str, str]) -> None:
             while pos < len(line) and (line[pos] != '"' or line[pos - 1] == "\\"):
                 msg += line[pos]
                 pos += 1
-
             # Only add each unique string once.
             if msg not in unique_str:
                 # Empty keys are considered untranslated by the i18n library.
@@ -51,19 +50,20 @@ def main() -> None:
     # Change to the directory where the script is located,
     # so that the script can be run from any location.
     os.chdir(os.path.dirname(os.path.realpath(__file__)) + "/../../..")
-    
+
     output_path: Final = f"Assets/locale/{sys.argv[1]}.json"
 
     if not os.path.exists("Sources"):
         sys.exit(
             "ERROR: Couldn't find the Sources folder in the folder where this script is located."
         )
-
+    
     matches: List[str] = []
-    for root, dirnames, filenames in os.walk("Sources"):
-        dirnames[:] = [d for d in dirnames]
-        for filename in fnmatch.filter(filenames, "*.hx"):
-            matches.append(os.path.join(root, filename))
+    for folder in ["Sources",os.getcwd()+ "/../foundry2d"]:
+        for root, dirnames, filenames in os.walk(folder):
+            dirnames[:] = [d for d in dirnames]
+            for filename in fnmatch.filter(filenames, "*.hx"):
+                matches.append(os.path.join(root, filename))
     matches.sort()
 
     template_data: Dict[str, str] = {}
