@@ -736,13 +736,123 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		}
 	}
 
+	function valueInput(ui: Zui, handle: Handle,type:Int) {
+		var text = ui.textInput(handle);
+		handle.value = Std.parseFloat(text);
+		return handle.value;
+	}
+	var types:Array<String> = ["Int","Bool","Float","String","Vector2i","Vector2b","Vector2"];
+	function multiDraw(ui:Zui,propName:String,handle:Handle,type:Int) {
+		type == 3 ? ui.textInput(handle) : valueInput(ui,handle,type);
+		if(handle.changed){
+			var validFloat = ((type == 2 || type == 6) && Std.parseFloat(handle.text) != Math.NaN);
+			var validInt = ((type == 0 || type == 4) && Std.parseInt(handle.text) != null);
+			if(type == 3 || validFloat || validInt){
+				if(validFloat){
+					handle.text = Std.string(Util.fround(handle.value,2));
+				}
+				if(validInt){
+					handle.text = Std.string(Math.round(handle.value));
+				}
+				return;
+			}
+			handle.changed = false;
+			warn('Prop: $propName was not set because '+handle.text +" was entered");
+			return;
+		}
+	}
 	function drawTrait(handle:Handle, i:Int) {
 		var trait = currentObject.raw.traits[i];
 		if (trait != null) {
+			ui.row([0.75,0.25]);
 			ui.text(trait.classname);
+			var changed = false;
+			if(ui.button("New prop")){
+				var def:String = "default:0:0";
+				if(trait.props == null){
+					trait.props = [def];
+				}
+				else{
+					trait.props.push(def);
+				}
+				changed = true;
+			}
 			if(trait.props != null){
-				for(p in trait.props)
-					ui.text(p);
+				var mainH:Handle = Id.handle();
+				for(i in 0...trait.props.length){
+					var prop = trait.props[i].split(":");
+					var value = Std.parseInt(prop[1]);
+					value >= 4 ? ui.row([0.25,0.08,0.12,0.08,0.12,0.25,0.1]): ui.row([0.3,0.3,0.3,0.1]);
+					var h:Handle = mainH.nest(i);
+					h.text = prop[0];
+					ui.textInput(h);
+					if(h.changed){
+						prop[0] = h.text;
+						changed = true;
+					}
+					var h1 = h.nest(0);
+					var h2 = h.nest(1);
+					switch(value){
+						case 0 | 2 | 3:
+							h1.text = prop[2];
+							multiDraw(ui,h.text,h1,value);
+							if(h1.changed){
+								prop[2] = h1.text;
+								changed = true;
+							}
+						case 1:
+							h1.selected = Std.parseInt(prop[2]) == 1;
+							ui.check(h1,'');
+							if(h1.changed){
+								prop[2] = h1.selected ? "1":"0";
+								changed = true;
+							}
+						case 4 | 6:
+							var vprop = prop[2].split("|");
+							h1.text = vprop[0];
+							h2.text = vprop[1];
+							ui.text('x');
+							multiDraw(ui,h.text + ' x',h1,value);
+							ui.text('y');
+							multiDraw(ui,h.text + ' y',h2,value);
+							if(h1.changed){
+								vprop[0] = h1.text;
+								changed = true;
+							}
+							if(h2.changed){
+								vprop[1] = h2.text;
+								changed = true;
+							}
+							prop[2] = vprop.join("|");
+
+					}
+					var h3 = h.nest(2);
+					h3.position = value;
+					var type = ui.combo(h3,types);
+					if(h3.changed){
+						prop[1] = Std.string(type);
+						if(type >= 4){
+							prop[2] = "0|0";
+						}
+						else if(type == 3){
+							prop[2] = "";
+						}
+						else{
+							prop[2] = "0";
+						}
+						changed = true;
+					}
+					if(ui.button("-")){
+						trait.props.splice(i,1);
+						currentObject.dataChanged = true;
+						break;
+					}
+					trait.props[i] = prop.join(":");
+					if(changed){
+						currentObject.dataChanged = changed;
+						EditorHierarchy.getInstance().makeDirty();
+					}
+				}
 			}
 		}
 	}
