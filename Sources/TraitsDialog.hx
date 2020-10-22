@@ -1,3 +1,4 @@
+import found.Trait;
 import kha.Blob;
 import khafs.Fs;
 import found.App;
@@ -52,7 +53,8 @@ class TraitsDialog {
 		ui.textInput(textInputHandle, "Script Name");
 		var selectedTraitTypeIndex:Int = ui.combo(comboBoxHandle, traitTypes, "Trait Type");
 		if (textInputHandle.text != "") {
-			if (camelCaseRegex.match(textInputHandle.text) && camelCaseRegex.matched(0) == textInputHandle.text) {
+			var text:String = textInputHandle.text;
+			if (camelCaseRegex.match(text) && camelCaseRegex.matched(0) == text #if kha_debug_html5 || text.endsWith("_vhx") #end ) {
 				fullFileName = traitsFolderPath + textInputHandle.text + "." + traitTypeExtensions[selectedTraitTypeIndex];
 				ui.text(fullFileName);
 			} else {
@@ -63,7 +65,8 @@ class TraitsDialog {
 		
 		ui.row([0.5, 0.5]);
 		if (ui.button("Add")) {
-			if (camelCaseRegex.match(textInputHandle.text) && camelCaseRegex.matched(0) == textInputHandle.text) {
+			var text:String = textInputHandle.text;
+			if (camelCaseRegex.match(text) && camelCaseRegex.matched(0) == text #if kha_debug_html5 || text.endsWith("_vhx") #end) {
 				var trait:TTrait = findExistingTrait(textInputHandle.text, arrayOfTraits);
 
 				if (trait != null) {
@@ -101,7 +104,7 @@ class TraitsDialog {
 		var files:Array<String> = Fs.readDirectory(traitsFolderPath);
 		for (file in files) {
 			var traitType:String = "";
-			var t:Array<String> = file.split(".");
+			var t:Array<String> = #if !kha_debug_html5 file.split(".")#else file.split("_")#end;
 			var fileExtension = t[t.length - 1];
 			if (fileExtension == "vhx") {
 				traitType = "VisualScript";
@@ -109,7 +112,7 @@ class TraitsDialog {
 				traitType = "Script";
 			}
 
-			arrayOfTraits.push({type: traitType, classname: traitsFolderPath + file});
+			arrayOfTraits.push({type: traitType, classname: #if !kha_debug_html5 traitsFolderPath +#end file});
 		}
 
 		return arrayOfTraits;
@@ -203,6 +206,10 @@ class TraitsDialog {
 
 	@:access(found.Scene)
 	static function saveTraitOnCurrentObject(trait:TTrait) {
+		if(Trait.hasTrait(trait.classname)){
+			var props:Array<String> = Trait.getProps(trait.classname);
+			trait.props = props;
+		}
 		Scene.createTraits([trait], App.editorui.inspector.currentObject);
 		var currentObject = App.editorui.inspector.currentObject;
 		if (currentObject.raw.traits != null) {

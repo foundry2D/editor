@@ -1,3 +1,4 @@
+import found.Trait;
 import echo.data.Options.ShapeOptions;
 import echo.Shape;
 import echo.Body;
@@ -14,9 +15,7 @@ import zui.Id;
 import zui.Zui;
 import zui.Ext;
 
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/editor-inspector.xml"))
 class EditorInspector implements EditorHierarchyObserver extends Tab {
-	// Unnecessary?
 	var ui:Zui;
 
 	var changed = false;
@@ -768,25 +767,27 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			ui.text(trait.classname);
 			var changed = false;
 			if(ui.button("New prop")){
-				var def:String = "default:0:0";
+				var def:String = "default~0~0";
 				if(trait.props == null){
 					trait.props = [def];
 				}
 				else{
 					trait.props.push(def);
 				}
+				updateAllRelativeProps(trait.classname,def,true);
 				changed = true;
 			}
 			if(trait.props != null){
 				var mainH:Handle = Id.handle();
 				for(i in 0...trait.props.length){
-					var prop = trait.props[i].split(":");
+					var prop = trait.props[i].split("~");
 					var value = Std.parseInt(prop[1]);
 					value >= 4 ? ui.row([0.25,0.08,0.12,0.08,0.12,0.25,0.1]): ui.row([0.3,0.3,0.3,0.1]);
 					var h:Handle = mainH.nest(i);
 					h.text = prop[0];
 					ui.textInput(h);
 					if(h.changed){
+						renameAllRelativeProps(trait.classname,prop[0],h.text);
 						prop[0] = h.text;
 						changed = true;
 					}
@@ -824,7 +825,21 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 								changed = true;
 							}
 							prop[2] = vprop.join("|");
-
+						case 5:
+							var vprop = prop[2].split("|");
+							h1.selected = Std.parseInt(vprop[0]) == 1;
+							h2.selected = Std.parseInt(vprop[1]) == 1;
+							ui.check(h1,'');
+							ui.check(h2,'');
+							if(h1.changed){
+								vprop[0] = h1.selected ? "1":"0";
+								changed = true;
+							}
+							if(h2.changed){
+								vprop[1] = h2.selected ? "1":"0";
+								changed = true;
+							}
+							prop[2] = vprop.join("|");
 					}
 					var h3 = h.nest(2);
 					h3.position = value;
@@ -843,17 +858,69 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 						changed = true;
 					}
 					if(ui.button("-")){
-						trait.props.splice(i,1);
+						updateAllRelativeProps(trait.classname,trait.props.splice(i,1)[0]);
 						currentObject.dataChanged = true;
+						EditorHierarchy.getInstance().makeDirty();
 						break;
 					}
-					trait.props[i] = prop.join(":");
+					trait.props[i] = prop.join("~");
 					if(changed){
 						currentObject.dataChanged = changed;
 						EditorHierarchy.getInstance().makeDirty();
 					}
 				}
 			}
+		}
+	}
+	
+	@:access(found.Trait)
+	function renameAllRelativeProps(classname:String,from:String,to:String){
+		for(object in found.State.active._entities){
+			if(object.raw.traits == null) continue;
+			for(trait in object.raw.traits){
+				if(trait.classname == classname){
+					for(i in 0... trait.props.length){
+						trait.props[i] = trait.props[i].replace(from,to);
+					}
+				}
+			}
+		}
+		var out:Array<String>= [];
+		for(prop in Trait.getProps(classname)){
+			out.push(prop.replace(from,to));
+		}
+		Trait.props.set(classname,out);
+	}
+
+	@:access(found.Trait)
+	function updateAllRelativeProps(classname:String,addOrRmData:String,isAdd:Bool = false){
+		var finalTrait:Null<TTrait> = null;
+		for(object in found.State.active._entities){
+			if(object.raw.traits == null) continue;
+			for(trait in object.raw.traits){
+				if(trait.classname == classname && finalTrait == null)finalTrait = trait;
+				if(trait.classname == classname && currentObject != object){
+					if(isAdd){
+						trait.props.push(addOrRmData);
+					}
+					else{
+						var propName = addOrRmData.split("~")[0];
+						var out:Array<String> = [];
+						for(i in 0...trait.props.length){
+							if(trait.props[i].split("~")[0] != propName){
+								out.push(trait.props[i]);
+							}
+						}
+						trait.props = out;
+					}	
+				}
+			}
+		}
+		if(isAdd){
+			Trait.addProps(classname,[addOrRmData]);
+		}
+		else{
+			Trait.removeProps(classname,[addOrRmData]);
 		}
 	}
 
