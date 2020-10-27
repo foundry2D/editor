@@ -55,7 +55,7 @@ class Config {
 			#end
 
 			raw.version = Data.version+"";
-			raw.sha = Main.sha;
+			raw.sha = found.Found.sha;
 			raw.bookmarks = [];
 			raw.plugins = [];
 			raw.keymap = "default.json";

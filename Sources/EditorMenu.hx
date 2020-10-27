@@ -184,7 +184,7 @@ class EditorMenu {
                 Url.explorer("https://github.com/foundry2D/foundry2d/issues");
             }
             if (ui.button("      " + tr("Report Bug"), Left)) {
-                var url = "https://github.com/foundry2D/foundry2d/issues/new?labels=bug&template=bug_report.md&body=*Foundry2d%20" + Data.version + "-" + Main.sha + ",%20" + System.systemId + "*";
+                var url = "https://github.com/foundry2D/foundry2d/issues/new?labels=bug&template=bug_report.md&body=*Foundry2d%20" + Data.version + "-" + found.Found.sha + ",%20" + System.systemId + "*";
                 Url.explorer(url);
             }
         }
