@@ -9,4 +9,5 @@ project.addDefine("editor");
 project.addDefine("tile_editor");
 var platform = '"'+process.argv[2]+'"';
 project.addParameter(`--macro ListTraits.init(${platform})`)
+project.icon = "icon.png"
 resolve(project);
