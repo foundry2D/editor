@@ -47,7 +47,9 @@ class EditorPanel implements View {
     public function render(ui:zui.Zui,element:TElement):Void{
         if(this.element == null)
             this.element = element;
-        
+        if(tabs.length > 0){
+            windowHandle.layout = tabs[htab.position].layout;
+        }
         if(ui.window(windowHandle,x,y,w,h)){
             for (tab in tabs){
                 tab.render(ui);
