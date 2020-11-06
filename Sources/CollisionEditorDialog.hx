@@ -28,11 +28,14 @@ class CollisionEditorDialog {
 	public static function open(?p_sprite:Sprite,?p_tile:Tile) {
 		sprite = p_sprite;
 		tile = p_tile;
-		if(sprite != null){
+		if(sprite != null && sprite.raw.type == "sprite_object"){
 			image = p_sprite.data.image;
 		}
 		else if(tile != null){
 			shouldTileInit = true;
+		}
+		else if (sprite != null && sprite.raw.type == "object"){
+			image = Image.create(Std.int(sprite.width),Std.int(sprite.height));
 		}
 		else {
 			error("CollisionEditor can not be opened without a Tile or a Sprite");
@@ -61,8 +64,8 @@ class CollisionEditorDialog {
 		var initX = ui._x;
 		var data:Dynamic =  sprite != null ? sprite:tile;
 		
-		var _w = sprite != null ? sprite._w: tile._w;
-		var _h = sprite != null ? sprite._h: tile._h;
+		var _w = sprite != null ? sprite.raw.type == "sprite_object" ? sprite._w : sprite.width: tile._w;
+		var _h = sprite != null ? sprite.raw.type == "sprite_object" ? sprite._h:sprite.width: tile._h;
 
 		var shapes:Array<echo.data.Options.ShapeOptions> = [];
 		if(sprite != null && data.raw.rigidBody.shapes != null){
