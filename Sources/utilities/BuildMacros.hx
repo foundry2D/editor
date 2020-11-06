@@ -10,6 +10,14 @@ class BuildMacros {
 
 	macro public static function sha():ExprOf<String> {
 		var proc = new sys.io.Process("git", ["log", "--pretty=format:'%h'", "-n", "1"]);
-		return Context.makeExpr(proc.stdout.readLine(), Context.currentPos());
+		var text = "";
+		try {
+			text = proc.stdout.readLine();
+		}
+		catch (e) {
+			text = proc.stderr.readAll().toString();
+			throw text;
+		}
+		return Context.makeExpr(text, Context.currentPos());
 	}
 }

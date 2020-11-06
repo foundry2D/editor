@@ -221,11 +221,11 @@ class EditorHierarchy extends Tab {
 	@:access(found.object.Object, found.object.Executor, found.Scene)
 	function rmvData2Scn(uid:Int) {
 		found.State.active.raw._entities.splice(uid, 1);
-		var entity = found.State.active._entities.splice(uid, 1);
-		entity[0].active = false;
+		var entity = found.State.active._entities[uid];
+		entity.spawned = true;//Will make it so we really delete it and call onRemove for Traits.
+		found.State.active.remove(entity);
 
 		if (found.State.active.physics_world != null) {
-			entity[0].body = null; // We remove the bodies from the world in the set_body
 			found.State.active.physics_world.reset_quadtrees();
 		}
 
