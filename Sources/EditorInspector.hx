@@ -192,7 +192,6 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 
 		if (objectNameHandle.changed && objectNameHandle.text != "") {
 			selectedObjectData.name = objectNameHandle.text;
-			currentObject.name = objectNameHandle.text;
 			currentObject.dataChanged = true;
 			changed = true;
 		}
