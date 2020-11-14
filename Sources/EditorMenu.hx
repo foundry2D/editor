@@ -56,7 +56,7 @@ class EditorMenu {
     static var camControlUpHandle:Handle = Id.handle();
     static var camControlDownHandle:Handle = Id.handle();
     static final menuItemsCount = [6, 2, 3,5, 3];
-    @:access(zui.Zui,EditorUi)
+    @:access(zui.Zui,EditorUi,EditorHierarchy)
     public static function render(g:kha.graphics2.Graphics){
 
         var ui = found.Found.popupZuiInstance;
@@ -121,7 +121,7 @@ class EditorMenu {
         }
         else if (menuCategory == MenuEdit) {
             if (ui.button("      " + tr("Scene Settings"), Left)){
-                trace("Implement me");
+                EditorHierarchy.instance.onSceneSelected();
             }
             if (ui.button("      " + tr("Preferences..."), Left, Config.keymap.edit_prefs)){
                 show = false;

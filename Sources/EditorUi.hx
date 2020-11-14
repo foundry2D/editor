@@ -236,10 +236,10 @@ class EditorUi extends Trait{
                     State.active.cam.position.y+=mouse.distY;
                 }
             }
-            if(inSceneView && mouse.down("left")){
+            if(inSceneView && mouse.down("left") && mouse.moved){
                 updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
             }
-            else{
+            else if(!mouse.down("left") || !inSceneView){
                 arrow = -1;
             }
         }
@@ -373,7 +373,12 @@ class EditorUi extends Trait{
     
     function saveSceneAs() {
         FileBrowserDialog.open(function(path:String){
+            //@TODO: Add more checks to make sure user passed a valid path.
+            if(!path.endsWith('.json')){
+                path += '.json';
+            }
             scenePath = path;
+            EditorHierarchy.getInstance().makeDirty();
             this.saveSceneData();
         },projectPath);
     }
