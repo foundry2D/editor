@@ -32,7 +32,7 @@ class ProjectCreator {
 
         ui.text(tr("Location"));
         ui.row([0.75,0.25]);
-        ui.textInput(pathInputHandle);
+        ui.text(pathInputHandle.text);
         if(ui.button("...")){
             onBrowse();
         }
@@ -58,7 +58,7 @@ class ProjectCreator {
     }
     
     static function createProject(){
-        var p = pathInputHandle.text;
+        var p = pathInputHandle.text == '' ? '.' : pathInputHandle.text; 
         if(Fs.isDirectory(p)){
             var outp = p;
             var type = typeHandle.position == 0 ? Type.twoD: Type.threeD;
@@ -76,6 +76,8 @@ class ProjectCreator {
         var done = function(passedPath:String){
             if(passedPath != "")
                 pathInputHandle.text = passedPath;
+            else 
+                pathInputHandle.text = '.';
             ProjectCreator.open(onDone);
             zui.Popup.show = true;
         }

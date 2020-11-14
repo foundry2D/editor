@@ -189,7 +189,7 @@ class ManagerView extends CanvasScript {
         #if kha_html5
         Fs.curDir = EditorUi.cwd;
         Fs.onInputDone = function(lastPath:String){
-            if(!StringTools.endsWith(lastPath,".zip")){trace('Is not a zip file: $lastPath ');return;}
+            if(!StringTools.endsWith(lastPath,".zip")){error('Is not a zip file: $lastPath ');return;}
             var p = lastPath.split(Fs.sep);
             p.pop();
             var path = p.join(Fs.sep);
@@ -209,10 +209,8 @@ class ManagerView extends CanvasScript {
                         dirPath = t.join(Fs.sep);
                         if(!Fs.isDirectory(dirPath)){
                             Fs.createDirectory(dirPath);
-                        }
-                        else {
-                            Fs.saveContent(path + Fs.sep + entry.fileName,data.toString());
-                        }
+                        }                            
+                        Fs.saveContent(path + Fs.sep + entry.fileName,data.toString());
                     }
                     else {
                         var fname = entry.fileName;
