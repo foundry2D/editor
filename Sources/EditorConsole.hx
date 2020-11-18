@@ -14,6 +14,17 @@ class EditorConsole extends Tab {
     var typeImages:Array<kha.Image> = [];
     var outputTypes:Array<String>;
     final options:zui.Ext.ListOpts;
+    function isBaseType(v:Dynamic){
+        if(Std.isOfType(v,Int))
+            return true;
+        if(Std.isOfType(v,String))
+            return true;
+        if(Std.isOfType(v,Float))
+            return true;
+        if(Std.isOfType(v,Array))
+            return true;
+        return false;
+    }
     function log(v:Dynamic, ?infos:Null<haxe.PosInfos>){
         var type = 0; 
         if (infos != null && infos.customParams != null){
@@ -35,7 +46,7 @@ class EditorConsole extends Tab {
         }
         if(active)
             redraw();
-        var str =  Std.isOfType(v,String) ? haxe.Log.formatOutput(v,infos) : formatNonString(v);
+        var str =  isBaseType(v) ? haxe.Log.formatOutput(v,infos) : formatNonString(v);
         content.push({type:type,content: str});
     }
     function formatNonString(data:Dynamic){

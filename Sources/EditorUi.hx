@@ -236,7 +236,7 @@ class EditorUi extends Trait{
                     State.active.cam.position.y+=mouse.distY;
                 }
             }
-            if(inSceneView && mouse.down("left") && mouse.moved){
+            if(inSceneView && mouse.down("left") && (mouse.moved || keyboard.down("control"))){
                 updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
             }
             else if(!mouse.down("left") || !inSceneView){
@@ -267,6 +267,8 @@ class EditorUi extends Trait{
     public static var arrowMode:Int = 0;// 0 = Move; 1 = Scale
     var lastMX:Float;
     var lastMY:Float;
+    var distX:Float;
+    var distY:Float;
     @:access(EditorInspector)
     public function updateMouse(x:Float,y:Float,cx:Float,cy:Float){
         if(inspector.index==-1)return;
@@ -283,21 +285,42 @@ class EditorUi extends Trait{
 
         if(doUpdate){
             if(arrowMode == 0 || arrow == 2){
-                var canUpdate = Math.abs(lastMX - mouse.x) > Found.GRID || Math.abs(lastMY - mouse.y) > Found.GRID;
+                var canUpdate = Math.abs(distX) > Found.GRID || Math.abs(distY) > Found.GRID;
                 var ctrl = keyboard.down("control");
                 if(ctrl && canUpdate){
                     if(arrow == 0){
-                        px *= lastMX - mouse.x > 0 ? 1:-1;
+                        px = distX > 0 ? px: px + distX;
                     }
                     else if(arrow == 1){
-                        py *= lastMY - mouse.y > 0 ? 1:-1;
+                        py = distY > 0 ? py: py + distY;
+                    }
+                    else {
+                        if(Math.abs(distX) > Found.GRID){
+                            px = distX > 0 ? px: px + distX;
+                            distX = 0;
+                        }
+                        else
+                            px = 0;
+                        if(Math.abs(distY) > Found.GRID){
+                            py = distY > 0 ? py: py + distY;
+                            distY = 0;
+                        }
+                        else
+                            py = 0;
                     }
                     updatePos(px,py,true);
-                    lastMX = mouse.x;
-                    lastMY = mouse.y;
+                    if(arrow < 2){
+                        distX = 0;
+                        distY = 0;
+                    }
+                    
                 }
                 else if(!ctrl) {
                     updatePos(px,py,false);
+                }
+                else{//Accumulate for grid movement
+                    distX += px;
+                    distY += py;
                 }
 
             }
