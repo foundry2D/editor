@@ -11,7 +11,7 @@ class GridSizeDialog {
     static var map:Tilemap;
     public static function open(p_map:Tilemap) {
         map = p_map;
-        zui.Popup.showCustom(Found.popupZuiInstance, gridSizePopupDraw, -1, -1, 600, 500);
+        zui.Popup.showCustom(Found.popupZuiInstance, gridSizePopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
         TileEditor.ui.enabled = false;
     }
 

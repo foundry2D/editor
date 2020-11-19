@@ -37,7 +37,7 @@ class EditorMenu {
     public static var menuW = 0;
     public static var menuH(get,null):Float;
     static function get_menuH() {
-        return 28 * menuItemsCount[menuCategory];
+        return  found.Found.popupZuiInstance.ELEMENT_H() * menuItemsCount[menuCategory];
     }
 	public static var menuElements = 0;
 	public static var keepOpen = false;
@@ -66,15 +66,14 @@ class EditorMenu {
         var BUTTON_COL = ui.t.BUTTON_COL;
 		ui.t.BUTTON_COL = ui.t.SEPARATOR_COL;
 		var ELEMENT_OFFSET = ui.t.ELEMENT_OFFSET;
-		ui.t.ELEMENT_OFFSET = 0;
-        var ELEMENT_H = ui.t.ELEMENT_H;
-        ui.t.ELEMENT_H = 28;
+        ui.t.ELEMENT_OFFSET = 0;
+        
         g.begin(false);
         ui.beginRegion(g, menuX, menuY, menuW);
 
         var sepw = menuW / ui.SCALE();
         ui.g.color = ui.t.SEPARATOR_COL;
-        ui.g.fillRect( menuX, menuY, menuW, menuH * ui.SCALE());
+        ui.g.fillRect( menuX, menuY, menuW, menuH);
         
         //Begin
         
@@ -198,7 +197,6 @@ class EditorMenu {
 
 		ui.t.BUTTON_COL = BUTTON_COL;
 		ui.t.ELEMENT_OFFSET = ELEMENT_OFFSET;
-		ui.t.ELEMENT_H = ELEMENT_H;
         ui.endRegion();
         g.end();
     }

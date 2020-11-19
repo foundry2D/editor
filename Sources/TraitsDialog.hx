@@ -21,7 +21,7 @@ class TraitsDialog {
 	public static function open() {
 		traitsFolderPath = EditorUi.projectPath + "/Sources/Scripts/";
 		textInputHandle.text = "NewTrait";
-		zui.Popup.showCustom(Found.popupZuiInstance, traitCreationPopupDraw, -1, -1, 600, 500);
+		zui.Popup.showCustom(Found.popupZuiInstance, traitCreationPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
 	}
 
 	@:access(zui.Zui, zui.Popup)

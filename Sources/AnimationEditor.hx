@@ -233,8 +233,8 @@ class AnimationEditor {
                     doUpdate = false;
                     timelineHandle.redraws = 2;
                 }
-
-                ui.row([0.75,0.25]);
+                var div = (ui.ELEMENT_W()/parent.w) * 2;
+                ui.row([1.0- div,div]);
 
                 ui.panel(Id.handle({selected: true}),'',false,false,false);
                 var oldY = ui._y;
@@ -289,7 +289,7 @@ class AnimationEditor {
                     var frameWidth = 10 * sc;
                     ui._x = frame.start * 11 * sc;
                     ui._y = timelineLabelsHeight*0.5 + timelineFramesHeight*0.5+frameWidth*0.75;
-                    var state = ui.image(dot,0xffffff00,null,0,0,Std.int(frameWidth*0.5),Std.int(frameWidth*0.5));
+                    var state = ui.image(dot,0xffffffff,frameWidth,0,0,Std.int(frameWidth),Std.int(frameWidth));
                     ui._x = frame.start * 11 * sc;
                     ui._y = timelineLabelsHeight*0.5 + timelineFramesHeight*0.5 + frameWidth*0.75;
                     if(ui.getHover()){
@@ -437,12 +437,12 @@ class AnimationEditor {
             canvas.g2.clear(kha.Color.Transparent);
         }
         function drawDot(){
-            var frameWidth = Std.int(10 * ui.SCALE())*4;
+            var frameWidth = Std.int(10 * ui.SCALE());
             dot = kha.Image.createRenderTarget(frameWidth, frameWidth);
             var g = dot.g2;
             ui.g.end();
-            g.begin(true);
-            g.color = kha.Color.Red;
+            g.begin(true,kha.Color.Transparent);
+            g.color = kha.Color.fromString("#FFE8432E");
             g.fillTriangle(0,frameWidth,frameWidth*0.5,0,frameWidth,frameWidth);
             g.end();
             ui.g.begin(false);

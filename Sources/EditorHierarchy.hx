@@ -35,7 +35,7 @@ class EditorHierarchy extends Tab {
 	private function new() {
 		super(tr("Hierarchy"));
 
-		setSceneData(found.State.active.raw, true);
+		setSceneData(found.State.active.raw);
 	}
 
 	public static function getInstance():EditorHierarchy {
@@ -68,9 +68,10 @@ class EditorHierarchy extends Tab {
 		}
 	}
 
-	public function setSceneData(raw:TSceneFormat, onBoot:Bool = false) {
+	public function setSceneData(raw:TSceneFormat) {
 		sceneName = raw.name;
 		scene = raw;
+		redraw();
 	}
 
 	public function makeDirty() {
@@ -143,7 +144,7 @@ class EditorHierarchy extends Tab {
 				i = itemDrawCb(ui, itemHandle, i, scene._entities);
 			}
 			if (ui.button(tr("New Object"))) {
-				zui.Popup.showCustom(Found.popupZuiInstance, objectCreationPopupDraw, -1, -1, 600, 500);
+				zui.Popup.showCustom(Found.popupZuiInstance, objectCreationPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
 			}
 		}
 	}

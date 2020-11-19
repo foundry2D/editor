@@ -19,7 +19,7 @@ class FileBrowserDialog {
     public static function open(onDone:String->Void,?currentPath:String = ""){
         doneCallback = onDone;
         fbHandle.text = currentPath != "" ? currentPath : EditorUi.cwd; 
-        zui.Popup.showCustom(Found.popupZuiInstance, fileBrowserPopupDraw, -1, -1, 600, 500);
+        zui.Popup.showCustom(Found.popupZuiInstance, fileBrowserPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
     }
     static var doneCallback:String->Void = function(path:String){};
     static var fbHandle:Handle = Id.handle();

@@ -12,7 +12,7 @@ class ProjectCreator {
 
     public static function open(done:Void->Void){
         onDone = done;
-        zui.Popup.showCustom(Found.popupZuiInstance, projectCreatorPopupDraw, -1, -1, 600, 500);
+        zui.Popup.showCustom(Found.popupZuiInstance, projectCreatorPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
     }
 
     static var pathInputHandle = Id.handle();

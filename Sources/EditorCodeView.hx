@@ -69,6 +69,7 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 				if (currentlyDisplayedTrait.type != "VisualScript") {
 					visualEditor.visible = false;
 					var isEditable:Bool = StringTools.endsWith(currentlyDisplayedTrait.classname, ".hx");
+
 					Ext.textArea(ui, codeScriptTextAreaHandle, zui.Zui.Align.Left, isEditable);
 				} else {
 					visualEditor.visible = true;

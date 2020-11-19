@@ -1,8 +1,6 @@
 package;
 
-
 import kha.Assets;
-import found.trait.internal.LoadingScript;
 import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
@@ -118,6 +116,17 @@ class EditorUi extends Trait{
         },fsFiletypeExceptions);
 
     }
+    @:access(EditorView)
+    public function redraw() {
+        for (view in editor.toDraw){
+            view.redraw();
+        }
+    }
+    
+    public function setUIScale(factor:Float){
+        Found.popupZuiInstance.setScale(factor);
+        ui.setScale(factor);
+    }
     @:access(found.trait.internal.CanvasScript)
     function onResize(w:Int, h:Int){
         
@@ -231,7 +240,7 @@ class EditorUi extends Trait{
                 EditorTools.redrawArrows = true;
             }
             var inSceneView = mouse.x > gameView.x && mouse.y > gameView.y && mouse.x < gameView.x + gameView.width && mouse.y < gameView.y + gameView.height;
-            if(inSceneView && mouse.down("middle") && mouse.moved){
+            if((inSceneView || Found.fullscreen) && mouse.down("middle") && mouse.moved){
                 if(State.active!= null){
                     State.active.cam.position.x+=mouse.distX;
                     State.active.cam.position.y+=mouse.distY;
@@ -407,6 +416,7 @@ class EditorUi extends Trait{
         },projectPath);
     }
 
+    @:access(found.State,EditorHierarchy)
     function openScene(){
         var done = function(path:String){
             if(path == "")return;
@@ -416,7 +426,15 @@ class EditorUi extends Trait{
             if(StringTools.contains(name,".json") && Fs.exists(path)){
                 name = StringTools.replace(name,'.json',"");
                 scenePath = path;
-                found.State.set(name,this.init);//
+                if(!found.State._states.exists(name)){
+                    found.State.addState(name,scenePath);
+                }
+                
+                hierarchy.onSceneSelected();
+                found.State.set(name,function(){
+                    hierarchy.setSceneData(found.State.active.raw);
+                    hierarchy.onSceneSelected();
+                });
 
             }
             else{

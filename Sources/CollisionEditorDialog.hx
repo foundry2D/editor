@@ -43,7 +43,7 @@ class CollisionEditorDialog {
 			zui.Popup.show = false;
 		}
 		found.App.editorui.ui.enabled = false;
-		zui.Popup.showCustom(Found.popupZuiInstance, collisionEditorPopupDraw, -1, -1, 600, 500);
+		zui.Popup.showCustom(Found.popupZuiInstance, collisionEditorPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
 	}
 	@:access(found.anim.Tile)
 	static function initTileImage(ui:Zui){

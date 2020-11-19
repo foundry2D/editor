@@ -65,6 +65,9 @@ class EditorPanel implements View {
             r(ui);
         }
     }
+    public function redraw() {
+        htab.redraws = windowHandle.redraws = 2;
+    }
     public function addTab(tab:Tab){
         if(tabs.indexOf(tab) == -1){
             tab.position = tabs.push(tab)-1;

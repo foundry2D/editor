@@ -1,5 +1,6 @@
 package;
 
+import found.App;
 import zui.Zui;
 import zui.Id;
 import found.Found;
@@ -17,11 +18,13 @@ class ConfigSettingsDialog {
             }
             index++;
         }
-        zui.Popup.showCustom(Found.popupZuiInstance, configSettingsPopupDraw, -1, -1, 600, 500);
+        zui.Popup.showCustom(Found.popupZuiInstance, configSettingsPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
     }
     static var localeHandle:Handle = Id.handle();
     static var languages:Array<String> = [];
     static var playModeHandle = Id.handle();
+    static var uiScaleHandle = Id.handle();
+    static var changedScale = false;
     @:access(zui.Zui, zui.Popup)
     static function configSettingsPopupDraw(ui:Zui){
         zui.Popup.boxTitle = tr("Edit Config Settings");
@@ -37,6 +40,14 @@ class ConfigSettingsDialog {
         if(playModeHandle.changed){
             Config.raw.defaultPlayMode = value;
         }
+
+        uiScaleHandle.value = Config.raw.window_scale != null ? Config.raw.window_scale : 1.0; 
+        var factor = ui.slider(uiScaleHandle,"Ui scale",0.75,1.2,true);
+        if(uiScaleHandle.changed){
+            Config.raw.window_scale = factor;
+            changedScale = true;
+        }
+
         var border = zui.Popup.borderW*2 +zui.Popup.borderOffset;
 
         ui._y = ui._h - ui.t.BUTTON_H - ui.t.ELEMENT_H - border;
@@ -48,9 +59,15 @@ class ConfigSettingsDialog {
 		if (ui.button("Save Settings")) {
             zui.Popup.show = false;
             Config.save();
+            if(changedScale){
+                App.editorui.setUIScale(factor);
+                App.editorui.redraw();
+            }
+            changedScale = false;
         }
         if (ui.button("Cancel")) {
             zui.Popup.show = false;
+            changedScale = false;
         }
     }
 }

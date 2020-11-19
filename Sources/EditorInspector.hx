@@ -113,6 +113,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			traitListHandle.nest(0).position = 0;
 		} else {
 			selectedObjectData = null;
+			index = i;
 		}
 
 		redraw();
@@ -122,6 +123,8 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		selectedObjectData = null;
 
 		selectedSceneData = found.State.active.raw;
+
+		index = -1;
 
 		redraw();
 	}
@@ -208,8 +211,9 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			currentObject.dataChanged = true;
 			changed = true;
 		}
-
-		ui.row([0.1, 0.45, 0.45]);
+		var div = ui.ELEMENT_W()/parent.w;
+		var row = (1.0 - div * 0.2) * 0.5;
+		ui.row([div * 0.2,row,row]);
 		ui.text("P");
 		xPosHandle.value = Util.fround(selectedObjectData.position.x, 2);
 		var px = Ext.floatInput(ui, xPosHandle, "X", Align.Right);
@@ -227,7 +231,8 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			currentObject.dataChanged = true;
 			changed = true;
 		}
-		ui.row([0.1, 0.9]);
+
+		ui.row([div * 0.2, 1.0 - div * 0.2]);
 		ui.text("R");
 		zRotHandle.value = selectedObjectData.rotation.z;
 		var rz = Math.abs(Ext.floatInput(ui, zRotHandle, "", Align.Right));
@@ -238,7 +243,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			currentObject.dataChanged = true;
 			changed = true;
 		}
-		ui.row([0.1, 0.45, 0.45]);
+		ui.row([div * 0.2,row,row]);
 		ui.text("S");
 		xScaleHandle.value = Util.fround(selectedObjectData.scale != null ? selectedObjectData.scale.x : 1.0, 2);
 		var sx = Ext.floatInput(ui, xScaleHandle, "X", Align.Right);
@@ -257,7 +262,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			currentObject.dataChanged = true;
 			changed = true;
 		}
-		ui.row([0.15, 0.85]);
+		ui.row([div * 0.5, 1.0 - div * 0.5]);
 		ui.text("Layer: ");
 		if (found.State.active.raw.layers != null) {
 			layerHandle.position = selectedObjectData.layer;
@@ -271,7 +276,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			var isZsort:Null<Bool> = found.State.active.raw._Zsort;
 			if (isZsort != null && isZsort) {
 				ui.indent();
-				ui.row([0.35, 0.65]);
+				ui.row([div, 1.0 - div]);
 				ui.text("Order in layer:");
 				depthHandle.value = selectedObjectData.depth;
 				var depth = Ext.floatInput(ui, depthHandle);
@@ -289,7 +294,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			}
 		}
 
-		ui.row([0.5, 0.5]);
+		ui.row([div, div]);
 		wHandle.value = selectedObjectData.width;
 		var width = Ext.floatInput(ui, wHandle, "Width: ", Align.Right);
 		if (wHandle.changed) {
@@ -310,7 +315,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 
 		if (Reflect.hasField(selectedObjectData, "imagePath")) {
 			var sprite:TSpriteData = cast(selectedObjectData);
-			ui.row([0.75, 0.25]);
+			ui.row([1.0 - div * 0.5, div * 0.5]);
 			imagePathHandle.text = sprite.imagePath;
 			var path = ui.textInput(imagePathHandle, "Image:", Align.Right);
 			if (imagePathHandle.changed) {
@@ -759,23 +764,35 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			return;
 		}
 	}
+	@:access(zui.Zui)
 	function drawTrait(handle:Handle, i:Int) {
+		var div = ui.ELEMENT_W() / parent.w;
 		var trait = currentObject.raw.traits[i];
 		if (trait != null) {
-			ui.row([0.75,0.25]);
+			ui.row([1.0 - div * 0.75,div * 0.75]);
+			var fntSize = ui.FONT_SIZE();
+			var elemH = ui.t.ELEMENT_H;
+			ui.t.ELEMENT_H = ui.fontSize = Std.int(fntSize * 0.65);
 			ui.text(trait.classname);
+			ui.fontSize = fntSize;
+			ui.t.ELEMENT_H = elemH;
 			var changed = false;
-			if(ui.button("New prop")){
-				var def:String = "default~0~0";
-				if(trait.props == null){
-					trait.props = [def];
+			// if(trait.type == "VisualScript"){//@TODO: Validate that we can make props for internal scripts or precompiled scripts.
+				if(ui.button("New prop")){
+					var def:String = "default~0~0";
+					if(trait.props == null){
+						trait.props = [def];
+					}
+					else{
+						trait.props.push(def);
+					}
+					updateAllRelativeProps(trait.classname,def,true);
+					changed = true;
 				}
-				else{
-					trait.props.push(def);
-				}
-				updateAllRelativeProps(trait.classname,def,true);
-				changed = true;
-			}
+			// }
+			// else {
+			// 	ui.text("");
+			// }
 			if(trait.props != null){
 				var mainH:Handle = Id.handle();
 				for(i in 0...trait.props.length){

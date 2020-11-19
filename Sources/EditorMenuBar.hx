@@ -82,4 +82,7 @@ class EditorMenuBar implements View {
 		//This only works if the menu is the first to be drawn; this may be buggy... @:TODO
 		ui.inputEnabled = !EditorMenu.show;
 	}
+	public function redraw() {
+		menuHandle.redraws = 2;
+	}
 }

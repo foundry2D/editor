@@ -108,7 +108,8 @@ class EditorConsole extends Tab {
     override public function render(pui:zui.Zui) {
         this.ui =  pui;
         if (ui.tab(parent.htab,tr(this.name))) {
-            ui.row([0.11,0.11,0.11,0.67]);
+            var div = ui.ELEMENT_W() / parent.w;
+            ui.row([div,div,div,1.0 - div * 3]);
             if(ui.button(tr("Clear"))){
                 clear();
             }

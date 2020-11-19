@@ -22,6 +22,7 @@ class EditorTools {
     }
     @:access(zui.Zui)
     static public function render(ui:zui.Zui,p_x:Float,p_y:Float,resetY:Float){
+        vArrow.size = hArrow.size = rect.size = vertColl.size = ui.ELEMENT_H() * 0.25;
         var x = p_x +ui._x;
         var y = p_y+resetY-vArrow.size;
         
@@ -78,7 +79,7 @@ class Arrow {
     var type:Int =0;// 0 = right 1 = up
     public var x:Float = 0;
     public var y:Float =0;
-    public var size:Float= 8.0;
+    public var size:Float;
     public function new(?type:Int){
         this.type = type;
     }
@@ -95,8 +96,8 @@ class Arrow {
     @:access(zui.Zui)
     public function render2Scene(ui:zui.Zui){
         if(found.App.editorui.inspector.index < 0)return;
-        var w = size*10;
-        var h = w;
+        var w = size * 10;
+        var h = size * 0.25;
         var ty = size;
         if(type == 0){
             if(horizontal == null)
@@ -106,7 +107,7 @@ class Arrow {
                 ui.g.end();
                 horizontal.g2.begin(true,kha.Color.Transparent);
                 horizontal.g2.color = kha.Color.Green;
-                horizontal.g2.fillRect(0,ty,w,2.0);
+                horizontal.g2.fillRect(0,ty,w,h);
                 if(EditorUi.arrowMode == 0){
                     horizontal.g2.fillTriangle(w,ty+size,w,ty+-size,w+size*2,ty);
                 }
@@ -142,9 +143,9 @@ class Arrow {
                 ui.g.end();
                 vertical.g2.begin(true,kha.Color.Transparent);
                 vertical.g2.color = kha.Color.Red;
-                vertical.g2.fillRect(0,ty,w,2.0);
+                vertical.g2.fillRect(0,ty,w,h);
                 if(EditorUi.arrowMode == 0){
-                    vertical.g2.fillTriangle(w,ty+size,w,ty+-size,w+size*2+2.0,ty);
+                    vertical.g2.fillTriangle(w,ty+size,w,ty+-size,w+size*2+h,ty);
                 }
                 else {
                     vertical.g2.fillRect(w,0,size*2,size*2);
