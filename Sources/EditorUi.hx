@@ -71,10 +71,11 @@ class EditorUi extends Trait{
     var keyboard:found.Input.Keyboard;
     var mouse:found.Input.Mouse;
     final fsFiletypeExceptions:Array<String> = [".vhx",".prj"];
+    @:access(ManagerView)
     public function new(){
         super();
         kha.Window.get(0).notifyOnResize(onResize);
-        ui = new Zui({font: kha.Assets.fonts.font_default,autoNotifyInput: false});
+        ui = new Zui({font:kha.Assets.fonts.font_default,theme: zui.Canvas.themes[0]});
         Fs.init(function(){
             Config.load(function() {
                 Config.init();
@@ -92,14 +93,14 @@ class EditorUi extends Trait{
                 
                 if(!Fs.exists(EditorUi.cwd+"/pjml.found")){
                     var projList:Array<TProject> = getLocalProjects();
-                    projectmanager = new ManagerView(projList);
+                    projectmanager = new ManagerView(projList,ui);
                     done();
                 }
                 else {
                     Fs.getContent(EditorUi.cwd+"/pjml.found",function(data:String){
                         var out:{list:Array<TProject>} = haxe.Json.parse(data);
                         out.list = out.list.concat(getLocalProjects());
-                        projectmanager = new ManagerView(out.list);
+                        projectmanager = new ManagerView(out.list,ui);
                         done();
                     });
                     #if kha_html5

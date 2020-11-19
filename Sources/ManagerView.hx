@@ -27,15 +27,16 @@ class ManagerView extends CanvasScript {
         return zui.Canvas.getTheme(this.canvas.theme);
     }
     var ui:zui.Zui;
-    public function new(data:Array<TProject> =null) {
-        super("projectView","font_default.ttf",kha.Assets.blobs.get("projectView_json"),true);
+    public function new(data:Array<TProject> =null,ui:zui.Zui) {
+        super("projectView","font_default.ttf",kha.Assets.blobs.get("projectView_json"));
         if(!Fs.exists(EditorUi.cwd+Fs.sep+"pjml.found")){
             Fs.saveContent(EditorUi.cwd+Fs.sep+"pjml.found",'{"list":[]}');
         }
+        this.ui = ui;
         if(data != null){
             projects = data;
         }
-        ui = new Zui({font:kha.Assets.fonts.font_default});
+
         this.addCustomDraw("List",drawView);
         
         Event.add("onRun",runProject);
