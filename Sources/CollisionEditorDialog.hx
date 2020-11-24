@@ -253,7 +253,6 @@ class CollisionEditorDialog {
 		}
 
 		ui._x = initX;
-		ui._y = ui._h - ui.t.BUTTON_H - border;
 		ui.row([0.33, 0.33,0.33]);
 		if (ui.button("Done")) {
 
@@ -298,10 +297,17 @@ class CollisionEditorDialog {
 		if (ui.button("Cancel")) {
 			exit();
 		}
+
+		ui._y += ui.ELEMENT_OFFSET() * 2;
 	}
 	static function exit(){
 		found.App.editorui.ui.enabled = true;
 		zui.Popup.show = false;
+		if(sprite != null && sprite.body != null){
+			sprite.body.x = sprite.position.x;
+			sprite.body.y = sprite.position.y;
+		}
+
 	}
 	@:access(echo.Shape)
 	static function toOptions(shape:echo.Shape){
