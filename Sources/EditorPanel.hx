@@ -49,7 +49,6 @@ class EditorPanel implements View {
             this.element = element;
         if(tabs.length > 0){
             windowHandle.layout = tabs[htab.position].layout;
-            windowHandle.scrollEnabled = tabs[htab.position].canScroll;
         }
         if(ui.window(windowHandle,x,y,w,h)){
             for (tab in tabs){

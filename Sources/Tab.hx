@@ -10,15 +10,10 @@ class Tab {
     function get_layout(){
         return layout;
     }
-    @:isVar public var canScroll(get,null):Bool;
-    function get_canScroll(){
-        return canScroll;
-    }
-
-    public function new(tabname:String,?p_layout:Layout = Layout.Vertical,?p_canScroll = true){
+    
+    public function new(tabname:String,?p_layout:Layout = Layout.Vertical){
         name = tabname;
         layout = p_layout;
-        canScroll = p_canScroll;
     }
     function get_active(){
         if(parent == null)return false;
