@@ -24,7 +24,7 @@ class EditorGameView extends Tab {
     var drawTrait:Trait = new Trait();
 
     public function new(){
-		super(tr("Game"));
+		super(tr("Game"),0/*vertival*/,false);
 	}
 	public var x(get,null):Float;
 	function get_x(){
