@@ -85,6 +85,8 @@ class TraitsDialog {
 		if (ui.button("Cancel")) {
 			zui.Popup.show = false;
 		}
+
+		ui._y += ui.ELEMENT_OFFSET() * 2;
 	}
 
 	static function loadPrecompiledTraits():Array<TTrait> {
