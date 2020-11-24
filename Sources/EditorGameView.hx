@@ -106,6 +106,7 @@ class EditorGameView extends Tab {
 				}
 
 			}
+			ui._y = y;
 		}
 		parent.windowHandle.redraws = 2;
 	}
