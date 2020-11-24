@@ -400,10 +400,10 @@ class AnimationEditor {
             if(selectedUID > 0){
                 var scale = 1.0;
                 if(width > height){
-                    scale = curSprite.width > width*0.25 ? width*0.25/curSprite.width:1.0;
+                    scale = curSprite.width > width*0.25 ? width*0.125/curSprite.width:1.0;
                 }
                 else{
-                    scale = curSprite.height > height*0.25 ? height*0.25/curSprite.height:1.0;
+                    scale = curSprite.height > height*0.25 ? height*0.125/curSprite.height:1.0;
                 }
                 origDimensions.x = curSprite.scale.x;
                 origDimensions.y = curSprite.scale.y;
