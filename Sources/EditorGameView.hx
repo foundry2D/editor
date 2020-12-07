@@ -55,7 +55,6 @@ class EditorGameView extends Tab {
 		if (Found.scenebuffer == null) Found.scenebuffer = kha.Image.createRenderTarget(Found.backbuffer.width, Found.backbuffer.height);
 
 		if(ui.tab(parent.htab,this.name)){
-			var y = ui._y;
 			{//Zui insanity related to how images are drawn
 				var h:Float = null;
 				var iw = Found.scenebuffer.width * ui.SCALE();
@@ -85,28 +84,12 @@ class EditorGameView extends Tab {
 			parent.windowHandle.redraws = 1;
 			var image = Found.scenebuffer;
 			image.g2.begin();
-			image.g2.pushTransformation(FastMatrix3.translation(-State.active.cam.position.x,-State.active.cam.position.y));
-			EditorTools.drawGrid(image.g2);
-			image.g2.popTransformation();
 			if (State.active != null){
 				State.active.render(image);
 			}
 			image.g2.end();
 			found.App.frameCounter.render(image);
 			ui.g.begin(false);
-			if(found.App.editorui.inspector != null && found.App.editorui.inspector.index >= 0 ){
-				var i = found.App.editorui.inspector.index;
-				var e = State.active._entities[i];
-				if(e != State.active.cam){
-					var tpos = new FastVector2(e.position.x,e.position.y);
-					tpos.x -= State.active.cam.position.x;
-					tpos.y -= State.active.cam.position.y;
-					tpos = Conversion.WorldToScreen(tpos);
-					EditorTools.render(ui,tpos.x,tpos.y,y);
-				}
-
-			}
-			ui._y = y;
 		}
 		parent.windowHandle.redraws = 2;
 	}

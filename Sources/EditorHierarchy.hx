@@ -109,7 +109,7 @@ class EditorHierarchy extends Tab {
 		if (scene == null)
 			return;
 
-		if (ui.tab(parent.htab, this.name)) {
+		if(ui.panel(Id.handle(),this.name)){
 			sceneNameHandle.text = scene.name;
 			if (kha.Scheduler.time() - sceneNameDoubleClickTime > ui.TOOLTIP_DELAY()) {
 				sceneNameHandle.position = 0;
@@ -143,10 +143,11 @@ class EditorHierarchy extends Tab {
 				var itemHandle = handles[i];
 				i = itemDrawCb(ui, itemHandle, i, scene._entities);
 			}
-			if (ui.button(tr("New Object"))) {
-				zui.Popup.showCustom(Found.popupZuiInstance, objectCreationPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
-			}
 		}
+		if (ui.button(tr("New Object"))) {
+			zui.Popup.showCustom(Found.popupZuiInstance, objectCreationPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
+		}
+		
 	}
 
 	@:access(zui.Zui, zui.Popup)

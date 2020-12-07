@@ -1,5 +1,6 @@
 package;
 
+import found.trait.internal.Arrows;
 import kha.Assets;
 import found.data.DataLoader;
 import zui.Zui;
@@ -149,7 +150,7 @@ class EditorUi extends Trait{
             canvas.g2.end();
         }
         if(editor != null && editor.ready && editor.visible){
-            canvas.g2.begin();
+            canvas.g2.begin(false);
             for(f in editor._render2D)f(canvas.g2);
             canvas.g2.end();
         }
@@ -161,21 +162,21 @@ class EditorUi extends Trait{
     public function init(){
         editor = new EditorView(ui);
         for(f in editor._render2D)found.App.removeRender2D(f);
-        center = new EditorPanel();
-        bottom = new EditorPanel();
-        projectExplorer = new ProjectExplorer();
-        bottom.addTab(projectExplorer);
-        console = new EditorConsole();
-        bottom.addTab(console);
-        codeView = new EditorCodeView();
-        animationView = new EditorAnimationView();
-        center.addTab(gameView);
-        center.addTab(codeView);
-        center.addTab(animationView);
-        editor.addToElementDraw("TopLayout",center);
+        // center = new EditorPanel();
+        // bottom = new EditorPanel();
+        // projectExplorer = new ProjectExplorer();
+        // bottom.addTab(projectExplorer);
+        // console = new EditorConsole();
+        // bottom.addTab(console);
+        // codeView = new EditorCodeView();
+        // animationView = new EditorAnimationView();
+        // center.addTab(gameView);
+        // center.addTab(codeView);
+        // center.addTab(animationView);
+        // editor.addToElementDraw("TopLayout",center);
 
         // Setup right layout
-        right = new EditorPanel();
+        right = new EditorPanel(false);
         inspector = new EditorInspector();
         right.addTab(inspector);
         editor.addToElementDraw("RightLayout", right);
@@ -188,8 +189,7 @@ class EditorUi extends Trait{
         
         menu  = new EditorMenuBar();
         editor.addToElementDraw("HeaderLayout",menu);
-        editor.addToElementDraw("BottomLayout",bottom);
-        var tools = new EditorTools(editor);
+        // editor.addToElementDraw("BottomLayout",bottom);
         keyboard = Input.getKeyboard();
         mouse = Input.getMouse();
         this.visible = true;
@@ -207,7 +207,7 @@ class EditorUi extends Trait{
         if(keysDown(Config.keymap.toggle_playmode))
             togglePlayMode();
         
-        if(center.tabname != tr("Code") && keysDown(Config.keymap.file_open)){
+        if(center != null && center.tabname != tr("Code") && keysDown(Config.keymap.file_open)){
             openScene();
         }
 
@@ -221,37 +221,45 @@ class EditorUi extends Trait{
         
         if(keyboard.down("f9") && 0.1 < kha.Scheduler.time()-lastChange){
             lastChange = kha.Scheduler.time();
-            Found.fullscreen = !Found.fullscreen;
+            editor.visible = !editor.visible;
         }
 
         if(mouse.x > EditorMenu.menuX + EditorMenu.menuW || mouse.x < EditorMenu.menuX - ui.ELEMENT_W() * 0.05 || mouse.y > EditorMenu.menuY + EditorMenu.menuH || mouse.y < EditorMenu.menuY - ui.ELEMENT_H()){
             EditorMenu.show = false;
         }
 
-        //Game View based Input
-        if(gameView.active)
-        {
-            if(keyboard.down("1") && keyboard.down("control")){
-                EditorUi.arrowMode = 0;
-                EditorTools.redrawArrows = true;
+        
+        if(keyboard.down("1") && keyboard.down("control")){
+            EditorUi.arrowMode = 0;
+            EditorTools.redrawArrows = true;
+        }
+        else if(keyboard.down("2") && keyboard.down("control")){
+            EditorUi.arrowMode = 1;
+            EditorTools.redrawArrows = true;
+        }
+
+        if(keyboard.down("control") && mouse.wheelDelta != 0){
+            var mult = mouse.wheelDelta * -1;
+            if(found.State.active.cam.zoom > 0){
+                found.State.active.cam.zoom += 0.1 * mult;
             }
-            else if(keyboard.down("2") && keyboard.down("control")){
-                EditorUi.arrowMode = 1;
-                EditorTools.redrawArrows = true;
+            else {
+                found.State.active.cam.zoom = 0.1;
             }
-            var inSceneView = mouse.x > gameView.x && mouse.y > gameView.y && mouse.x < gameView.x + gameView.width && mouse.y < gameView.y + gameView.height;
-            if((inSceneView || Found.fullscreen) && mouse.down("middle") && mouse.moved){
-                if(State.active!= null){
-                    State.active.cam.position.x+=mouse.distX;
-                    State.active.cam.position.y+=mouse.distY;
-                }
+            
+        }
+
+        if(mouse.down("middle") && mouse.moved){
+            if(State.active!= null){
+                State.active.cam.position.x+=mouse.distX;
+                State.active.cam.position.y+=mouse.distY;
             }
-            if(inSceneView && mouse.down("left") && (mouse.moved || keyboard.down("control"))){
-                updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
-            }
-            else if(!mouse.down("left") || !inSceneView){
-                arrow = -1;
-            }
+        }
+        if(mouse.down("left") && (mouse.moved || keyboard.down("control"))){
+            updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
+        }
+        else if(!mouse.down("left")){
+            arrow = -1;
         }
         
     }
@@ -284,14 +292,13 @@ class EditorUi extends Trait{
         if(inspector.index==-1)return;
 
         var doUpdate = true;
-        var curPos = State.active._entities[inspector.index].position;
         var scale = State.active._entities[inspector.index].scale;
 
-        var px = cx/gameView.width*Found.WIDTH;
-        var py = cy/gameView.height*Found.HEIGHT;
+        var px = cx;
+        var py = cy;
     
-        var sx = cx/gameView.width;
-        var sy = cy/gameView.height;
+        var sx = cx/Found.WIDTH;
+        var sy = cy/Found.HEIGHT;
 
         if(doUpdate){
             if(arrowMode == 0 || arrow == 2){

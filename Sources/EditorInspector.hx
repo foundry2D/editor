@@ -1,3 +1,4 @@
+import found.trait.internal.Arrows;
 import found.Trait;
 import echo.data.Options.ShapeOptions;
 import echo.Shape;
@@ -15,6 +16,7 @@ import zui.Id;
 import zui.Zui;
 import zui.Ext;
 
+@:access(EditorPanel)
 class EditorInspector implements EditorHierarchyObserver extends Tab {
 	var ui:Zui;
 
@@ -38,11 +40,8 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	var depthSortText:String = "If active will draw based on depth order";
 	var zSortText:String = "If active will zsort instead of Y sort";
 
-	public var index(default, set):Int = -1;
+	public var index:Int = -1;
 
-	function set_index(value:Int) {
-		return index = value;
-	}
 
 	public var currentObject(get, null):Null<Object>;
 
@@ -103,18 +102,26 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		sceneHandle.redraws = 2;
 		layersHandle.redraws = 2;
 	}
-
-	public function setObject(objectData:TObj, i:Int) {
+	
+	@:access(found.object.Object)
+	public function setObject(objectData:Null<TObj>, i:Int) {
 		selectedSceneData = null;
+
+		if(index != -1 && index != i){
+			Arrows.instance.object.traits.remove(Arrows.instance);
+		}
 
 		if (i != -1) {
 			index = i;
 			selectedObjectData = currentObject.raw;
 			traitListHandle.nest(0).position = 0;
+			this.parent.visible = true;
 		} else {
 			selectedObjectData = null;
 			index = i;
+			this.parent.visible = false;
 		}
+
 
 		redraw();
 	}
@@ -124,7 +131,9 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 
 		selectedSceneData = found.State.active.raw;
 
-		index = -1;
+		setObject(null,-1);
+		
+		this.parent.visible = true;
 
 		redraw();
 	}
@@ -135,8 +144,8 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	}
 
 	public function notifyObjectSelectedInHierarchy(selectedObject:TObj, selectedUID:Int):Void {
-		index = selectedUID;
-		setObject(selectedObject, index);
+
+		setObject(selectedObject, selectedUID);
 
 		if (index != -1 && selectedObject.type == "tilemap_object") {
 			found.Found.tileeditor.selectTilemap(index);
@@ -148,13 +157,26 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	}
 
 	override public function render(ui:zui.Zui) {
+		if(selectedObjectData == null && selectedSceneData == null){
+			this.parent.visible = false;
+			return;
+		}
 		super.render(ui);
 
 		this.ui = ui;
 
 		changed = false;
+		// ui.panel()
 		if (ui.tab(parent.htab, this.name)) {
-			ui.t.FILL_WINDOW_BG = true;
+			if(ui.button(tr("Deselect"))){
+				var inst  = Arrows.instance;
+				found.State.active._entities[index].removeTrait(inst);
+				inst.visible = false;
+				setObject(null,-1);
+				selectedObjectData = null;
+				selectedSceneData = null;
+				return;
+			}
 			if (selectedObjectData != null) {
 				drawSelectedObjectItems(ui);
 			} else if (selectedSceneData != null) {

@@ -1,5 +1,7 @@
 package;
 
+import found.math.Util;
+import found.Input;
 import kha.Image;
 import found.audio.Music;
 import zui.Canvas.TElement;
@@ -17,10 +19,16 @@ class EditorMenuBar implements View {
 	var ui:zui.Zui;
 	public var workspaceHandle = new Handle({layout: Horizontal});
 	public var menuHandle = new Handle({layout: Horizontal});
-    public var menubarw = defaultMenubarW;
-    
+	public var menubarw = defaultMenubarW;
+	public  var y:Float = 0.0;
+	
+	var visible:Bool = false;
+	
 	var playImage:kha.Image;
 	var pauseImage:kha.Image;
+	var mouse:Mouse;
+	var delta:Float;
+	var current:Float;
 	public function new() {
 
 	}
@@ -49,14 +57,51 @@ class EditorMenuBar implements View {
 		pauseImage.g2.end();
 		ui.g.begin(false);
 	}
+	var animateIn:Bool = false;
+	var animateOut:Bool = false;
 	@:access(zui.Zui)
 	public function render(ui:Zui,element:TElement) {
-		
 		this.ui = ui;
+		if(mouse == null) mouse = Input.getMouse();
+
+		//Hide or show menu bar
+		if(visible && !animateOut && !EditorMenu.show && mouse.y > element.height){
+			animateOut = true;
+			y = element.y;
+			current =  kha.Scheduler.time();
+		}
+		else if(!animateIn && mouse.y < element.height){
+			animateIn = true;
+			y = 0;
+			visible = true;
+			current = kha.Scheduler.time();
+		}
+			
+		if(!visible && !animateIn && !animateOut)return;
+
+		delta = kha.Scheduler.time() -current;
+        current =  kha.Scheduler.time();
+
+		if(animateIn){
+			y = Util.lerp(0,element.y,delta);
+			if(y >= element.y){
+				animateIn = false;
+			}
+		}
+		else if(animateOut){
+			y = Util.lerp(element.y,0,delta);
+			if(y <= 0.1){
+				animateOut = false;
+				y = 0;
+				visible = false;
+			}
+		}
+
+		//Draw the ui
 		ui.inputEnabled = true;
 		var WINDOW_BG_COL = ui.t.WINDOW_BG_COL;
 		ui.t.WINDOW_BG_COL = ui.t.SEPARATOR_COL;
-		if (ui.window(menuHandle, Std.int(element.x), Std.int(element.y), Std.int(element.width),Std.int(element.height))) {
+		if (ui.window(menuHandle, Std.int(element.x), Std.int(this.y), Std.int(element.width),Std.int(element.height))) {
 			var w = ui.BUTTON_H() > element.height ? element.height: ui.BUTTON_H();
 			if(shouldRedraw(playImage,w,w)){
 				redrawPlay(w,ui.t.ACCENT_COL);
