@@ -33,10 +33,12 @@ class EditorUi extends Trait{
         else {
             unregisterInput();
         }
+        if(listViews.length > 0){
+            listViews[currentView].visible = v;
+        }
         return visible  = v;
     }
-    public var editor:EditorView;
-    var codeEditor:EditorView;
+
     public var inspector:EditorInspector;
     public var hierarchy:EditorHierarchy;
     public var isPlayMode(default,set):Bool;
@@ -52,13 +54,7 @@ class EditorUi extends Trait{
     public var gameView:EditorGameView;
     public var codeView:EditorCodeView;
     var animationView:EditorAnimationView;
-    var projectExplorer:ProjectExplorer;
     var console:EditorConsole;
-    var codePanel:EditorPanel;
-    var center:EditorPanel;
-    var bottom:EditorPanel;
-    var right:EditorPanel;
-    var left:EditorPanel;
     var menu:EditorMenuBar;
     public static var scenePath:String = "";
     public static var projectName:String = "";
@@ -86,8 +82,8 @@ class EditorUi extends Trait{
                 gameView = new EditorGameView();
                 var done = function(){
 
-                    if(editor != null && editor.visible){
-                        editor.visible = false;
+                    if(listViews.length > 0 && listViews[currentView].visible){
+                        listViews[currentView].visible = false;
                         throw("This is valid logic ?");
                     }
                     for(f in projectmanager._render2D)found.App.notifyOnRender2D(f);
@@ -175,14 +171,13 @@ class EditorUi extends Trait{
 
     public function init(){
         listViews.splice(0,listViews.length);
-        editor = new EditorView(ui,"main");
+        var editor = new EditorView(ui,"main");
         listViews.push(editor);
-        codeEditor = new EditorView(ui,"codeView");
+        var codeEditor = new EditorView(ui,"codeView");
         listViews.push(codeEditor);
-        center = new EditorPanel();
-        bottom = new EditorPanel();
-        projectExplorer = new ProjectExplorer();
-        bottom.addTab(projectExplorer);
+        var center = new EditorPanel();
+        var bottom = new EditorPanel();
+        bottom.addTab(new ProjectExplorer());
         console = new EditorConsole();
         bottom.addTab(console);
         codeView = new EditorCodeView();
@@ -190,20 +185,20 @@ class EditorUi extends Trait{
         center.addTab(gameView);
         // center.addTab(codeView);
         // center.addTab(animationView);
-        codePanel = new EditorPanel();
+        var codePanel = new EditorPanel();
         codePanel.addTab(codeView);
         codeEditor.addToElementDraw("Code",codePanel);
         codeEditor.addToElementDraw("Explorer",bottom);
         codeEditor.addToElementDraw("Game",center);
 
         // Setup right layout
-        right = new EditorPanel(false);
+        var right = new EditorPanel(false);
         inspector = new EditorInspector();
         right.addTab(inspector);
         editor.addToElementDraw("RightLayout", right);
 
         // Setup left layout
-        left = new EditorPanel();
+        var left = new EditorPanel();
         hierarchy = EditorHierarchy.getInstance();
         left.addTab(hierarchy);
         editor.addToElementDraw("LeftLayout", left);
@@ -233,7 +228,7 @@ class EditorUi extends Trait{
         if(keysDown(Config.keymap.toggle_playmode))
             togglePlayMode();
         
-        if(center != null && center.tabname != tr("Code") && keysDown(Config.keymap.file_open)){
+        if(currentView == 0 && keysDown(Config.keymap.file_open)){
             openScene();
         }
 
@@ -247,7 +242,7 @@ class EditorUi extends Trait{
         
         if(keyboard.down("f9") && 0.1 < kha.Scheduler.time()-lastChange){
             lastChange = kha.Scheduler.time();
-            editor.visible = !editor.visible;
+            listViews[currentView].visible = !listViews[currentView].visible;
         }
 
         if(mouse.x > EditorMenu.menuX + EditorMenu.menuW || mouse.x < EditorMenu.menuX - ui.ELEMENT_W() * 0.05 || mouse.y > EditorMenu.menuY + EditorMenu.menuH || mouse.y < EditorMenu.menuY - ui.ELEMENT_H()){

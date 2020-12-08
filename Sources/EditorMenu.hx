@@ -240,7 +240,7 @@ class EditorMenu {
             #end
                 Fs.saveContent(p,data,
                 function(){
-                    App.editorui.visible = App.editorui.editor.visible = false;
+                    App.editorui.visible = false;
                     found.State.addState(name,p);
                     EditorUi.scenePath = p;
                     found.State.set(name,found.App.editorui.init);//

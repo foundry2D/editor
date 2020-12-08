@@ -156,7 +156,7 @@ class EditorMenuBar implements View {
 			ui._y = 0.0;
 			main.currentView = Ext.inlineRadio(ui,Id.handle(),["Scene","Code"]);
 			Ext.endMenu(ui);
-			ui._x = ui._w;
+			ui._x = ui._w-ui.ELEMENT_W();
 		}
 		ui.t.WINDOW_BG_COL = WINDOW_BG_COL;
 		//This only works if the menu is the first to be drawn; this may be buggy... @:TODO
