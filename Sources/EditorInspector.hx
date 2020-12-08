@@ -107,7 +107,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	public function setObject(objectData:Null<TObj>, i:Int) {
 		selectedSceneData = null;
 
-		if(index != -1 && index != i){
+		if(index != -1 && index != i && Arrows.instance.object != null){
 			Arrows.instance.object.traits.remove(Arrows.instance);
 		}
 
@@ -169,9 +169,6 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 		// ui.panel()
 		if (ui.tab(parent.htab, this.name)) {
 			if(ui.button(tr("Deselect"))){
-				var inst  = Arrows.instance;
-				found.State.active._entities[index].removeTrait(inst);
-				inst.visible = false;
 				setObject(null,-1);
 				selectedObjectData = null;
 				selectedSceneData = null;

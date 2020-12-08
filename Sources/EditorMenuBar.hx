@@ -1,5 +1,6 @@
 package;
 
+import zui.Id;
 import found.math.Util;
 import found.Input;
 import kha.Image;
@@ -63,6 +64,8 @@ class EditorMenuBar implements View {
 	public function render(ui:Zui,element:TElement) {
 		this.ui = ui;
 		if(mouse == null) mouse = Input.getMouse();
+		
+		var main = found.App.editorui;
 
 		//Hide or show menu bar
 		if(visible && !animateOut && !EditorMenu.show && mouse.y > element.height){
@@ -76,24 +79,30 @@ class EditorMenuBar implements View {
 			visible = true;
 			current = kha.Scheduler.time();
 		}
-			
+
+		if(main.currentView > 0){
+			visible = animateIn = animateOut = true;
+		}
+		
 		if(!visible && !animateIn && !animateOut)return;
 
 		delta = kha.Scheduler.time() -current;
         current =  kha.Scheduler.time();
 
-		if(animateIn){
-			y = Util.lerp(0,element.y,delta);
-			if(y >= element.y){
-				animateIn = false;
+		if(main.currentView == 0){
+			if(animateIn){
+				y = Util.lerp(0,element.y,delta);
+				if(y >= element.y){
+					animateIn = false;
+				}
 			}
-		}
-		else if(animateOut){
-			y = Util.lerp(element.y,0,delta);
-			if(y <= 0.1){
-				animateOut = false;
-				y = 0;
-				visible = false;
+			else if(animateOut){
+				y = Util.lerp(element.y,0,delta);
+				if(y <= 0.1){
+					animateOut = false;
+					y = 0;
+					visible = false;
+				}
 			}
 		}
 
@@ -112,11 +121,6 @@ class EditorMenuBar implements View {
 			var _w = ui._w;
 			ui._x += 1; // Prevent "File" button highlight on startup
 
-			var ELEMENT_OFFSET = ui.t.ELEMENT_OFFSET;
-			ui.t.ELEMENT_OFFSET = 0;
-			var BUTTON_COL = ui.t.BUTTON_COL;
-			ui.t.BUTTON_COL = ui.t.SEPARATOR_COL;
-
 			Ext.beginMenu(ui);
 
 			var menuCategories = 5;
@@ -134,15 +138,12 @@ class EditorMenuBar implements View {
 				}
 			}
 
-			Ext.endMenu(ui);
-
 			if (menubarw < ui._x + 10) {
 				menubarw = Std.int(ui._x + 10);
 			}
 
 			ui._w = _w;
 			ui._x = element.width * 0.5;
-			var origY = ui._y;
 			ui._y =  element.height * 0.1;
 			var currentImage = App.editorui.isPlayMode ? pauseImage : playImage;
 			var state = ui.image(currentImage);
@@ -152,9 +153,10 @@ class EditorMenuBar implements View {
 			}
 			else if(state == zui.Zui.State.Hovered){
 			}
-			// ui.drawRect(ui._x,)
-			ui.t.ELEMENT_OFFSET = ELEMENT_OFFSET;
-			ui.t.BUTTON_COL = BUTTON_COL;
+			ui._y = 0.0;
+			main.currentView = Ext.inlineRadio(ui,Id.handle(),["Scene","Code"]);
+			Ext.endMenu(ui);
+			ui._x = ui._w;
 		}
 		ui.t.WINDOW_BG_COL = WINDOW_BG_COL;
 		//This only works if the menu is the first to be drawn; this may be buggy... @:TODO

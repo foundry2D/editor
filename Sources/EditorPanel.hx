@@ -7,7 +7,7 @@ class EditorPanel implements View {
     var tabs:Array<Tab> = [];
     public var htab:zui.Zui.Handle;
     public var tabname(get,null):String;
-    var visible:Bool = true;
+    public var visible:Bool = true;
     function get_tabname(){
         if(tabs.length == 0)return "";
         return tabs[htab.position].name;

@@ -1,5 +1,6 @@
 package;
 
+import kha.math.Vector2;
 import found.trait.internal.Arrows;
 import kha.Assets;
 import found.data.DataLoader;
@@ -21,7 +22,8 @@ import found.data.Project.TProject;
 #end
 
 import utilities.Config;
-
+//@TODO: Cleanup the variables here. Since we are changing a lot it would be valuable
+// To check everything we use and don't use and remove unneeded code.  
 class EditorUi extends Trait{
     public var visible(default,set) = true;
     function set_visible(v:Bool){
@@ -34,6 +36,7 @@ class EditorUi extends Trait{
         return visible  = v;
     }
     public var editor:EditorView;
+    var codeEditor:EditorView;
     public var inspector:EditorInspector;
     public var hierarchy:EditorHierarchy;
     public var isPlayMode(default,set):Bool;
@@ -43,7 +46,7 @@ class EditorUi extends Trait{
             console.clear(true);
         return isPlayMode;
     }
-    var managerEditor:EditorView;
+    
     var projectmanager:ManagerView;
     var dialog:FileBrowserDialog;
     public var gameView:EditorGameView;
@@ -51,6 +54,7 @@ class EditorUi extends Trait{
     var animationView:EditorAnimationView;
     var projectExplorer:ProjectExplorer;
     var console:EditorConsole;
+    var codePanel:EditorPanel;
     var center:EditorPanel;
     var bottom:EditorPanel;
     var right:EditorPanel;
@@ -117,9 +121,17 @@ class EditorUi extends Trait{
         },fsFiletypeExceptions);
 
     }
+    public var currentView(default,set):Int = 0;
+    function set_currentView(value:Int){
+        if(value > listViews.length-1)throw 'View with number $value is higher then the number of views available.';
+        currentView = value;
+        redraw();
+        return currentView;
+    }
+    var listViews:Array<EditorView> = [];
     @:access(EditorView)
     public function redraw() {
-        for (view in editor.toDraw){
+        for (view in listViews[currentView].toDraw){
             view.redraw();
         }
     }
@@ -149,9 +161,11 @@ class EditorUi extends Trait{
             for(f in projectmanager._render2D)f(canvas.g2);
             canvas.g2.end();
         }
-        if(editor != null && editor.ready && editor.visible){
-            canvas.g2.begin(false);
-            for(f in editor._render2D)f(canvas.g2);
+        if(listViews.length > 0 && listViews[currentView].ready && listViews[currentView].visible){
+            var isClear = !(currentView == 0);
+            var bgColor = isClear ? ui.t.WINDOW_BG_COL : null;
+            canvas.g2.begin(isClear,bgColor);
+            for(f in listViews[currentView]._render2D)f(canvas.g2);
             canvas.g2.end();
         }
         if(EditorMenu.show){
@@ -160,20 +174,27 @@ class EditorUi extends Trait{
     }
 
     public function init(){
-        editor = new EditorView(ui);
-        for(f in editor._render2D)found.App.removeRender2D(f);
-        // center = new EditorPanel();
-        // bottom = new EditorPanel();
-        // projectExplorer = new ProjectExplorer();
-        // bottom.addTab(projectExplorer);
-        // console = new EditorConsole();
-        // bottom.addTab(console);
-        // codeView = new EditorCodeView();
+        listViews.splice(0,listViews.length);
+        editor = new EditorView(ui,"main");
+        listViews.push(editor);
+        codeEditor = new EditorView(ui,"codeView");
+        listViews.push(codeEditor);
+        center = new EditorPanel();
+        bottom = new EditorPanel();
+        projectExplorer = new ProjectExplorer();
+        bottom.addTab(projectExplorer);
+        console = new EditorConsole();
+        bottom.addTab(console);
+        codeView = new EditorCodeView();
         // animationView = new EditorAnimationView();
-        // center.addTab(gameView);
+        center.addTab(gameView);
         // center.addTab(codeView);
         // center.addTab(animationView);
-        // editor.addToElementDraw("TopLayout",center);
+        codePanel = new EditorPanel();
+        codePanel.addTab(codeView);
+        codeEditor.addToElementDraw("Code",codePanel);
+        codeEditor.addToElementDraw("Explorer",bottom);
+        codeEditor.addToElementDraw("Game",center);
 
         // Setup right layout
         right = new EditorPanel(false);
@@ -188,7 +209,9 @@ class EditorUi extends Trait{
         editor.addToElementDraw("LeftLayout", left);
         
         menu  = new EditorMenuBar();
-        editor.addToElementDraw("HeaderLayout",menu);
+        var elemName = "Header";
+        editor.addToElementDraw(elemName,menu);
+        codeEditor.addToElementDraw(elemName,menu);
         // editor.addToElementDraw("BottomLayout",bottom);
         keyboard = Input.getKeyboard();
         mouse = Input.getMouse();
@@ -196,11 +219,14 @@ class EditorUi extends Trait{
     }
 
     var lastChange:Float = 0.0;
+    @:access(EditorHierarchy)
     public function update(dt:Float): Void {
         if(mouse == null || keyboard == null)return;
 
         ui.enabled = !zui.Popup.show;
 
+        var isInMainView = currentView == 0;
+        
         if(keysDown(Config.keymap.file_save))
             saveSceneData();
         
@@ -228,40 +254,53 @@ class EditorUi extends Trait{
             EditorMenu.show = false;
         }
 
-        
-        if(keyboard.down("1") && keyboard.down("control")){
-            EditorUi.arrowMode = 0;
-            EditorTools.redrawArrows = true;
-        }
-        else if(keyboard.down("2") && keyboard.down("control")){
-            EditorUi.arrowMode = 1;
-            EditorTools.redrawArrows = true;
-        }
-
-        if(keyboard.down("control") && mouse.wheelDelta != 0){
-            var mult = mouse.wheelDelta * -1;
-            if(found.State.active.cam.zoom > 0){
-                found.State.active.cam.zoom += 0.1 * mult;
+        if(isInMainView){
+            if(keyboard.down("1") && keyboard.down("control")){
+                EditorUi.arrowMode = 0;
+                EditorTools.redrawArrows = true;
             }
-            else {
-                found.State.active.cam.zoom = 0.1;
+            else if(keyboard.down("2") && keyboard.down("control")){
+                EditorUi.arrowMode = 1;
+                EditorTools.redrawArrows = true;
             }
-            
-        }
-
-        if(mouse.down("middle") && mouse.moved){
-            if(State.active!= null){
-                State.active.cam.position.x+=mouse.distX;
-                State.active.cam.position.y+=mouse.distY;
+    
+            if(keyboard.down("control") && mouse.wheelDelta != 0){
+                var mult = mouse.wheelDelta * -1;
+                trace(found.State.active.cam.zoom);
+                if(found.State.active.cam.zoom > 0){
+                    found.State.active.cam.zoom += 0.1 * mult;
+                    if(found.State.active.cam.zoom < 0.01){
+                        found.State.active.cam.zoom = 0.1;
+                    }
+                }
+                
+            }
+    
+            if(mouse.down("middle") && mouse.moved){
+                if(State.active!= null){
+                    State.active.cam.position.x+=mouse.distX;
+                    State.active.cam.position.y+=mouse.distY;
+                }
+            }
+            if(mouse.down("left") && (mouse.moved || keyboard.down("control"))){
+                updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
+            }
+            else if(!mouse.down("left")){
+                arrow = -1;
+            }
+    
+            if(mouse.started("left")){
+                var mpos = found.State.active.cam.screenToWorld(new Vector2(mouse.x,mouse.y));
+                for(entity in found.State.active._entities){
+                    if(found.State.active.cam == entity)continue;
+                    var dif = entity.position.sub(mpos);
+                    if(Math.abs(dif.x) < entity.width && Math.abs(dif.y) < entity.height && mpos.x > entity.position.x && mpos.y > entity.position.y)
+                    {
+                        hierarchy.onObjectSelected(entity.uid,entity.raw);
+                    }
+                }
             }
         }
-        if(mouse.down("left") && (mouse.moved || keyboard.down("control"))){
-            updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
-        }
-        else if(!mouse.down("left")){
-            arrow = -1;
-        }
-        
     }
 
     function keysDown(keymap:String) {

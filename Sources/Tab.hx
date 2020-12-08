@@ -17,7 +17,7 @@ class Tab {
     }
     function get_active(){
         if(parent == null)return false;
-        return parent.htab.position == position;
+        return parent.visible && parent.htab.position == position;
     }
     public function redraw() {
         

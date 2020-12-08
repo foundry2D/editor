@@ -10,9 +10,9 @@ class EditorView  extends CanvasScript {
     var toDraw:Map<String,View>;
     final firstElem:String;
     final lastElem:String;
-    public function new(ui:zui.Zui) {
+    public function new(ui:zui.Zui,canvasname:String) {
         this.ui = ui;
-        super("main","font_default.ttf",kha.Assets.blobs.get("main_json"));
+        super(canvasname,"font_default.ttf",kha.Assets.blobs.get(canvasname+"_json"));
         ui.ops.theme = zui.Canvas.themes[0];
         toDraw = new Map<String,View>();
         for(elem in canvas.elements){
