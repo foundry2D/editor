@@ -69,5 +69,9 @@ class ConfigSettingsDialog {
             zui.Popup.show = false;
             changedScale = false;
         }
+
+
+        if(ui._y < zui.Popup.modalH)
+			ui._y = zui.Popup.modalH;
     }
 }

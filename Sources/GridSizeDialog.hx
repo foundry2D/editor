@@ -44,6 +44,10 @@ class GridSizeDialog {
             zui.Popup.show = false;
             map = null;
             TileEditor.ui.enabled = true;
-		}
+        }
+        
+
+        if(ui._y < zui.Popup.modalH)
+			ui._y = zui.Popup.modalH;
     }
 }

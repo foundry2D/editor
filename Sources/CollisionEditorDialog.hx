@@ -1,4 +1,5 @@
 
+import zui.Popup;
 import kha.math.Vector2;
 import kha.Image;
 import found.anim.Tile;
@@ -299,6 +300,9 @@ class CollisionEditorDialog {
 		}
 
 		ui._y += ui.ELEMENT_OFFSET() * 2;
+
+		if(ui._y < Popup.modalH)
+			ui._y = Popup.modalH;
 	}
 	static function exit(){
 		found.App.editorui.ui.enabled = true;

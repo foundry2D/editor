@@ -57,5 +57,9 @@ class FileBrowserDialog {
             doneCallback("");
             doneCallback = function(path:String){};
         }
+
+
+        if(ui._y < zui.Popup.modalH)
+			ui._y = zui.Popup.modalH;
     }
 }

@@ -129,9 +129,9 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	public function selectScene() {
 		selectedObjectData = null;
 
-		selectedSceneData = found.State.active.raw;
-
 		setObject(null,-1);
+		
+		selectedSceneData = found.State.active.raw;
 		
 		this.parent.visible = true;
 
