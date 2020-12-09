@@ -60,6 +60,7 @@ class EditorMenuBar implements View {
 	}
 	var animateIn:Bool = false;
 	var animateOut:Bool = false;
+	var lastColor:kha.Color = kha.Color.White;
 	@:access(zui.Zui)
 	public function render(ui:Zui,element:TElement) {
 		this.ui = ui;
@@ -146,17 +147,23 @@ class EditorMenuBar implements View {
 			ui._x = element.width * 0.5;
 			ui._y =  element.height * 0.1;
 			var currentImage = App.editorui.isPlayMode ? pauseImage : playImage;
-			var state = ui.image(currentImage);
+			var state = ui.image(currentImage,lastColor);
 			if(state == zui.Zui.State.Released){
 				EditorUi.togglePlayMode();
 				Music.stopAll();
 			}
 			else if(state == zui.Zui.State.Hovered){
+				lastColor = kha.Color.Orange;
+			}
+			else {
+				lastColor = kha.Color.White;
 			}
 			ui._y = 0.0;
-			main.currentView = Ext.inlineRadio(ui,Id.handle(),["Scene","Code"]);
+			ui._w = Std.int(ui._w + ui.ELEMENT_W());
+			main.currentView = Ext.inlineRadio(ui,Id.handle(),["Scene","Code","Draw"]);
 			Ext.endMenu(ui);
-			ui._x = ui._w-ui.ELEMENT_W();
+
+			ui._x = ui._w-ui.ELEMENT_W() * 2;//This removes a line under the menu bar... its weird.
 		}
 		ui.t.WINDOW_BG_COL = WINDOW_BG_COL;
 		//This only works if the menu is the first to be drawn; this may be buggy... @:TODO

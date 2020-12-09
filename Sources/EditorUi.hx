@@ -171,43 +171,49 @@ class EditorUi extends Trait{
 
     public function init(){
         listViews.splice(0,listViews.length);
+        
         var editor = new EditorView(ui,"main");
-        listViews.push(editor);
         var codeEditor = new EditorView(ui,"codeView");
+        var drawEditor = new EditorView(ui,"drawView");
+        listViews.push(editor);
         listViews.push(codeEditor);
+        listViews.push(drawEditor);
+
+        //Setup Code view
         var center = new EditorPanel();
         var bottom = new EditorPanel();
         bottom.addTab(new ProjectExplorer());
         console = new EditorConsole();
         bottom.addTab(console);
-        codeView = new EditorCodeView();
-        // animationView = new EditorAnimationView();
         center.addTab(gameView);
-        // center.addTab(codeView);
-        // center.addTab(animationView);
         var codePanel = new EditorPanel();
-        codePanel.addTab(codeView);
+        codePanel.addTab(new EditorCodeView());
         codeEditor.addToElementDraw("Code",codePanel);
         codeEditor.addToElementDraw("Explorer",bottom);
         codeEditor.addToElementDraw("Game",center);
 
-        // Setup right layout
-        var right = new EditorPanel(false);
-        inspector = new EditorInspector();
-        right.addTab(inspector);
-        editor.addToElementDraw("RightLayout", right);
+        //Setup Draw view
+        var drawPanel = new EditorPanel();
+        drawPanel.addTab(new EditorAnimationView());
+        drawEditor.addToElementDraw("Draw",drawPanel);
 
-        // Setup left layout
+        // Setup Scene View
+        var right = new EditorPanel(false);
         var left = new EditorPanel();
+        inspector = new EditorInspector();
         hierarchy = EditorHierarchy.getInstance();
+        right.addTab(inspector);
         left.addTab(hierarchy);
+        editor.addToElementDraw("RightLayout", right);
         editor.addToElementDraw("LeftLayout", left);
         
         menu  = new EditorMenuBar();
         var elemName = "Header";
         editor.addToElementDraw(elemName,menu);
         codeEditor.addToElementDraw(elemName,menu);
-        // editor.addToElementDraw("BottomLayout",bottom);
+        drawEditor.addToElementDraw(elemName,menu);
+
+
         keyboard = Input.getKeyboard();
         mouse = Input.getMouse();
         this.visible = true;
