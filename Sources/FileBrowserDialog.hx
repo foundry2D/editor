@@ -28,6 +28,13 @@ class FileBrowserDialog {
     static function fileBrowserPopupDraw(ui:Zui){
         zui.Popup.boxTitle = tr("File Browser");
 
+        if(ui.button(tr("Import Assets"))){
+            #if kha_html5
+            khafs.Fs.curDir = EditorUi.projectPath + khafs.Fs.sep + "Assets";
+            khafs.Fs.input.click();
+            #else
+            #end
+        }
         var selectedFile = CustomExt.fileBrowser(ui,fbHandle);
         if(fbHandle.changed){
             textInputHandle.text = selectedFile;
