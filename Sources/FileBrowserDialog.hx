@@ -4,7 +4,6 @@ import zui.Zui;
 import zui.Id;
 import found.Found;
 
-// @:build(haxe.ui.macros.ComponentMacros.build("../Assets/custom/fb-dialog.xml"))
 class FileBrowserDialog {
     static public var inst:FileBrowserDialog = null;
     public function new(){
