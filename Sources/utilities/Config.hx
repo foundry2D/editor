@@ -61,6 +61,7 @@ class Config {
 			raw.keymap = "default.json";
 			raw.theme = "dark.json";
 			raw.defaultPlayMode = false;
+			raw.autoHideMenuBar = false;
 			raw.undo_steps = 4;
 			raw.pressure_radius = true;
 			raw.pressure_hardness = true;

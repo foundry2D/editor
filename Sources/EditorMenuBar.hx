@@ -1,5 +1,6 @@
 package;
 
+import utilities.Config;
 import zui.Id;
 import found.math.Util;
 import found.Input;
@@ -81,7 +82,7 @@ class EditorMenuBar implements View {
 			current = kha.Scheduler.time();
 		}
 
-		if(main.currentView > 0){
+		if(main.currentView > 0 || !Config.raw.autoHideMenuBar){
 			visible = animateIn = animateOut = true;
 		}
 		

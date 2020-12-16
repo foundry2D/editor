@@ -23,6 +23,7 @@ class ConfigSettingsDialog {
     static var localeHandle:Handle = Id.handle();
     static var languages:Array<String> = [];
     static var playModeHandle = Id.handle();
+    static var hideMenuHandle = Id.handle();
     static var uiScaleHandle = Id.handle();
     static var changedScale = false;
     @:access(zui.Zui, zui.Popup)
@@ -39,6 +40,12 @@ class ConfigSettingsDialog {
         var value = ui.check(playModeHandle,tr("Boot in Play Mode"));
         if(playModeHandle.changed){
             Config.raw.defaultPlayMode = value;
+        }
+
+        hideMenuHandle.selected = Config.raw.autoHideMenuBar;
+        var value = ui.check(hideMenuHandle,tr("Auto Hide Menu Bar in Scene View"));
+        if(hideMenuHandle.changed){
+            Config.raw.autoHideMenuBar = value;
         }
 
         uiScaleHandle.value = Config.raw.window_scale != null ? Config.raw.window_scale : 1.0; 

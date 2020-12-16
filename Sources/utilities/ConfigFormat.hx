@@ -23,6 +23,7 @@ typedef TConfig = {
 	@:optional var keymap: String; // Link to keymap file
 	@:optional var theme: String; // Link to theme file
 	@:optional var defaultPlayMode:Null<Bool>; // Is in playmode on scene boot
+	@:optional var autoHideMenuBar:Null<Bool>; // Is in playmode on scene boot
 	@:optional var undo_steps: Null<Int>; // Number of undo steps to preserve
 	@:optional var pressure_radius: Null<Bool>; // Pen pressure controls
 	@:optional var pressure_hardness: Null<Bool>;
