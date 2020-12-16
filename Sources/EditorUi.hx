@@ -187,7 +187,8 @@ class EditorUi extends Trait{
         bottom.addTab(console);
         center.addTab(gameView);
         var codePanel = new EditorPanel();
-        codePanel.addTab(new EditorCodeView());
+        codeView = new EditorCodeView();
+        codePanel.addTab(codeView);
         codeEditor.addToElementDraw("Code",codePanel);
         codeEditor.addToElementDraw("Explorer",bottom);
         codeEditor.addToElementDraw("Game",center);
