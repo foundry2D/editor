@@ -1,7 +1,6 @@
 package;
 
 import found.Found;
-import found.State;
 import found.data.SceneFormat;
 import found.object.Object;
 import zui.Zui;
@@ -109,7 +108,7 @@ class EditorHierarchy extends Tab {
 		if (scene == null)
 			return;
 
-		if(ui.panel(Id.handle(),this.name)){
+		if(ui.panel(Id.handle({selected: true}),this.name)){
 			sceneNameHandle.text = scene.name;
 			if (kha.Scheduler.time() - sceneNameDoubleClickTime > ui.TOOLTIP_DELAY()) {
 				sceneNameHandle.position = 0;
@@ -210,7 +209,9 @@ class EditorHierarchy extends Tab {
 
 	function addData2Scn(data:TObj) {
 		found.State.active.raw._entities.push(data);
-		found.State.active.addEntity(data, true);
+		found.State.active.addEntity(data,function(ent:Object){
+			onObjectSelected(ent.uid,ent.raw);
+		}, true);
 		makeDirty();
 	}
 
