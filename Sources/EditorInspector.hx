@@ -42,6 +42,8 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 
 	public var index:Int = -1;
 
+	public var lastH:Float = 0.0;
+
 
 	public var currentObject(get, null):Null<Object>;
 
@@ -155,7 +157,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 
 		redraw();
 	}
-
+	@:access(zui.Zui)
 	override public function render(ui:zui.Zui) {
 		if(selectedObjectData == null && selectedSceneData == null){
 			this.parent.visible = false;
@@ -180,6 +182,9 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 				drawSelectedSceneItems(ui);
 			}
 		}
+
+		//Always keep this at the end of drawing or die
+		lastH = ui._y;
 	}
 
 	@:access(zui.Zui, found.anim.Sprite)

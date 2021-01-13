@@ -290,8 +290,9 @@ class EditorUi extends Trait{
             else if(!mouse.down("left")){
                 arrow = -1;
             }
-    
-            if(mouse.started("left")){
+            
+            
+            if(mouse.started("left") && !isInUi()){
                 var mpos = found.State.active.cam.screenToWorld(new Vector2(mouse.x,mouse.y));
                 for(entity in found.State.active._entities){
                     if(found.State.active.cam == entity)continue;
@@ -303,6 +304,27 @@ class EditorUi extends Trait{
                 }
             }
         }
+    }
+
+    function isInUi() {
+        var pos = new Vector2(mouse.x,mouse.y);
+        var inInspector = false;
+        if(inspector.parent.visible){
+            var x = inspector.parent.x;
+            var y = inspector.parent.y;
+            var w = inspector.parent.w;
+            var h = inspector.lastH;
+            inInspector = pos.x > x && pos.x < x + w && pos.y > y && pos.y < y + h;
+        }
+        var inHiearchy = false;
+        if(hierarchy.parent.visible){
+            var x = hierarchy.parent.x;
+            var y = hierarchy.parent.y;
+            var w = hierarchy.parent.w;
+            var h = hierarchy.lastH;
+            inHiearchy = pos.x > x && pos.x < x + w && pos.y > y && pos.y < y + h;
+        }
+        return inInspector || inHiearchy || !Found.tileeditor.isInEditor();
     }
 
     function keysDown(keymap:String) {

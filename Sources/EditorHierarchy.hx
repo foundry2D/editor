@@ -31,6 +31,8 @@ class EditorHierarchy extends Tab {
 		"tilemap_object:\nAn object which can have multiple tiles/images that can be drawn on screen based on this objects position.\nIn the futur tiles will be animatable and Auto-tilling will be supported."
 	];
 
+	public var lastH:Float = 0.0;
+
 	private function new() {
 		super(tr("Hierarchy"));
 
@@ -146,6 +148,9 @@ class EditorHierarchy extends Tab {
 		if (ui.button(tr("New Object"))) {
 			zui.Popup.showCustom(Found.popupZuiInstance, objectCreationPopupDraw, -1, -1, Std.int(Found.popupZuiInstance.ELEMENT_W() * 4),Std.int(Found.popupZuiInstance.ELEMENT_W() * 3));
 		}
+
+		//Always keep this at the end of drawing or die
+		lastH = ui._y;
 		
 	}
 
