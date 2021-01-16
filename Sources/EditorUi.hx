@@ -1,5 +1,6 @@
 package;
 
+import found.object.Object.MoveData;
 import kha.math.Vector2;
 import found.trait.internal.Arrows;
 import kha.Assets;
@@ -256,6 +257,23 @@ class EditorUi extends Trait{
             EditorMenu.show = false;
         }
 
+        if(isInMainView || this.isHidden()){
+            if(mouse.down("middle") && mouse.moved){
+                if(State.active!= null){
+                    State.active.cam.position.x+=mouse.distX;
+                    State.active.cam.position.y+=mouse.distY;
+                }
+            }
+            if(keyboard.down("control") && mouse.wheelDelta != 0){
+                var mult = mouse.wheelDelta * -1;
+                if(found.State.active.cam.zoom > 0){
+                    found.State.active.cam.zoom += 0.1 * mult;
+                    if(found.State.active.cam.zoom < 0.01){
+                        found.State.active.cam.zoom = 0.1;
+                    }
+                }
+            }
+        }
         if(isInMainView){
             if(keyboard.down("1") && keyboard.down("control")){
                 EditorUi.arrowMode = 0;
@@ -266,31 +284,12 @@ class EditorUi extends Trait{
                 EditorTools.redrawArrows = true;
             }
     
-            if(keyboard.down("control") && mouse.wheelDelta != 0){
-                var mult = mouse.wheelDelta * -1;
-                trace(found.State.active.cam.zoom);
-                if(found.State.active.cam.zoom > 0){
-                    found.State.active.cam.zoom += 0.1 * mult;
-                    if(found.State.active.cam.zoom < 0.01){
-                        found.State.active.cam.zoom = 0.1;
-                    }
-                }
-                
-            }
-    
-            if(mouse.down("middle") && mouse.moved){
-                if(State.active!= null){
-                    State.active.cam.position.x+=mouse.distX;
-                    State.active.cam.position.y+=mouse.distY;
-                }
-            }
             if(mouse.down("left") && (mouse.moved || keyboard.down("control"))){
                 updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
             }
             else if(!mouse.down("left")){
                 arrow = -1;
             }
-            
             
             if(mouse.started("left") && !isInUi()){
                 var mpos = found.State.active.cam.screenToWorld(new Vector2(mouse.x,mouse.y));
@@ -306,7 +305,12 @@ class EditorUi extends Trait{
         }
     }
 
-    function isInUi() {
+    public function isHidden(){
+        if(currentView < 0 )return true;
+        return !listViews[currentView].visible;
+    }
+    @:access(EditorMenuBar)
+    public function isInUi() {
         var pos = new Vector2(mouse.x,mouse.y);
         var inInspector = false;
         if(inspector.parent.visible){
@@ -324,7 +328,16 @@ class EditorUi extends Trait{
             var h = hierarchy.lastH;
             inHiearchy = pos.x > x && pos.x < x + w && pos.y > y && pos.y < y + h;
         }
-        return inInspector || inHiearchy || !Found.tileeditor.isInEditor();
+        var inMenu = false;
+        if(menu.visible){
+            var x = menu.rect.x;
+            var y = menu.rect.y;
+            var w = menu.rect.z;
+            var h = menu.rect.w;
+            inMenu = pos.x > x && pos.x < x + w && pos.y > y && pos.y < y + h;
+            
+        }
+        return this.isHidden() ? false : (inInspector || inHiearchy || inMenu || !Found.tileeditor.notInEditor() || zui.Popup.show);
     }
 
     function keysDown(keymap:String) {
@@ -438,22 +451,28 @@ class EditorUi extends Trait{
         }
         inspector.redraw();
     }
-    @:access(EditorInspector)
+    @:access(EditorInspector,found.object.Object)
     function updatePos(px:Float,py:Float,toGrid:Bool){
         var x = State.active._entities[inspector.index].position.x + px;
         var y = State.active._entities[inspector.index].position.y + py;
         x = toGrid ? Util.snap(Math.floor(x),Found.GRID) : x;
         y = toGrid ? Util.snap(Math.floor(y),Found.GRID) : y;
+        var pos = State.active._entities[inspector.index].position;
         switch(arrow){
             case 0:
-                State.active._entities[inspector.index].position.x = x;
+                State.active._entities[inspector.index].translate(function(data:MoveData){
+                    return data;
+                },{_positions: new Vector2(x)},true);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",x);
             case 1:
-                State.active._entities[inspector.index].position.y = y;
+                State.active._entities[inspector.index].translate(function(data:MoveData){
+                    return data;
+                },{_positions: new Vector2(pos.x,y)},true);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",y);
             case 2:
-                State.active._entities[inspector.index].position.x = x;
-                State.active._entities[inspector.index].position.y = y;
+                State.active._entities[inspector.index].translate(function(data:MoveData){
+                    return data;
+                },{_positions: new Vector2(x,y)},true);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",x);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"y",y);
         }

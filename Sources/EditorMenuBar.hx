@@ -1,5 +1,6 @@
 package;
 
+import kha.math.Vector4;
 import utilities.Config;
 import zui.Id;
 import found.math.Util;
@@ -22,6 +23,7 @@ class EditorMenuBar implements View {
 	public var workspaceHandle = new Handle({layout: Horizontal});
 	public var menuHandle = new Handle({layout: Horizontal});
 	public var menubarw = defaultMenubarW;
+	public var rect:Vector4 = new Vector4();
 	public  var y:Float = 0.0;
 	
 	var visible:Bool = false;
@@ -112,6 +114,10 @@ class EditorMenuBar implements View {
 		ui.inputEnabled = true;
 		var WINDOW_BG_COL = ui.t.WINDOW_BG_COL;
 		ui.t.WINDOW_BG_COL = ui.t.SEPARATOR_COL;
+		rect.x = element.x;
+		rect.y = this.y;
+		rect.z = element.width;
+		rect.w = element.height;
 		if (ui.window(menuHandle, Std.int(element.x), Std.int(this.y), Std.int(element.width),Std.int(element.height))) {
 			var w = ui.BUTTON_H() > element.height ? element.height: ui.BUTTON_H();
 			if(shouldRedraw(playImage,w,w)){

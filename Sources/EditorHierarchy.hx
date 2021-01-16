@@ -97,9 +97,7 @@ class EditorHierarchy extends Tab {
 	}
 
 	override public function redraw() {
-		if (parent != null)
-			parent.windowHandle.redraws = 2;
-
+		super.redraw();
 		sceneNameHandle.redraws = 2;
 	}
 

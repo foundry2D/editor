@@ -90,7 +90,8 @@ class EditorConsole extends Tab {
         outputTypes = [tr("All"),tr("Information"),tr("Warnings"),tr("Errors")];
     }
     override function redraw(){
-         parent.windowHandle.redraws = parent.htab.redraws = handle.redraws = 2;
+        super.redraw();
+        parent.htab.redraws = handle.redraws = 2;
     }
     var ui:zui.Zui;
     @:access(zui.Zui)

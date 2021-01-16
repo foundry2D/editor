@@ -98,8 +98,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 	}
 
 	override public function redraw() {
-		if (parent != null)
-			parent.windowHandle.redraws = 2;
+		super.redraw();
 		objectHandle.redraws = 2;
 		sceneHandle.redraws = 2;
 		layersHandle.redraws = 2;
