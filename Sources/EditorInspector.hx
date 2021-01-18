@@ -787,7 +787,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			return;
 		}
 	}
-	@:access(zui.Zui)
+	@:access(zui.Zui,found.Trait)
 	function drawTrait(handle:Handle, i:Int) {
 		var div = ui.ELEMENT_W() / parent.w;
 		var trait = currentObject.raw.traits[i];
@@ -810,6 +810,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 						trait.props.push(def);
 					}
 					updateAllRelativeProps(trait.classname,def,true);
+					Trait.props.set(trait.classname+index,trait.props);
 					changed = true;
 				}
 			// }
@@ -818,8 +819,9 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			// }
 			if(trait.props != null){
 				var mainH:Handle = Id.handle();
-				for(i in 0...trait.props.length){
-					var prop = trait.props[i].split("~");
+				var props = App.editorui.isPlayMode ? Trait.getProps(trait.classname+index) : trait.props;
+				for(i in 0...props.length){
+					var prop = props[i].split("~");
 					var value = Std.parseInt(prop[1]);
 					value >= 4 ? ui.row([0.25,0.08,0.12,0.08,0.12,0.25,0.1]): ui.row([0.3,0.3,0.3,0.1]);
 					var h:Handle = mainH.nest(i);
@@ -898,12 +900,15 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 					}
 					if(ui.button("-")){
 						updateAllRelativeProps(trait.classname,trait.props.splice(i,1)[0]);
+						Trait.props.set(trait.classname+index,trait.props);
 						currentObject.dataChanged = true;
 						EditorHierarchy.getInstance().makeDirty();
 						break;
 					}
-					trait.props[i] = prop.join("~");
+						
 					if(changed){
+						trait.props[i] = prop.join("~");
+						Trait.props.set(trait.classname+index,trait.props);
 						currentObject.dataChanged = changed;
 						EditorHierarchy.getInstance().makeDirty();
 					}
@@ -925,10 +930,10 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			}
 		}
 		var out:Array<String>= [];
-		for(prop in Trait.getProps(classname)){
+		for(prop in Trait.getProps(classname+index)){
 			out.push(prop.replace(from,to));
 		}
-		Trait.props.set(classname,out);
+		Trait.props.set(classname+index,out);
 	}
 
 	@:access(found.Trait)
@@ -956,10 +961,10 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			}
 		}
 		if(isAdd){
-			Trait.addProps(classname,[addOrRmData]);
+			Trait.addProps(classname+index,[addOrRmData]);
 		}
 		else{
-			Trait.removeProps(classname,[addOrRmData]);
+			Trait.removeProps(classname+index,[addOrRmData]);
 		}
 	}
 
