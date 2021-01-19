@@ -1,6 +1,7 @@
 package;
 
 
+import found.App;
 import kha.FastFloat;
 import found.math.Vec2;
 import found.math.Util;
@@ -202,7 +203,7 @@ class AnimationEditor {
                     #end
                 }
 
-                if(animIndex > -1){
+                if(animIndex > -1 && animations.length > 0){
                     var editable = true;
                     fpsHandle.text = ""+curSprite.data.animation._speeddiv;
                     ui.textInput(fpsHandle,"Fps",Align.Left,editable);
@@ -238,7 +239,12 @@ class AnimationEditor {
 
                 ui.panel(Id.handle({selected: true}),'',false,false,false);
                 var oldY = ui._y;
-                Ext.panelList(ui,Id.handle({selected: true,layout:0}),curFrames,addItem,removeItem,getName,setName,drawItem,false);
+                if(animations.length == 0){
+                    ui.text("");
+                }
+                else {
+                    Ext.panelList(ui,Id.handle({selected: true,layout:0}),curFrames,addItem,removeItem,getName,setName,drawItem,false);
+                }
                 animationPreview(delta,AnimationEditor.width,viewHeight,oldY);
 
             }
@@ -411,7 +417,7 @@ class AnimationEditor {
                 curSprite.rotation.z = 0.0;
                 curSprite.scale.x = scale;
                 curSprite.scale.y = scale;
-                canvas.g2.pushTranslation(-curSprite.position.x+rx+size*0.25,-curSprite.position.y+oldY+size*0.25);
+                canvas.g2.pushTranslation(rx+size*0.25,oldY+size*0.25);
                 if(!doUpdate){
                     curSprite.data.animation._count = 0;
                     curSprite.data.animation._index = 0;
@@ -479,7 +485,7 @@ class AnimationEditor {
             ui.g.begin(false);
         }
 
-        @:access(found.anim.Sprite,found.data.SpriteData,found.anim.Animation)
+        @:access(found.anim.Sprite,found.data.SpriteData,found.anim.Animation,EditorUi)
         public function saveAnimations(){
             if(curSprite == null)return;
             var animations:Array<TAnimation> = [];
@@ -496,5 +502,6 @@ class AnimationEditor {
             }
 
             curSprite.data.raw.anims = animations;
+            App.editorui.saveSceneData();
         }
 }

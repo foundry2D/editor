@@ -196,7 +196,8 @@ class EditorUi extends Trait{
 
         //Setup Draw view
         var drawPanel = new EditorPanel();
-        drawPanel.addTab(new EditorAnimationView());
+        animationView = new EditorAnimationView();
+        drawPanel.addTab(animationView);
         drawEditor.addToElementDraw("Draw",drawPanel);
 
         // Setup Scene View

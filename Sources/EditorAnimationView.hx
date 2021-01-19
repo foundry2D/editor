@@ -46,16 +46,21 @@ class EditorAnimationView  implements EditorHierarchyObserver extends Tab {
     }
     override public function render(ui:zui.Zui) {
 
-        if(animationEditor == null && parent != null){
-            animationEditor = new AnimationEditor(parent,this);
+        if(animationEditor == null){
+            if(!initAnimationEditor()){
+                return;
+            }
         }
-        else if(animationEditor == null) { return; }
-        
         animationEditor.setAll(parent.x,parent.y,parent.w,parent.h);
         animationEditor.render(ui);
     }
     public function update(dt:Float){
         if(!active)return;
+        if(animationEditor == null){
+            if(!initAnimationEditor()){
+                return;
+            }
+        }
         animationEditor.update(dt);
     }
 }
