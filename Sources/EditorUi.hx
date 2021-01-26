@@ -8,19 +8,12 @@ import found.data.DataLoader;
 import zui.Zui;
 import kha.input.KeyCode;
 import khafs.Fs;
-#if arm_csm
-import iron.Trait;
-import iron.data.SceneFormat;
-import iron.system.ArmPack;
-// import iron.format.BlendParser;
-#elseif found
 import found.Trait;
 import found.State;
 import found.Found;
 import found.Input;
 import found.math.Util;
 import found.data.Project.TProject;
-#end
 
 import utilities.Config;
 //@TODO: Cleanup the variables here. Since we are changing a lot it would be valuable
@@ -223,7 +216,7 @@ class EditorUi extends Trait{
     }
 
     var lastChange:Float = 0.0;
-    @:access(EditorHierarchy)
+    @:access(EditorHierarchy,found.Scene,found.trait.internal.Arrows)
     public function update(dt:Float): Void {
         if(mouse == null || keyboard == null)return;
 
@@ -231,6 +224,8 @@ class EditorUi extends Trait{
 
         var isInMainView = currentView == 0;
         
+        Arrows.instance.update();
+
         if(keysDown(Config.keymap.file_save))
             saveSceneData();
         
@@ -284,7 +279,7 @@ class EditorUi extends Trait{
                 EditorUi.arrowMode = 1;
                 EditorTools.redrawArrows = true;
             }
-    
+
             if(mouse.down("left") && (mouse.moved || keyboard.down("control"))){
                 updateMouse(mouse.x,mouse.y,mouse.distX,mouse.distY);
             }
@@ -292,14 +287,18 @@ class EditorUi extends Trait{
                 arrow = -1;
             }
             
-            if(mouse.started("left") && !isInUi()){
+            if( arrow == -1 && mouse.started("left") && !isInUi()){
                 var mpos = found.State.active.cam.screenToWorld(new Vector2(mouse.x,mouse.y));
-                for(entity in found.State.active._entities){
+                var ordered = found.State.active._entities.copy();
+                State.active.depth(ordered);
+                ordered.reverse();
+                for(entity in ordered){
                     if(found.State.active.cam == entity)continue;
                     var dif = entity.position.sub(mpos);
                     if(Math.abs(dif.x) < entity.width && Math.abs(dif.y) < entity.height && mpos.x > entity.position.x && mpos.y > entity.position.y)
                     {
                         hierarchy.onObjectSelected(entity.uid,entity.raw);
+                        break;
                     }
                 }
             }
@@ -463,7 +462,7 @@ class EditorUi extends Trait{
             case 0:
                 State.active._entities[inspector.index].translate(function(data:MoveData){
                     return data;
-                },{_positions: new Vector2(x)},true);
+                },{_positions: new Vector2(x,pos.y)},true);
                 Reflect.setProperty(State.active.raw._entities[inspector.index].position,"x",x);
             case 1:
                 State.active._entities[inspector.index].translate(function(data:MoveData){
@@ -479,8 +478,12 @@ class EditorUi extends Trait{
         }
         inspector.redraw();
     }
-    @:access(found.anim.Sprite)
+    @:access(found.anim.Sprite,EditorAnimationView)
     function saveSceneData(){
+        if(currentView == 2){//Draw view
+            animationView.animationEditor.saveAnimations();
+            EditorHierarchy.getInstance().makeDirty();
+        }
         if(EditorHierarchy.getInstance().isDirty()){
             var i = 0;
             for(entity in State.active._entities){
