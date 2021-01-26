@@ -108,7 +108,7 @@ class AnimationEditor {
         var fpsHandle:zui.Zui.Handle =  new zui.Zui.Handle();
         var viewHeight:Int = 0;
         var renameState:Bool = false;
-        @:access(found.anim.Sprite,found.data.SpriteData,found.anim.Animation)
+        @:access(found.anim.Sprite,found.data.SpriteData,found.anim.Animation,EditorUi)
         public function render(ui:zui.Zui){
 
             this.ui = ui;
@@ -141,11 +141,14 @@ class AnimationEditor {
             }
             viewHeight = AnimationEditor.height - timeline.height;
             if(ui.tab(parent.htab,ownerTab.name)){
-                ui.row([0.52,0.16,0.16,0.16]);
+                ui.row([0.40,0.15,0.15,0.15,0.15]);
                 animHandle.position = animIndex;
                 if(animations.length  > 0){
                     if(!renameState){
                         animIndex = ui.combo(animHandle,animations);
+                        if(animHandle.changed){
+                            timelineHandle.redraws = 2;
+                        }
                     }
                     else{
                         var last:kha.Color = ui.t.ACCENT_COL;
@@ -196,10 +199,16 @@ class AnimationEditor {
                     timelineHandle.redraws = 2;
                 }
 
+                if(ui.button(tr("Delete Animation")) && animations.length > 0){
+                    animations.splice(animIndex,1);
+                    curSprite.data.anims.splice(animIndex,1);
+                }
+
                 if(ui.button("Save Animations") && curSprite != null){
-                    saveAnimations();
+                    saveAnimations(true);
                     #if editor
                     EditorHierarchy.getInstance().makeDirty();
+                    App.editorui.saveSceneData();
                     #end
                 }
 
@@ -252,6 +261,7 @@ class AnimationEditor {
             
             
         }
+        @:access(found.anim.Sprite,found.anim.Animation)
         function renderTimeline(ui:zui.Zui){
             if(!ownerTab.active)return;
             var sc = ui.SCALE();
@@ -264,7 +274,9 @@ class AnimationEditor {
                 
 
                 if(state == zui.Zui.State.Down ) {
-                    delta = Std.int(Math.abs(ui._windowX-ui.inputX) / 11 / ui.SCALE());
+                    var fid = Math.floor(Math.abs(ui._windowX-ui.inputX) / 11 / ui.SCALE());
+                    curSprite.data.animation.setIndex(fid);
+                    delta = fid;
                 }
                 //Select Frame
                 ui.g.color = 0xff205d9c;
@@ -319,7 +331,7 @@ class AnimationEditor {
                 }
             }
 
-            var frame:TFrame =  {id:0,start:delta,tw: 0,th:0};
+            var frame:TFrame =  {id:0,start:delta,tw:Std.int(curSprite.data.raw.width),th:Std.int(curSprite.data.raw.height)};
             var id = curFrames.push(frame)-1; // @:TODO: We seem to add the frames back when we reload( I.e. doubling the frames we should investigate here)
             var handles = [];
             for(i in 0...5){
@@ -420,7 +432,6 @@ class AnimationEditor {
                 canvas.g2.pushTranslation(rx+size*0.25,oldY+size*0.25);
                 if(!doUpdate){
                     curSprite.data.animation._count = 0;
-                    curSprite.data.animation._index = 0;
                 }
                 curSprite.render(canvas);
                 if( doUpdate && curSprite.data.animation._index == 0){
@@ -486,7 +497,7 @@ class AnimationEditor {
         }
 
         @:access(found.anim.Sprite,found.data.SpriteData,found.anim.Animation,EditorUi)
-        public function saveAnimations(){
+        public function saveAnimations(saveScene:Bool = false){
             if(curSprite == null)return;
             var animations:Array<TAnimation> = [];
             for(anim in curSprite.data.anims){
@@ -502,6 +513,7 @@ class AnimationEditor {
             }
 
             curSprite.data.raw.anims = animations;
-            App.editorui.saveSceneData();
+            if(saveScene)
+                App.editorui.saveSceneData();
         }
 }
