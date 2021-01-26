@@ -19,7 +19,7 @@ import echo.shape.Polygon;
 class CollisionEditorDialog {
 	static var textInputHandle:Handle = Id.handle();
 	static var comboBoxHandle:Handle = Id.handle();
-	static var collisionTypes = ["Rect", "Circle","Polygon"];
+	static var collisionTypes = ["Rect", "Circle"];//,"Polygon"]; @TODO: add this when we can edit polygons adequatly
 	static var image:kha.Image;
 	static var sprite:Sprite;
 	static var tile:Tile;
@@ -56,6 +56,7 @@ class CollisionEditorDialog {
 		image.g2.end();
 		ui.g.begin(false);
 	}
+	static var lastVert:Int = -1;
 	@:access(zui.Zui, zui.Popup,found.anim.Sprite,found.anim.Tile)
 	static function collisionEditorPopupDraw(ui:Zui) {
 		if(shouldTileInit)
@@ -148,14 +149,14 @@ class CollisionEditorDialog {
 		
 		
 		var r = ui.curRatio == -1 ? 1.0 : ui.ratios[ui.curRatio];
-		var px = ui._x+ui.buttonOffsetY+ui.SCROLL_W() * r*0.5;
+		var px = ui._x;//+ui.buttonOffsetY+ui.SCROLL_W() * r*0.5;
 		var py = ui._y;
 
 		var tempX = ui._x;
 		ui._x -= ui.buttonOffsetY+ui.SCROLL_W() * r / 2;
 		var tempH = tile != null ? image.height:image.height * sprite.scale.y;//dont change image height in ui.image
+		var initialX = ui._x + ui.buttonOffsetY;
 		var state = ui.image(image,0xffffffff,tempH,0,0,image.width,image.height);
-		// sprite != null ? ui.g.scale(-sprite.scale.x,-sprite.scale.y):ui.g.scale(1,1);
 		ui._x = tempX;
 
 		ui._y += ui.ELEMENT_OFFSET() * 2;
@@ -193,7 +194,10 @@ class CollisionEditorDialog {
 						shape.height = h;
 					}
 					ui.g.color = color;
-					ui.g.fillRect(ui._x+shape.offset_x-_w*0.5,initY+shape.offset_y-_h*0.5,shape.width,shape.height);
+					ui.g.fillRect(initialX+shape.offset_x,initY+shape.offset_y,shape.width * 0.5,shape.height * 0.5);
+					ui.g.fillRect(initialX+shape.offset_x,initY+shape.offset_y,-shape.width * 0.5,shape.height * 0.5);
+					ui.g.fillRect(initialX+shape.offset_x,initY+shape.offset_y,shape.width * 0.5,-shape.height * 0.5);
+					ui.g.fillRect(initialX+shape.offset_x,initY+shape.offset_y,-shape.width * 0.5,-shape.height * 0.5);
 					ui.g.color = kha.Color.White;
 				case ShapeType.CIRCLE:
 
@@ -219,27 +223,38 @@ class CollisionEditorDialog {
 						shape.radius = radius;
 					}
 					ui.g.color = color;
-					GraphicsExtension.fillCircle(ui.g,ui._x+shape.offset_x,initY+shape.offset_y,shape.radius);
+					GraphicsExtension.fillCircle(ui.g,initialX+shape.offset_x,initY+shape.offset_y,shape.radius);
 					ui.g.color = kha.Color.White;
 				case ShapeType.POLYGON:
-					ui.text('Number of vertices: '+shape.vertices.length);
+					ui.row([0.5,0.5]);
+					ui.text(tr('Number of vertices: ')+shape.vertices.length);
+					if(shape.vertices.length < 13){
+						if(ui.button(tr("Add vertex point"))){
+							shape.vertices.push(new hxmath.math.Vector2(0,0));
+						}
+					}
+					else {
+						ui.text("");
+					}
 					ui.g.color = color;
-					GraphicsExtension.fillPolygon(ui.g,ui._x+shape.offset_x,initY+shape.offset_y,cast(shape.vertices));
+					GraphicsExtension.fillPolygon(ui.g,initialX+shape.offset_x,initY+shape.offset_y,cast(shape.vertices));
 					var col = kha.Color.fromBytes(0,0,255,128);
 					var selectedCol = kha.Color.fromBytes(0,0,255,255);
+					var i = 0;
 					for(vert in shape.vertices){
 						ui.g.color = col;
 						var w = 10;
-						var addX = ui._x + (vert.x > 0 ? -w : 0.0);
+						var addX = initialX + (vert.x > 0 ? -w : 0.0);
 						var addY = initY + (vert.y > 0 ? -w : 0.0);
 						//@:TODO add double click to create a new point for the shape
-						if(state == State.Down){
-							var x = Math.abs(ui._windowX - ui.inputX) - px ;
+						if(state == State.Down && (lastVert == -1 || i == lastVert)){
+							var x = Math.abs(ui._windowX - ui.inputX) - initialX;
 							var y = Math.abs(ui._windowY - ui.inputY) - py ;
 							var tempX = addX- ui._x;
 							var tempY = addY -initY;
 
 							if(x >= vert.x + tempX - w *2 &&  x <= vert.x + tempX + w * 2 && y >= vert.y + tempY - w *2 && y <= vert.y + tempY + w *2 ){
+								lastVert = i;
 								ui.g.color = selectedCol;
 								var tx = Math.min(x,_w);
 								var ty = Math.min(y,_h);
@@ -247,6 +262,10 @@ class CollisionEditorDialog {
 								vert.y = Math.max(0,ty);
 							} 
 						}
+						else if(state == State.Released){
+							lastVert = -1;
+						}
+						i++;
 						ui.g.fillRect( vert.x + addX,vert.y + addY ,w,w);
 					}
 					ui.g.color = kha.Color.White;
