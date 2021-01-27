@@ -45,6 +45,10 @@ class EditorPanel implements View {
         htab = new Handle({text: "",position: 0});
         visible = visibleOnStart;
     }
+    public function update(dt:Float){
+        if(tabs.length == 0)return;
+        tabs[htab.position].update(dt);
+    }
     @:access(zui.Zui)
     public function render(ui:zui.Zui,element:TElement):Void{
         if(this.element == null)

@@ -1,6 +1,8 @@
 package utilities;
 
 
+import found.Found;
+import found.App;
 import haxe.Json;
 import haxe.io.Bytes;
 import kha.Display;
@@ -44,7 +46,26 @@ class Config {
 			raw.window_h = 900;
 			raw.window_x = -1;
 			raw.window_y = -1;
-			raw.window_scale = 1.0;
+
+			var w = Found.WIDTH;
+			var h = Found.HEIGHT; 
+			
+			if(w > 1920 && h  > 1080){
+				raw.window_scale = 1.2;
+			}
+			else if(w == 1280 && h == 720){
+				raw.window_scale = 0.75;
+			}
+			else if(w == 800 && h == 600){
+				raw.window_scale = 0.6;
+			}
+			else if(w < 800 || h < 600){
+				warn('Unsupported screen size of $w x $h for editor.');
+			}
+			else {
+				raw.window_scale = 1.0;
+			}
+
 			raw.window_vsync = true;
 			var disp = Display.primary;
 			if (disp != null && disp.width >= 3000 && disp.height >= 2000) {
@@ -80,6 +101,7 @@ class Config {
 		init();
 		Translator.loadTranslations(raw.locale);
 		found.App.editorui.isPlayMode = raw.defaultPlayMode;
+		found.App.editorui.setUIScale(raw.window_scale);
 	}
 
 

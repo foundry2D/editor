@@ -24,6 +24,11 @@ class EditorView  extends CanvasScript {
     public function addToElementDraw(name:String,view:View){
         toDraw.set(name,view);
     }
+    public function updateEditorView(dt:Float){
+        for(view in toDraw){
+            view.update(dt);
+        }
+    }
     function drawEditorView(g:kha.graphics2.Graphics,element:TElement) {
         if(element.name == firstElem)
             ui.begin(g);

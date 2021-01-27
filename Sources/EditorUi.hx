@@ -64,15 +64,40 @@ class EditorUi extends Trait{
     var keyboard:found.Input.Keyboard;
     var mouse:found.Input.Mouse;
     final fsFiletypeExceptions:Array<String> = [".vhx",".prj"];
+
     @:access(ManagerView)
     public function new(){
         super();
         kha.Window.get(0).notifyOnResize(onResize);
-        ui = new Zui({font:kha.Assets.fonts.font_default,theme: zui.Canvas.themes[0]});
+        ui = new Zui({font:kha.Assets.fonts.font_default,theme: zui.Canvas.themes[0],color_wheel: Assets.images.color_wheel});
         Fs.init(function(){
             Config.load(function() {
                 Config.init();
                 isPlayMode = Config.raw.defaultPlayMode;
+                if(Config.raw.window_scale != null){
+                    this.setUIScale(Config.raw.window_scale);
+                    Found.loadScreen = null;
+                }
+                else {
+                    var w = Found.WIDTH;
+                    var h = Found.HEIGHT;
+                    Found.loadScreen = function(g:kha.graphics2.Graphics){
+                        ui.begin(g);
+                        ui.t.FILL_WINDOW_BG = true;
+                        if(ui.window(zui.Id.handle(),0,0,Found.WIDTH,Found.HEIGHT)){
+                            var col = ui.t.TEXT_COL;
+                            ui.t.TEXT_COL = kha.Color.Orange;
+                            ui.text('Window size of $w x $h is unsupportedfor the editor.');
+                            ui.text('Boot up with a screen size of at minimum 800 x 600.');
+                            ui.t.TEXT_COL = col;
+                            if(ui.button("Exit")){
+                                kha.System.stop();
+                            }
+                        }
+                        ui.end();
+                    };
+                    return;
+                }
                 gameView = new EditorGameView();
                 var done = function(){
 
@@ -111,7 +136,7 @@ class EditorUi extends Trait{
         },fsFiletypeExceptions);
 
     }
-    public var currentView(default,set):Int = 0;
+    public var currentView(default,set):Int = 2;//@NoCheckin
     function set_currentView(value:Int){
         if(value > listViews.length-1)throw 'View with number $value is higher then the number of views available.';
         currentView = value;
@@ -158,6 +183,10 @@ class EditorUi extends Trait{
             for(f in listViews[currentView]._render2D)f(canvas.g2);
             canvas.g2.end();
         }
+        else if(Found.loadScreen != null){
+            Found.loadScreen(canvas.g2);
+        }
+
         if(EditorMenu.show){
             EditorMenu.render(canvas.g2);
         }
@@ -191,6 +220,7 @@ class EditorUi extends Trait{
         var drawPanel = new EditorPanel();
         animationView = new EditorAnimationView();
         drawPanel.addTab(animationView);
+        // drawPanel.addTab(new EditorDraw());
         drawEditor.addToElementDraw("Draw",drawPanel);
 
         // Setup Scene View
@@ -246,9 +276,12 @@ class EditorUi extends Trait{
         
         if(keyboard.down("f9") && 0.1 < kha.Scheduler.time()-lastChange){
             lastChange = kha.Scheduler.time();
-            listViews[currentView].visible = !listViews[currentView].visible;
+            this.visible = !this.visible;
         }
 
+        if(listViews[currentView].visible){
+            listViews[currentView].updateEditorView(dt);
+        }
         if(mouse.x > EditorMenu.menuX + EditorMenu.menuW || mouse.x < EditorMenu.menuX - ui.ELEMENT_W() * 0.05 || mouse.y > EditorMenu.menuY + EditorMenu.menuH || mouse.y < EditorMenu.menuY - ui.ELEMENT_H()){
             EditorMenu.show = false;
         }

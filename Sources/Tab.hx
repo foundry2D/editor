@@ -23,6 +23,9 @@ class Tab {
         if(parent != null)
             parent.windowHandle.redraws = 2;
     }
+    public function update(dt:Float){
+
+    }
     public function render(ui:zui.Zui){
 
     }

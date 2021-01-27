@@ -317,7 +317,7 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 			}
 		}
 
-		ui.row([div, div]);
+		ui.row([div, 1.0 - div]);
 		wHandle.value = selectedObjectData.width;
 		var width = Ext.floatInput(ui, wHandle, "Width: ", Align.Right);
 		if (wHandle.changed) {
@@ -497,8 +497,8 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 				}
 			}
 		} else {
-			ui.row([0.25, 0.75]);
-			ui.text("Rigidbody: ");
+			ui.row([0.3, 0.7]);
+			ui.text("Rigidbody:");
 			if (ui.button("Create Physics World")) {
 				selectScene();
 			}

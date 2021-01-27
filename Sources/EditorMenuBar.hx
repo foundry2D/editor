@@ -61,6 +61,7 @@ class EditorMenuBar implements View {
 		pauseImage.g2.end();
 		ui.g.begin(false);
 	}
+	public function update(dt:Float) {}
 	var animateIn:Bool = false;
 	var animateOut:Bool = false;
 	var lastColor:kha.Color = kha.Color.White;

@@ -54,7 +54,7 @@ class EditorAnimationView  implements EditorHierarchyObserver extends Tab {
         animationEditor.setAll(parent.x,parent.y,parent.w,parent.h);
         animationEditor.render(ui);
     }
-    public function update(dt:Float){
+    override public function update(dt:Float){
         if(!active)return;
         if(animationEditor == null){
             if(!initAnimationEditor()){
