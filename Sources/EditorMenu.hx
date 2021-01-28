@@ -49,7 +49,7 @@ class EditorMenu {
     public function new() {
     }
     
-    static var drawGridHandle:Handle = Id.handle({selected:true});
+    static var drawGridHandle:Handle = Id.handle({selected:false});
     static var physicsDebugHandle:Handle = Id.handle({selected:false});
     static var camControlLeftHandle:Handle = Id.handle();
     static var camControlRightHandle:Handle = Id.handle();

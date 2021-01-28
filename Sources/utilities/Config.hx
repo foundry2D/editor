@@ -23,7 +23,7 @@ class Config {
 				done();
 			});
 		}
-		catch (e: Dynamic) { trace("Failed to load, will load defaults");done(); }
+		catch (e: Dynamic) { warn("Failed to load, will load defaults");done(); }
 	}
 
 	public static function save() {

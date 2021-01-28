@@ -155,7 +155,7 @@ class AnimationEditor {
                         ui.t.ACCENT_COL = kha.Color.fromFloats(1.0,0.0,0.0,0.7); 
                         var txtHandle = Id.handle();
                         if(animIndex < 0)
-                            trace('animIndex is bad at number: $animIndex');
+                            error('animIndex is bad at number: $animIndex');
                         txtHandle.text = animations[animIndex];
                         ui.textInput(txtHandle);
                         if(txtHandle.changed){
@@ -473,7 +473,7 @@ class AnimationEditor {
     
             var g = timeline.g2;
             ui.g.end();
-            g.begin(true, 0xff222222);
+            g.begin(true, ui.t.ACCENT_COL - 1118481 * 2);
             g.font = kha.Assets.fonts.font_default;
             g.fontSize = Std.int(16 * sc);
     
@@ -488,7 +488,7 @@ class AnimationEditor {
     
             // Frames
             for (i in 0...frames) {
-                g.color = i % 5 == 0 ? 0xff444444 : 0xff333333;
+                g.color = i % 5 == 0 ? ui.t.ACCENT_COL : ui.t.ACCENT_COL - 1118481;
                 g.fillRect(i * 11 * sc, timelineHeight - timelineFramesHeight, 10 * sc, timelineFramesHeight);
             }
     

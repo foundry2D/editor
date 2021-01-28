@@ -1,5 +1,6 @@
 package utilities;
 
+import found.tool.Log;
 import haxe.macro.Context;
 
 class BuildMacros {
@@ -16,7 +17,7 @@ class BuildMacros {
 		}
 		catch (e) {
 			text = proc.stderr.readAll().toString();
-			throw text;
+			Log.error(text);
 		}
 		return Context.makeExpr(text, Context.currentPos());
 	}

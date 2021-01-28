@@ -37,7 +37,7 @@ class EditorView  extends CanvasScript {
             drawable.render(ui,element);
         }
         else{
-            trace("No ui will be drawn for element named: " + element.name);
+            warn("No ui will be drawn for element named: " + element.name);
         }
         if(element.name == lastElem)
             ui.end();

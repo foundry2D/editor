@@ -1,3 +1,4 @@
+import found.tool.Log;
 import found.trait.internal.Arrows;
 import found.Trait;
 import echo.data.Options.ShapeOptions;
@@ -1052,10 +1053,10 @@ class EditorInspector implements EditorHierarchyObserver extends Tab {
 						}
 						error = false;
 					default:
-						trace('Error: file has filetype $type which is not a valid filetype for images ');
+						Log.error('file has filetype $type which is not a valid filetype for images ');
 				}
 				if (error) {
-					trace('Error: file with name $name is not a valid image name or the path "$path" was invalid ');
+					Log.error('file with name $name is not a valid image name or the path "$path" was invalid ');
 				}
 			}
 		}

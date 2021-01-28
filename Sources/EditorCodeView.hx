@@ -91,7 +91,7 @@ class EditorCodeView implements EditorHierarchyObserver extends Tab {
 					});
 				} else {
 					if (StringTools.startsWith(currentlyDisplayedTrait.classname, "found.trait.internal") || StringTools.startsWith(currentlyDisplayedTrait.classname, "gameplay") ) {
-						trace("need to load internal trait");
+						warn("need to load internal trait");
 					} else {
 						khafs.Fs.getContent(currentlyDisplayedTrait.classname, function(data:String) {
 							codeScriptTextAreaHandle.text = data;
