@@ -47,7 +47,7 @@ class EditorUi extends Trait{
     var dialog:FileBrowserDialog;
     public var gameView:EditorGameView;
     public var codeView:EditorCodeView;
-    var animationView:EditorAnimationView;
+    public var animationView:EditorAnimationView;
     var console:EditorConsole;
     var menu:EditorMenuBar;
     public static var scenePath:String = "";
@@ -124,11 +124,7 @@ class EditorUi extends Trait{
                     #if kha_html5
                     for(key in Fs.dbKeys.keys()){
                         if(key == EditorUi.cwd+"/pjml.found")continue;
-                        Fs.getContent(key,function(data:String){
-                            #if debug
-                            trace('Fetched data from $key');
-                            #end
-                        });
+                        Fs.getContent(key,function(data:String){});
                     }
                     #end
                 }

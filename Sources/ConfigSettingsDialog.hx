@@ -1,5 +1,6 @@
 package;
 
+import found.tool.TileEditor;
 import found.App;
 import zui.Zui;
 import zui.Id;
@@ -26,7 +27,7 @@ class ConfigSettingsDialog {
     static var hideMenuHandle = Id.handle();
     static var uiScaleHandle = Id.handle();
     static var changedScale = false;
-    @:access(zui.Zui, zui.Popup)
+    @:access(zui.Zui, zui.Popup,found.tool.TileEditor,AnimationEditor)
     static function configSettingsPopupDraw(ui:Zui){
         zui.Popup.boxTitle = tr("Edit Config Settings");
         
@@ -34,6 +35,19 @@ class ConfigSettingsDialog {
         var selected = ui.combo(localeHandle,languages);
         if(localeHandle.changed){
             Config.raw.locale = languages[selected];
+        }
+
+        var themeHandle = Id.handle();
+        var themes:Array<String> = [];
+        for(t in zui.Canvas.themes){
+            themes.push(t.NAME);
+        }
+        var index = ui.combo(themeHandle,themes);
+        if(themeHandle.changed){
+            TileEditor.ui.t = Found.popupZuiInstance.t =  App.editorui.ui.t = zui.Canvas.themes[index];
+            App.editorui.redraw();
+            AnimationEditor.timeline = null;//redraw it
+            App.editorui.animationView.redraw();
         }
 
         playModeHandle.selected = Config.raw.defaultPlayMode;

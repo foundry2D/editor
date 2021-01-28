@@ -63,4 +63,14 @@ class EditorAnimationView  implements EditorHierarchyObserver extends Tab {
         }
         animationEditor.update(dt);
     }
+    @:access(AnimationEditor)
+    override function redraw() {
+        super.redraw();
+        if(animationEditor == null){
+            if(!initAnimationEditor()){
+                return;
+            }
+        }
+        animationEditor.timelineHandle.redraws = 2;
+    }
 }

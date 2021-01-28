@@ -1,6 +1,7 @@
 package;
 
 
+import kha.Blob;
 import haxe.io.BytesInput;
 import haxe.zip.Reader;
 
@@ -213,12 +214,16 @@ class ManagerView extends CanvasScript {
                         dirPath = t.join(Fs.sep);
                         if(!Fs.isDirectory(dirPath)){
                             Fs.createDirectory(dirPath);
-                        }                            
-                        Fs.saveContent(path + Fs.sep + entry.fileName,data.toString());
+                        }
+                        var out:String = data.toString();
+                        if(entry.fileName.endsWith('.png')){
+                            out = haxe.crypto.Base64.encode(data);
+                        }
+                        Fs.saveContent(path + Fs.sep + entry.fileName,out);                    
                     }
                     else {
                         var fname = entry.fileName;
-                        trace('Item with name $fname is null at path: $lastPath');
+                        error('Item with name $fname is null at path: $lastPath');
                     }
                 }
                 if(project != null){
@@ -234,7 +239,7 @@ class ManagerView extends CanvasScript {
                     });
                 }
                 else {
-                    trace("Zip did not have a project file. Aborting project creation...\n Project files will still be added to File System");
+                    error("Zip did not have a project file. Aborting project creation...\n Project files will still be added to File System");
                 }
             });
         }
